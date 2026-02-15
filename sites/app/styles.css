@@ -1,12 +1,12 @@
 :root {
-  --bg: #f7fbff;
-  --ink: #13244d;
-  --muted: #4a5f89;
-  --card: #ffffffd9;
-  --accent: #f57845;
-  --accent-2: #1092d2;
-  --accent-3: #3bc576;
-  --border: #d4e5ff;
+  --bg: #f6fbff;
+  --ink: #223766;
+  --muted: #536a99;
+  --card: #ffffffe8;
+  --accent: #f58a31;
+  --accent-2: #2c8fe8;
+  --accent-3: #32bf8a;
+  --border: #dbe9ff;
 }
 
 * {
@@ -16,8 +16,8 @@
 body {
   margin: 0;
   font-family: "Nunito", sans-serif;
-  background: radial-gradient(circle at 20% 0%, #fff7d9 0, transparent 33%),
-    radial-gradient(circle at 95% 10%, #d9f1ff 0, transparent 30%), var(--bg);
+  background: radial-gradient(circle at -6% 0%, #dff2ff 0%, transparent 35%),
+    radial-gradient(circle at 105% 14%, #e6ffea 0%, transparent 33%), var(--bg);
   color: var(--ink);
   min-height: 100vh;
   overflow-x: hidden;
@@ -64,17 +64,20 @@ html[lang="bn"] .mini-status {
   justify-content: space-between;
   align-items: center;
   padding: 14px 20px;
-  background: #ffffffe0;
+  background: linear-gradient(180deg, #ffffffed, #f8fcffeb);
   backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--border);
 }
 
 .brand {
   text-decoration: none;
-  color: var(--ink);
+  color: #ff9a3a;
   font-family: "Fredoka", sans-serif;
   font-weight: 700;
   font-size: 1.4rem;
+  text-shadow:
+    0 1px 0 #fff,
+    0 5px 10px rgba(52, 83, 125, 0.12);
 }
 
 .topbar-actions {
@@ -127,13 +130,13 @@ html[lang="bn"] .mini-status {
   font: inherit;
   font-weight: 800;
   color: #ffffff;
-  background: linear-gradient(100deg, #1f9bdd, #3bc576);
+  background: linear-gradient(100deg, #2c8fe8, #32bf8a);
   cursor: pointer;
   white-space: nowrap;
 }
 
 .topbar-btn.logout {
-  background: linear-gradient(100deg, #f57845, #f2a641);
+  background: linear-gradient(100deg, #ff9f38, #ff7f24);
 }
 
 .topbar-btn.active {
@@ -154,11 +157,11 @@ html[lang="bn"] .mini-status {
 }
 
 .hero-copy {
-  background: linear-gradient(150deg, #ffffffef, #ffffffbe);
-  border: 1px solid #fff;
+  background: linear-gradient(150deg, #ffffffef, #f9fdffde);
+  border: 1px solid #edf4ff;
   border-radius: 24px;
   padding: clamp(16px, 4vw, 26px);
-  box-shadow: 0 16px 40px #3778a31e;
+  box-shadow: 0 16px 40px rgba(61, 95, 142, 0.14);
 }
 
 .hero-copy h1 {
@@ -179,8 +182,8 @@ html[lang="bn"] .mini-status {
   display: inline-flex;
   padding: 6px 10px;
   border-radius: 999px;
-  background: #dcf3ff;
-  color: #0d6ca5;
+  background: #e4f3ff;
+  color: #1f69af;
   font-weight: 700;
 }
 
@@ -188,8 +191,8 @@ html[lang="bn"] .mini-status {
   border-radius: 24px;
   padding: 22px 18px;
   color: white;
-  background: linear-gradient(160deg, #12518d, #1e6da8);
-  box-shadow: 0 16px 40px #15599140;
+  background: linear-gradient(150deg, #2f95df, #2ebd89);
+  box-shadow: 0 16px 40px rgba(38, 105, 153, 0.3);
 }
 
 .trust-panel h2 {
@@ -358,7 +361,7 @@ html[lang="bn"] .mini-status {
 }
 
 .secondary.active {
-  background: linear-gradient(90deg, #21a0db, #3fc97e);
+  background: linear-gradient(90deg, #2c8fe8, #32bf8a);
   color: #fff;
 }
 
@@ -666,7 +669,7 @@ html[lang="bn"] .mini-status {
 
 .category-chip.active {
   border-color: #0c89c7;
-  background: linear-gradient(100deg, #12a0e1, #43ca78);
+  background: linear-gradient(100deg, #2c8fe8, #32bf8a);
   color: #fff;
 }
 
@@ -773,7 +776,7 @@ html[lang="bn"] .mini-status {
 
 .favorite-btn.active {
   border-color: #1f9ddd;
-  background: linear-gradient(90deg, #21a0db, #3fc97e);
+  background: linear-gradient(90deg, #2c8fe8, #32bf8a);
   color: #fff;
 }
 

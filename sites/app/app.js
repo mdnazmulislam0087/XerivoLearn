@@ -31,6 +31,7 @@ const TRANSLATIONS = {
     reset_title: "Reset Password",
     btn_sign_in: "Sign In",
     btn_forgot_password: "Forgot password?",
+    btn_resend_verification: "Resend verification email",
     btn_create_account: "Create Account",
     btn_update_password: "Update Password",
     btn_view_terms: "View Terms and Conditions",
@@ -61,8 +62,10 @@ const TRANSLATIONS = {
     error_registration_failed: "Registration failed.",
     error_email_registered: "Email already registered.",
     error_invalid_email_password: "Invalid email or password.",
+    error_email_not_verified: "Email not verified. Please verify your email first, then sign in.",
     error_password_strength: "Password must be at least 8 chars with letters and numbers.",
     error_reset_invalid_or_expired: "Invalid or expired reset token.",
+    error_verify_failed: "Email verification failed. Please use the latest verification link.",
     reset_not_configured: "Password reset email is not configured yet. Contact support to reset your password.",
     error_parent_only_create: "Only parent accounts can be created from this app.",
     error_enter_email_first: "Enter your email in Sign In first.",
@@ -72,6 +75,9 @@ const TRANSLATIONS = {
     error_token_new_password_required: "New password is required.",
     error_reset_failed: "Password reset failed.",
     reset_success: "Password updated.",
+    verify_sent: "Verification link sent to your email.",
+    verify_success: "Email verified. You can sign in now.",
+    status_verifying_email: "Verifying your email...",
     error_terms_required: "You must accept Terms and Conditions.",
     error_terms_unavailable: "Terms are not available right now. Please try again shortly.",
     captcha_loading: "Loading captcha...",
@@ -290,6 +296,7 @@ const state = {
   selectedAvatar: "rocket",
   lang: "en",
   resetToken: "",
+  verifyToken: "",
   captchaId: "",
   captchaQuestion: "",
   termsAndConditions: "",
@@ -354,7 +361,9 @@ const termsContent = document.getElementById("terms-content");
 const resetNewPasswordInput = document.getElementById("reset-new-password");
 const resetStatus = document.getElementById("reset-status");
 const forgotPasswordBtn = document.getElementById("forgot-password-btn");
+const resendVerificationBtn = document.getElementById("resend-verification-btn");
 const forgotStatus = document.getElementById("forgot-status");
+const verifyStatus = document.getElementById("verify-status");
 const logoutBtn = document.getElementById("logout-btn");
 
 const childStatus = document.getElementById("child-status");
@@ -371,6 +380,7 @@ loginEmail.value = rememberedEmail;
 registerEmail.value = rememberedEmail;
 
 state.resetToken = new URLSearchParams(window.location.search).get("reset") || "";
+state.verifyToken = new URLSearchParams(window.location.search).get("verify") || "";
 
 const playerSwipeState = {
   startX: 0,
@@ -462,6 +472,12 @@ const API_MESSAGE_KEY_MAP = {
   "Password must be at least 8 chars with letters and numbers.": "error_password_strength",
   "Captcha verification failed. Please try again.": "error_captcha_failed",
   "If an account exists, a reset link has been sent.": "reset_sent",
+  "If an account exists, a verification link has been sent.": "verify_sent",
+  "Email verified. You can sign in now.": "verify_success",
+  "Invalid or expired verification token.": "error_verify_failed",
+  "Verification token is required.": "error_verify_failed",
+  "Email not verified. Please verify your email first, then sign in.": "error_email_not_verified",
+  "Forbidden. Email not verified.": "error_email_not_verified",
   "Password reset email is not configured yet. Contact support to reset your password.": "reset_not_configured",
   "Invalid or expired reset token.": "error_reset_invalid_or_expired",
   "Password updated. You can sign in now.": "reset_success"
@@ -620,6 +636,12 @@ resetForm.addEventListener("submit", async (event) => {
 forgotPasswordBtn.addEventListener("click", async () => {
   await handleForgotPassword();
 });
+
+if (resendVerificationBtn) {
+  resendVerificationBtn.addEventListener("click", async () => {
+    await handleResendVerification();
+  });
+}
 
 if (refreshCaptchaBtn) {
   refreshCaptchaBtn.addEventListener("click", async () => {
@@ -863,6 +885,7 @@ bootstrap();
 
 async function bootstrap() {
   await Promise.all([loadPublicSettings(), loadCaptchaChallenge()]);
+  await handleVerifyEmailToken();
   updateResetModeUi();
   renderAvatarOptions();
   updateFavoritesToggle();
@@ -1319,6 +1342,9 @@ async function loadVideos() {
 async function handleLogin() {
   authStatusLine.textContent = "";
   forgotStatus.textContent = "";
+  if (verifyStatus) {
+    verifyStatus.textContent = "";
+  }
   const email = loginEmail.value.trim().toLowerCase();
   const password = loginPassword.value;
   if (!email || !password) {
@@ -1359,6 +1385,9 @@ async function handleLogin() {
 async function handleRegister() {
   authStatusLine.textContent = "";
   forgotStatus.textContent = "";
+  if (verifyStatus) {
+    verifyStatus.textContent = "";
+  }
   const payload = {
     name: registerName.value.trim(),
     email: registerEmail.value.trim().toLowerCase(),
@@ -1398,6 +1427,27 @@ async function handleRegister() {
     if (!response.ok) {
       throw new Error(localizeApiMessage(data.error, "error_registration_failed"));
     }
+    if (data.requiresEmailVerification) {
+      clearSession();
+      state.user = null;
+      registerPassword.value = "";
+      if (registerTermsInput) {
+        registerTermsInput.checked = false;
+      }
+      if (captchaAnswerInput) {
+        captchaAnswerInput.value = "";
+      }
+      await loadCaptchaChallenge();
+      loginEmail.value = payload.email;
+      registerEmail.value = payload.email;
+      const message = localizeApiMessage(data.message, "verify_sent");
+      if (verifyStatus) {
+        verifyStatus.textContent = message;
+      }
+      authStatusLine.textContent = message;
+      render();
+      return;
+    }
     if (!data.user || data.user.role !== "parent") {
       throw new Error(t("error_parent_only_create"));
     }
@@ -1426,6 +1476,9 @@ async function handleRegister() {
 async function handleForgotPassword() {
   forgotStatus.textContent = "";
   resetStatus.textContent = "";
+  if (verifyStatus) {
+    verifyStatus.textContent = "";
+  }
   const email = loginEmail.value.trim().toLowerCase();
   if (!email) {
     forgotStatus.textContent = t("error_enter_email_first");
@@ -1448,6 +1501,44 @@ async function handleForgotPassword() {
     forgotStatus.textContent = localizeApiMessage(data.message, "reset_sent");
   } catch (error) {
     forgotStatus.textContent = localizeApiMessage(error.message, "error_request_reset_failed");
+  }
+}
+
+async function handleResendVerification() {
+  forgotStatus.textContent = "";
+  resetStatus.textContent = "";
+  if (verifyStatus) {
+    verifyStatus.textContent = "";
+  }
+
+  const email = loginEmail.value.trim().toLowerCase() || registerEmail.value.trim().toLowerCase();
+  if (!email) {
+    if (verifyStatus) {
+      verifyStatus.textContent = t("error_enter_email_first");
+    }
+    return;
+  }
+
+  try {
+    const response = await fetch("/api/auth/resend-verification", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ email })
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(localizeApiMessage(data.error, "error_verify_failed"));
+    }
+
+    if (verifyStatus) {
+      verifyStatus.textContent = localizeApiMessage(data.message, "verify_sent");
+    }
+  } catch (error) {
+    if (verifyStatus) {
+      verifyStatus.textContent = localizeApiMessage(error.message, "error_verify_failed");
+    }
   }
 }
 
@@ -1483,12 +1574,57 @@ async function handleResetPassword() {
   }
 }
 
+async function handleVerifyEmailToken() {
+  if (!state.verifyToken) {
+    return;
+  }
+
+  if (verifyStatus) {
+    verifyStatus.textContent = t("status_verifying_email");
+  }
+
+  try {
+    const response = await fetch("/api/auth/verify-email", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ token: state.verifyToken })
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(localizeApiMessage(data.error, "error_verify_failed"));
+    }
+
+    if (verifyStatus) {
+      verifyStatus.textContent = localizeApiMessage(data.message, "verify_success");
+    }
+  } catch (error) {
+    if (verifyStatus) {
+      verifyStatus.textContent = localizeApiMessage(error.message, "error_verify_failed");
+    }
+  } finally {
+    state.verifyToken = "";
+    clearVerifyTokenFromQuery();
+  }
+}
+
 function clearResetTokenFromQuery() {
   const url = new URL(window.location.href);
   if (!url.searchParams.has("reset")) {
     return;
   }
   url.searchParams.delete("reset");
+  const suffix = url.search ? url.search : "";
+  window.history.replaceState({}, "", `${url.pathname}${suffix}`);
+}
+
+function clearVerifyTokenFromQuery() {
+  const url = new URL(window.location.href);
+  if (!url.searchParams.has("verify")) {
+    return;
+  }
+  url.searchParams.delete("verify");
   const suffix = url.search ? url.search : "";
   window.history.replaceState({}, "", `${url.pathname}${suffix}`);
 }
@@ -1843,6 +1979,9 @@ function updateAuthUi() {
     registerForm.classList.add("hidden");
     resetForm.classList.add("hidden");
     authStatusLine.textContent = t("signed_in_as", { email: state.user.email });
+    if (verifyStatus) {
+      verifyStatus.textContent = "";
+    }
     loginEmail.value = state.user.email || "";
     registerEmail.value = state.user.email || "";
     childStatus.textContent = t("child_status_focus_age");
@@ -1883,6 +2022,7 @@ function updateAuthUi() {
     state.editingChildId = "";
     state.studentPanelOpen = false;
     state.resetToken = new URLSearchParams(window.location.search).get("reset") || "";
+    state.verifyToken = new URLSearchParams(window.location.search).get("verify") || "";
     resetChildForm();
     childStatus.textContent = t("child_status_signed_out");
     renderChildList();
@@ -1963,7 +2103,10 @@ async function authenticatedFetch(url, options = {}) {
     try {
       const body = await response.clone().json();
       if (body && typeof body.error === "string" && body.error.trim()) {
-        message = body.error;
+        message = localizeApiMessage(
+          body.error,
+          response.status === 403 ? "error_parent_required_signin" : "error_session_expired"
+        );
       }
     } catch {}
     clearSession();

@@ -21,6 +21,10 @@
    - Optional: `APP_BASE_URL=https://xerivolearn.com`
    - Optional: `PASSWORD_RESET_TTL_MINUTES=30`
    - Optional: `PASSWORD_RESET_DEBUG=false`
+   - Recommended: `EMAIL_VERIFICATION_REQUIRED=true`
+   - Optional: `EMAIL_VERIFICATION_TTL_HOURS=48`
+   - Optional: `EMAIL_VERIFICATION_DEBUG=false`
+   - Optional: `EMAIL_VERIFICATION_FROM_EMAIL=noreply@yourdomain.com`
    - Optional SMTP provider: `SMTP_HOST=smtp.yourprovider.com`
    - Optional SMTP provider: `SMTP_PORT=587`
    - Optional SMTP provider: `SMTP_SECURE=false`
@@ -95,7 +99,9 @@ Single-host fallback paths still work:
 - Rotate admin/educator passwords periodically.
 - If you use optional `ADMIN_TOKEN` fallback, keep it private.
 - Disable `PASSWORD_RESET_DEBUG` in production.
+- Keep `EMAIL_VERIFICATION_REQUIRED=true` in production for parent accounts.
 - For automatic reset emails, configure SMTP (`SMTP_*`) or Resend (`RESEND_API_KEY` + `PASSWORD_RESET_FROM_EMAIL`).
+- For verification emails, `EMAIL_VERIFICATION_FROM_EMAIL` can reuse the same sender.
 
 ## 6) Optional: Keep subdomains for later
 

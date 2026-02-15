@@ -75,6 +75,9 @@
             <button id="forgot-password-btn" type="button" class="link-btn" data-i18n="btn_forgot_password">
               Forgot password?
             </button>
+            <button id="resend-verification-btn" type="button" class="link-btn" data-i18n="btn_resend_verification">
+              Resend verification email
+            </button>
           </form>
           <form id="register-form" class="auth-form">
             <h3 data-i18n="register_title">Create Parent Account</h3>
@@ -139,7 +142,10 @@
           </div>
           <pre id="terms-content" class="terms-content"></pre>
         </section>
-        <div class="auth-actions"><p id="forgot-status" class="mini-status"></p></div>
+        <div class="auth-actions">
+          <p id="forgot-status" class="mini-status"></p>
+          <p id="verify-status" class="mini-status"></p>
+        </div>
       </section>
 
       <section id="student-panel" class="child-profiles hidden">

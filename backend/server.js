@@ -41,6 +41,10 @@ const PASSWORD_RESET_DEBUG = envBoolean("PASSWORD_RESET_DEBUG", false);
 const PASSWORD_RESET_WEBHOOK_URL = envString("PASSWORD_RESET_WEBHOOK_URL", "");
 const PASSWORD_RESET_FROM_EMAIL = envString("PASSWORD_RESET_FROM_EMAIL", "");
 const RESEND_API_KEY = envString("RESEND_API_KEY", "");
+const EMAIL_VERIFICATION_REQUIRED = envBoolean("EMAIL_VERIFICATION_REQUIRED", false);
+const EMAIL_VERIFICATION_TTL_HOURS = envNumber("EMAIL_VERIFICATION_TTL_HOURS", 48);
+const EMAIL_VERIFICATION_DEBUG = envBoolean("EMAIL_VERIFICATION_DEBUG", PASSWORD_RESET_DEBUG);
+const EMAIL_VERIFICATION_FROM_EMAIL = envString("EMAIL_VERIFICATION_FROM_EMAIL", PASSWORD_RESET_FROM_EMAIL);
 const CAPTCHA_TTL_MINUTES = envNumber("CAPTCHA_TTL_MINUTES", 10);
 const DATABASE_URL = envString("DATABASE_URL", "");
 const REQUIRE_POSTGRES = envBoolean("REQUIRE_POSTGRES", IS_PRODUCTION);
@@ -71,6 +75,7 @@ const USERS_FILE = path.join(DATA_DIR, "users.json");
 const FAVORITES_FILE = path.join(DATA_DIR, "favorites.json");
 const CHILDREN_FILE = path.join(DATA_DIR, "children.json");
 const PASSWORD_RESETS_FILE = path.join(DATA_DIR, "password_resets.json");
+const EMAIL_VERIFICATIONS_FILE = path.join(DATA_DIR, "email_verifications.json");
 const SETTINGS_FILE = path.join(DATA_DIR, "settings.json");
 const SITES_DIR = path.join(ROOT_DIR, "sites");
 
@@ -139,6 +144,7 @@ async function bootstrapServer() {
     await ensureDefaultAdminUser();
     await ensureDefaultEducatorUser();
     logPasswordResetConfig();
+    logEmailVerificationConfig();
 
     server.listen(PORT, () => {
       console.log(`XerivoLearn starter running on http://localhost:${PORT}`);
@@ -161,7 +167,11 @@ async function handleApi(req, res, pathname, searchParams) {
       service: "xerivolearn-api",
       storage: USE_POSTGRES ? "postgres" : "json",
       requirePostgres: REQUIRE_POSTGRES,
-      passwordResetProviders: getPasswordResetProviderFlags()
+      passwordResetProviders: getPasswordResetProviderFlags(),
+      emailVerification: {
+        required: shouldRequireEmailVerification("parent"),
+        providers: getEmailVerificationProviderFlags()
+      }
     });
     return;
   }
@@ -208,12 +218,14 @@ async function handleApi(req, res, pathname, searchParams) {
     }
 
     const now = new Date().toISOString();
+    const requireVerification = shouldRequireEmailVerification("parent");
     const passwordData = hashPassword(payload.password);
     const user = {
       id: crypto.randomUUID(),
       name: payload.name.trim(),
       email,
       role: "parent",
+      emailVerifiedAt: requireVerification ? null : now,
       acceptedTermsAt: now,
       termsVersionAccepted: settings.termsUpdatedAt || now,
       passwordHash: passwordData.hash,
@@ -232,6 +244,21 @@ async function handleApi(req, res, pathname, searchParams) {
         return;
       }
       throw error;
+    }
+
+    if (requireVerification) {
+      const verification = await createAndDispatchEmailVerification(req, user);
+      sendJson(res, 201, {
+        requiresEmailVerification: true,
+        message: getEmailVerificationPublicMessage(),
+        ...(EMAIL_VERIFICATION_DEBUG
+          ? {
+              debugVerificationUrl: verification.url,
+              debugDelivery: verification.delivery
+            }
+          : {})
+      });
+      return;
     }
 
     const token = createAuthToken(user);
@@ -258,9 +285,108 @@ async function handleApi(req, res, pathname, searchParams) {
       sendJson(res, 401, { error: "Invalid email or password." });
       return;
     }
+    if (shouldRequireEmailVerification(user.role) && !user.emailVerifiedAt) {
+      sendJson(res, 403, {
+        error:
+          "Email not verified. Please verify your email first, then sign in."
+      });
+      return;
+    }
 
     const token = createAuthToken(user);
     sendJson(res, 200, { token, user: toPublicUser(user) });
+    return;
+  }
+
+  if (req.method === "POST" && pathname === "/api/auth/resend-verification") {
+    const payload = await readBodyJson(req, res);
+    if (!payload) {
+      return;
+    }
+
+    const message = getEmailVerificationPublicMessage();
+    const email = normalizeEmail(payload.email || "");
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !shouldRequireEmailVerification("parent")) {
+      sendJson(res, 200, { success: true, message });
+      return;
+    }
+
+    const users = await loadUsers();
+    const user = users.find((item) => item.email === email);
+    let debugVerificationUrl = "";
+    let debugDelivery = null;
+
+    if (user && user.role === "parent" && !user.emailVerifiedAt) {
+      const verification = await createAndDispatchEmailVerification(req, user);
+      if (EMAIL_VERIFICATION_DEBUG) {
+        debugVerificationUrl = verification.url;
+        debugDelivery = verification.delivery;
+      }
+    }
+
+    sendJson(res, 200, {
+      success: true,
+      message,
+      ...(EMAIL_VERIFICATION_DEBUG ? { debugVerificationUrl, debugDelivery } : {})
+    });
+    return;
+  }
+
+  if (req.method === "POST" && pathname === "/api/auth/verify-email") {
+    const payload = await readBodyJson(req, res);
+    if (!payload) {
+      return;
+    }
+
+    const token = typeof payload.token === "string" ? payload.token.trim() : "";
+    if (!token) {
+      sendJson(res, 400, { error: "Verification token is required." });
+      return;
+    }
+
+    const tokenHash = hashResetToken(token);
+    const verifications = await loadEmailVerifications();
+    const nowMs = Date.now();
+    const verificationIndex = verifications.findIndex((item) => {
+      if (item.tokenHash !== tokenHash || item.usedAt) {
+        return false;
+      }
+      const expiryMs = new Date(item.expiresAt).getTime();
+      return Number.isFinite(expiryMs) && expiryMs >= nowMs;
+    });
+
+    if (verificationIndex === -1) {
+      sendJson(res, 400, { error: "Invalid or expired verification token." });
+      return;
+    }
+
+    const verification = verifications[verificationIndex];
+    const users = await loadUsers();
+    const userIndex = users.findIndex((item) => item.id === verification.userId);
+    if (userIndex === -1) {
+      sendJson(res, 400, { error: "Invalid or expired verification token." });
+      return;
+    }
+
+    const nowIso = new Date().toISOString();
+    users[userIndex] = {
+      ...users[userIndex],
+      emailVerifiedAt: users[userIndex].emailVerifiedAt || nowIso,
+      updatedAt: nowIso
+    };
+    await saveUsers(users);
+
+    const nextVerifications = verifications.map((item) =>
+      item.userId === verification.userId && !item.usedAt
+        ? { ...item, usedAt: nowIso }
+        : item
+    );
+    await saveEmailVerifications(nextVerifications);
+
+    sendJson(res, 200, {
+      success: true,
+      message: "Email verified. You can sign in now."
+    });
     return;
   }
 
@@ -832,6 +958,9 @@ function ensureDataStore() {
   if (!fs.existsSync(PASSWORD_RESETS_FILE)) {
     fs.writeFileSync(PASSWORD_RESETS_FILE, "[]", "utf8");
   }
+  if (!fs.existsSync(EMAIL_VERIFICATIONS_FILE)) {
+    fs.writeFileSync(EMAIL_VERIFICATIONS_FILE, "[]", "utf8");
+  }
   if (!fs.existsSync(SETTINGS_FILE)) {
     fs.writeFileSync(SETTINGS_FILE, "{}", "utf8");
   }
@@ -865,6 +994,7 @@ async function initializePostgresSchema() {
       name text NOT NULL,
       email text NOT NULL UNIQUE,
       role text NOT NULL,
+      email_verified_at timestamptz NULL,
       accepted_terms_at timestamptz NULL,
       terms_version_accepted timestamptz NULL,
       password_hash text NOT NULL,
@@ -874,6 +1004,7 @@ async function initializePostgresSchema() {
       updated_at timestamptz NOT NULL
     )
   `);
+  await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS email_verified_at timestamptz NULL`);
 
   await pool.query(`
     CREATE TABLE IF NOT EXISTS videos (
@@ -925,6 +1056,20 @@ async function initializePostgresSchema() {
   await pool.query(`CREATE INDEX IF NOT EXISTS idx_password_resets_token_hash ON password_resets(token_hash)`);
 
   await pool.query(`
+    CREATE TABLE IF NOT EXISTS email_verifications (
+      id uuid PRIMARY KEY,
+      user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      token_hash text NOT NULL,
+      created_at timestamptz NOT NULL,
+      expires_at timestamptz NOT NULL,
+      used_at timestamptz NULL
+    )
+  `);
+  await pool.query(
+    `CREATE INDEX IF NOT EXISTS idx_email_verifications_token_hash ON email_verifications(token_hash)`
+  );
+
+  await pool.query(`
     CREATE TABLE IF NOT EXISTS settings (
       id smallint PRIMARY KEY DEFAULT 1 CHECK (id = 1),
       terms_and_conditions text NOT NULL DEFAULT '',
@@ -944,9 +1089,16 @@ async function seedPostgresFromJsonIfEmpty() {
   const childrenCount = await dbCountRows("children");
   const favoritesCount = await dbCountRows("favorites");
   const resetsCount = await dbCountRows("password_resets");
+  const verificationCount = await dbCountRows("email_verifications");
   const settingsCount = await dbCountRows("settings");
   const hasAnyData =
-    usersCount > 0 || videosCount > 0 || childrenCount > 0 || favoritesCount > 0 || resetsCount > 0 || settingsCount > 0;
+    usersCount > 0 ||
+    videosCount > 0 ||
+    childrenCount > 0 ||
+    favoritesCount > 0 ||
+    resetsCount > 0 ||
+    verificationCount > 0 ||
+    settingsCount > 0;
 
   if (hasAnyData) {
     return;
@@ -956,6 +1108,7 @@ async function seedPostgresFromJsonIfEmpty() {
   const videos = readJsonArray(VIDEOS_FILE, "videos");
   const children = readJsonArray(CHILDREN_FILE, "children");
   const resets = readJsonArray(PASSWORD_RESETS_FILE, "password resets");
+  const verifications = readJsonArray(EMAIL_VERIFICATIONS_FILE, "email verifications");
   const favorites = readJsonObject(FAVORITES_FILE, "favorites");
   const settings = readJsonObject(SETTINGS_FILE, "settings");
 
@@ -970,6 +1123,9 @@ async function seedPostgresFromJsonIfEmpty() {
   }
   if (resets.length) {
     await savePasswordResets(resets);
+  }
+  if (verifications.length) {
+    await saveEmailVerifications(verifications);
   }
   if (Object.keys(favorites).length) {
     await saveFavorites(favorites);
@@ -1018,6 +1174,7 @@ async function ensureDefaultAdminUser() {
     name: "Xerivo Admin",
     email: ADMIN_EMAIL,
     role: "admin",
+    emailVerifiedAt: now,
     passwordHash: passwordData.hash,
     passwordSalt: passwordData.salt,
     passwordIterations: passwordData.iterations,
@@ -1051,6 +1208,7 @@ async function ensureDefaultEducatorUser() {
     name: EDUCATOR_NAME,
     email: EDUCATOR_EMAIL,
     role: "educator",
+    emailVerifiedAt: now,
     passwordHash: passwordData.hash,
     passwordSalt: passwordData.salt,
     passwordIterations: passwordData.iterations,
@@ -1159,6 +1317,7 @@ async function loadUsers() {
       name,
       email,
       role,
+      email_verified_at AS "emailVerifiedAt",
       accepted_terms_at AS "acceptedTermsAt",
       terms_version_accepted AS "termsVersionAccepted",
       password_hash AS "passwordHash",
@@ -1185,13 +1344,14 @@ async function saveUsers(users) {
       await client.query(
         `
           INSERT INTO users
-            (id, name, email, role, accepted_terms_at, terms_version_accepted, password_hash, password_salt, password_iterations, created_at, updated_at)
+            (id, name, email, role, email_verified_at, accepted_terms_at, terms_version_accepted, password_hash, password_salt, password_iterations, created_at, updated_at)
           VALUES
-            ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+            ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
           ON CONFLICT (id) DO UPDATE SET
             name = EXCLUDED.name,
             email = EXCLUDED.email,
             role = EXCLUDED.role,
+            email_verified_at = EXCLUDED.email_verified_at,
             accepted_terms_at = EXCLUDED.accepted_terms_at,
             terms_version_accepted = EXCLUDED.terms_version_accepted,
             password_hash = EXCLUDED.password_hash,
@@ -1205,6 +1365,7 @@ async function saveUsers(users) {
           user.name || "",
           normalizeEmail(user.email),
           user.role || "parent",
+          user.emailVerifiedAt || null,
           user.acceptedTermsAt || null,
           user.termsVersionAccepted || null,
           user.passwordHash || "",
@@ -1361,6 +1522,75 @@ async function savePasswordResets(resets) {
       ]);
     } else {
       await client.query("DELETE FROM password_resets");
+    }
+
+    await client.query("COMMIT");
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
+}
+
+async function loadEmailVerifications() {
+  if (!USE_POSTGRES || !pool) {
+    return readJsonArray(EMAIL_VERIFICATIONS_FILE, "email verifications");
+  }
+  const result = await pool.query(`
+    SELECT
+      id,
+      user_id AS "userId",
+      token_hash AS "tokenHash",
+      created_at AS "createdAt",
+      expires_at AS "expiresAt",
+      used_at AS "usedAt"
+    FROM email_verifications
+  `);
+  return result.rows;
+}
+
+async function saveEmailVerifications(verifications) {
+  if (!USE_POSTGRES || !pool) {
+    fs.writeFileSync(EMAIL_VERIFICATIONS_FILE, JSON.stringify(verifications, null, 2), "utf8");
+    return;
+  }
+
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+
+    for (const verification of verifications) {
+      await client.query(
+        `
+          INSERT INTO email_verifications
+            (id, user_id, token_hash, created_at, expires_at, used_at)
+          VALUES
+            ($1, $2, $3, $4, $5, $6)
+          ON CONFLICT (id) DO UPDATE SET
+            user_id = EXCLUDED.user_id,
+            token_hash = EXCLUDED.token_hash,
+            created_at = EXCLUDED.created_at,
+            expires_at = EXCLUDED.expires_at,
+            used_at = EXCLUDED.used_at
+        `,
+        [
+          verification.id,
+          verification.userId,
+          verification.tokenHash || "",
+          verification.createdAt || new Date().toISOString(),
+          verification.expiresAt || new Date().toISOString(),
+          verification.usedAt || null
+        ]
+      );
+    }
+
+    if (verifications.length > 0) {
+      await client.query("DELETE FROM email_verifications WHERE id <> ALL($1::uuid[])", [
+        verifications.map((item) => item.id)
+      ]);
+    } else {
+      await client.query("DELETE FROM email_verifications");
     }
 
     await client.query("COMMIT");
@@ -1539,6 +1769,11 @@ async function requireAuth(req, res, roles) {
     return null;
   }
 
+  if (shouldRequireEmailVerification(user.role) && !user.emailVerifiedAt) {
+    sendJson(res, 403, { error: "Forbidden. Email not verified." });
+    return null;
+  }
+
   return user;
 }
 
@@ -1659,13 +1894,52 @@ function hashResetToken(token) {
   return crypto.createHash("sha256").update(String(token)).digest("hex");
 }
 
-function buildPasswordResetUrl(req, token) {
+function buildAppBaseUrl(req) {
   const host = req.headers.host || "localhost";
   const protoHeader = req.headers["x-forwarded-proto"];
   const proto = typeof protoHeader === "string" && protoHeader ? protoHeader : "http";
   const baseUrl = APP_BASE_URL || `${proto}://${host}`;
-  const safeBase = baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl;
-  return `${safeBase}/app/?reset=${encodeURIComponent(token)}`;
+  return baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl;
+}
+
+function buildPasswordResetUrl(req, token) {
+  return `${buildAppBaseUrl(req)}/app/?reset=${encodeURIComponent(token)}`;
+}
+
+function buildEmailVerificationUrl(req, token) {
+  return `${buildAppBaseUrl(req)}/app/?verify=${encodeURIComponent(token)}`;
+}
+
+async function createAndDispatchEmailVerification(req, user) {
+  const token = crypto.randomBytes(32).toString("hex");
+  const tokenHash = hashResetToken(token);
+  const now = Date.now();
+  const expiresAt = new Date(now + EMAIL_VERIFICATION_TTL_HOURS * 60 * 60 * 1000).toISOString();
+
+  const existing = await loadEmailVerifications();
+  const next = existing
+    .filter((item) => {
+      if (item.usedAt) {
+        return true;
+      }
+      const expiryTime = new Date(item.expiresAt).getTime();
+      return Number.isFinite(expiryTime) && expiryTime > Date.now() - 60_000;
+    })
+    .filter((item) => !(item.userId === user.id && !item.usedAt));
+
+  next.push({
+    id: crypto.randomUUID(),
+    userId: user.id,
+    tokenHash,
+    createdAt: new Date(now).toISOString(),
+    expiresAt,
+    usedAt: null
+  });
+  await saveEmailVerifications(next);
+
+  const url = buildEmailVerificationUrl(req, token);
+  const delivery = await dispatchEmailVerification(user, url);
+  return { url, delivery };
 }
 
 async function dispatchPasswordReset(user, resetUrl) {
@@ -1757,6 +2031,95 @@ async function dispatchPasswordReset(user, resetUrl) {
   };
 }
 
+async function dispatchEmailVerification(user, verifyUrl) {
+  const payload = {
+    event: "email_verification",
+    to: user.email,
+    subject: "Verify your XerivoLearn email",
+    message: `Use this link to verify your email: ${verifyUrl}`,
+    verifyUrl
+  };
+
+  const attempts = [];
+  const verificationFromEmail = getEmailVerificationFromEmail();
+
+  if (hasSmtpEmailVerificationProvider()) {
+    try {
+      const transporter = getSmtpTransporter();
+      await transporter.sendMail({
+        from: verificationFromEmail,
+        to: user.email,
+        subject: payload.subject,
+        text: payload.message,
+        html: buildEmailVerificationEmailHtml(verifyUrl)
+      });
+      attempts.push({ provider: "smtp", ok: true });
+      return { sent: true, provider: "smtp", attempts };
+    } catch (error) {
+      attempts.push({ provider: "smtp", ok: false, error: toErrorMessage(error) });
+      console.error("Email verification via SMTP failed:", error);
+    }
+  }
+
+  if (hasResendEmailVerificationProvider()) {
+    try {
+      const response = await postJson(
+        "https://api.resend.com/emails",
+        {
+          from: verificationFromEmail,
+          to: [user.email],
+          subject: payload.subject,
+          text: payload.message,
+          html: buildEmailVerificationEmailHtml(verifyUrl)
+        },
+        {
+          Authorization: `Bearer ${RESEND_API_KEY}`
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Resend responded with ${response.statusCode}: ${response.body}`);
+      }
+
+      attempts.push({ provider: "resend", ok: true });
+      return { sent: true, provider: "resend", attempts };
+    } catch (error) {
+      attempts.push({ provider: "resend", ok: false, error: toErrorMessage(error) });
+      console.error("Email verification via Resend failed:", error);
+    }
+  }
+
+  if (hasWebhookEmailVerificationProvider()) {
+    try {
+      const response = await postJson(PASSWORD_RESET_WEBHOOK_URL, payload);
+      if (!response.ok) {
+        throw new Error(`Webhook responded with ${response.statusCode}: ${response.body}`);
+      }
+
+      attempts.push({ provider: "webhook", ok: true });
+      return { sent: true, provider: "webhook", attempts };
+    } catch (error) {
+      attempts.push({ provider: "webhook", ok: false, error: toErrorMessage(error) });
+      console.error("Email verification webhook failed:", error);
+    }
+  }
+
+  console.log(`[EmailVerification] ${user.email} -> ${verifyUrl}`);
+  if (!hasAnyEmailVerificationProvider()) {
+    console.warn(
+      "Email verification provider not configured. Configure SMTP or RESEND in Railway Variables."
+    );
+  } else {
+    console.warn("Email verification providers are configured but all delivery attempts failed. Check logs.");
+  }
+
+  return {
+    sent: false,
+    provider: "console",
+    attempts
+  };
+}
+
 function buildPasswordResetEmailHtml(resetUrl) {
   return `
     <div style="font-family:Arial,sans-serif;line-height:1.5;color:#1a2e5f">
@@ -1768,6 +2131,21 @@ function buildPasswordResetEmailHtml(resetUrl) {
         </a>
       </p>
       <p style="font-size:13px;color:#4b5f89">If you did not request this, you can ignore this email.</p>
+    </div>
+  `;
+}
+
+function buildEmailVerificationEmailHtml(verifyUrl) {
+  return `
+    <div style="font-family:Arial,sans-serif;line-height:1.5;color:#1a2e5f">
+      <h2 style="margin-bottom:8px">Verify your XerivoLearn email</h2>
+      <p style="margin-top:0">Click the button below to verify your account email.</p>
+      <p>
+        <a href="${verifyUrl}" style="display:inline-block;padding:10px 14px;background:#1f9bdd;color:#fff;text-decoration:none;border-radius:8px">
+          Verify Email
+        </a>
+      </p>
+      <p style="font-size:13px;color:#4b5f89">If you did not create this account, you can ignore this email.</p>
     </div>
   `;
 }
@@ -1824,6 +2202,41 @@ function hasAnyPasswordResetProvider() {
   );
 }
 
+function getEmailVerificationFromEmail() {
+  return EMAIL_VERIFICATION_FROM_EMAIL || PASSWORD_RESET_FROM_EMAIL || SMTP_FROM_EMAIL;
+}
+
+function hasSmtpEmailVerificationProvider() {
+  const fromEmail = getEmailVerificationFromEmail();
+  if (!SMTP_HOST || !fromEmail) {
+    return false;
+  }
+  if (!SMTP_USER && !SMTP_PASS) {
+    return true;
+  }
+  return Boolean(SMTP_USER && SMTP_PASS);
+}
+
+function hasResendEmailVerificationProvider() {
+  return Boolean(RESEND_API_KEY && getEmailVerificationFromEmail());
+}
+
+function hasWebhookEmailVerificationProvider() {
+  return Boolean(PASSWORD_RESET_WEBHOOK_URL);
+}
+
+function hasAnyEmailVerificationProvider() {
+  return (
+    hasSmtpEmailVerificationProvider() ||
+    hasResendEmailVerificationProvider() ||
+    hasWebhookEmailVerificationProvider()
+  );
+}
+
+function shouldRequireEmailVerification(role) {
+  return EMAIL_VERIFICATION_REQUIRED && role === "parent" && hasAnyEmailVerificationProvider();
+}
+
 function getPasswordResetPublicMessage() {
   if (hasAnyPasswordResetProvider()) {
     return "If an account exists, a reset link has been sent.";
@@ -1831,11 +2244,29 @@ function getPasswordResetPublicMessage() {
   return "Password reset email is not configured yet. Contact support to reset your password.";
 }
 
+function getEmailVerificationPublicMessage() {
+  if (!shouldRequireEmailVerification("parent")) {
+    return "Email verification is currently optional.";
+  }
+  if (hasAnyEmailVerificationProvider()) {
+    return "If an account exists, a verification link has been sent.";
+  }
+  return "Email verification is not configured yet. Contact support.";
+}
+
 function getPasswordResetProviderFlags() {
   return {
     smtp: hasSmtpPasswordResetProvider(),
     resend: hasResendPasswordResetProvider(),
     webhook: hasWebhookPasswordResetProvider()
+  };
+}
+
+function getEmailVerificationProviderFlags() {
+  return {
+    smtp: hasSmtpEmailVerificationProvider(),
+    resend: hasResendEmailVerificationProvider(),
+    webhook: hasWebhookEmailVerificationProvider()
   };
 }
 
@@ -1857,6 +2288,27 @@ function logPasswordResetConfig() {
   if (SMTP_HOST && !nodemailer) {
     console.warn("SMTP host is set but nodemailer dependency is missing.");
   }
+}
+
+function logEmailVerificationConfig() {
+  const providers = getEmailVerificationProviderFlags();
+  const enabled = Object.entries(providers)
+    .filter(([, value]) => value)
+    .map(([key]) => key);
+
+  if (!EMAIL_VERIFICATION_REQUIRED) {
+    console.log("Email verification enforcement: disabled (EMAIL_VERIFICATION_REQUIRED=false).");
+    return;
+  }
+
+  if (enabled.length === 0) {
+    console.warn(
+      "Email verification enforcement requested but no provider configured. Verification will be optional until SMTP/Resend/Webhook is configured."
+    );
+    return;
+  }
+
+  console.log(`Email verification enforcement: enabled via ${enabled.join(", ")}.`);
 }
 
 function postJson(url, payload, extraHeaders = {}) {
@@ -2023,7 +2475,8 @@ function toPublicUser(user) {
     id: user.id,
     name: user.name,
     email: user.email,
-    role: user.role
+    role: user.role,
+    emailVerifiedAt: user.emailVerifiedAt || null
   };
 }
 

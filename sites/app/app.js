@@ -746,6 +746,9 @@ function updateAuthUi() {
     parentPill.textContent = `Parent: ${state.user.name}`;
     parentPill.classList.remove("hidden");
     logoutBtn.classList.remove("hidden");
+    loginForm.classList.add("hidden");
+    registerForm.classList.add("hidden");
+    resetForm.classList.add("hidden");
     authStatusLine.textContent = `Signed in as ${state.user.email}`;
     loginEmail.value = state.user.email || "";
     registerEmail.value = state.user.email || "";
@@ -754,6 +757,9 @@ function updateAuthUi() {
     parentPill.textContent = "";
     parentPill.classList.add("hidden");
     logoutBtn.classList.add("hidden");
+    loginForm.classList.remove("hidden");
+    registerForm.classList.remove("hidden");
+    resetForm.classList.remove("hidden");
     authStatusLine.textContent =
       "Parents plan: BDT 99/month. Sign in to watch videos and save favorites.";
     state.favoriteIds = new Set();

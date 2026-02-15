@@ -1,0 +1,181 @@
+:root {
+  --bg: #f8fbff;
+  --ink: #10264d;
+  --card: #ffffff;
+  --accent: #f56f46;
+  --accent-2: #21a0db;
+  --border: #dce8ff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Nunito", sans-serif;
+  background: radial-gradient(circle at 20% 0%, #fff6d6 0, transparent 30%),
+    radial-gradient(circle at 100% 10%, #d8f4ff 0, transparent 28%), var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 18px;
+  background: #ffffffcc;
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid var(--border);
+}
+
+.brand {
+  text-decoration: none;
+  color: var(--ink);
+  font-family: "Fredoka", sans-serif;
+  font-weight: 700;
+  font-size: 1.4rem;
+}
+
+.admin-link {
+  text-decoration: none;
+  color: white;
+  background: linear-gradient(90deg, var(--accent), #ffa336);
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-weight: 700;
+}
+
+.page {
+  max-width: 1100px;
+  margin: 24px auto 40px;
+  padding: 0 18px;
+}
+
+.intro h1 {
+  font-family: "Fredoka", sans-serif;
+  font-size: clamp(1.6rem, 4vw, 2.7rem);
+  margin: 8px 0 16px;
+}
+
+.eyebrow {
+  margin: 0;
+  display: inline-flex;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #dcf3ff;
+  color: #0d6ca5;
+  font-weight: 700;
+}
+
+.filters {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 180px;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.filters input,
+.filters select {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font: inherit;
+}
+
+.videos-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.video-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.video-thumb {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  background: #dfeaff;
+}
+
+.video-body {
+  padding: 12px;
+}
+
+.video-title {
+  margin: 0;
+  font-family: "Fredoka", sans-serif;
+  font-size: 1.1rem;
+}
+
+.video-meta {
+  display: flex;
+  gap: 8px;
+  margin: 8px 0;
+  flex-wrap: wrap;
+}
+
+.pill {
+  font-size: 0.8rem;
+  font-weight: 700;
+  background: #e8f7ff;
+  color: #0f688c;
+  border-radius: 999px;
+  padding: 4px 8px;
+}
+
+.video-desc {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  color: #3a4a6f;
+}
+
+.watch-btn {
+  display: inline-block;
+  margin-top: 12px;
+  text-decoration: none;
+  background: linear-gradient(90deg, #21a0db, #46c879);
+  color: white;
+  font-weight: 700;
+  padding: 9px 12px;
+  border-radius: 10px;
+}
+
+.empty-state {
+  margin-top: 20px;
+  text-align: center;
+  font-weight: 700;
+  color: #4c5d84;
+}
+
+.hidden {
+  display: none;
+}
+
+@media (max-width: 920px) {
+  .videos-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 680px) {
+  .filters {
+    grid-template-columns: 1fr;
+  }
+
+  .videos-grid {
+    grid-template-columns: 1fr;
+  }
+}

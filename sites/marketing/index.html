@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>XerivoLearn | Cartoon Learning Videos for Kids</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="sky-glow sky-glow-left"></div>
+    <div class="sky-glow sky-glow-right"></div>
+
+    <header class="hero">
+      <div class="hero__nav">
+        <p class="logo">XerivoLearn</p>
+        <div class="hero__links">
+          <a id="app-link" href="https://app.xerivolearn.com">Kids App</a>
+          <a id="admin-link" href="https://admin.xerivolearn.com">Admin CMS</a>
+        </div>
+      </div>
+
+      <div class="hero__content">
+        <p class="eyebrow">Playful Learning Platform</p>
+        <h1>Safe cartoon videos that help children learn every day.</h1>
+        <p>
+          XerivoLearn gives parents and teachers a clean, ad-light video space
+          for early learning, numbers, stories, and songs.
+        </p>
+        <div class="hero__actions">
+          <a id="hero-app-link" class="button button-primary" href="https://app.xerivolearn.com"
+            >Open Kids App</a
+          >
+          <a id="hero-admin-link" class="button button-secondary" href="https://admin.xerivolearn.com"
+            >Manage Content</a
+          >
+        </div>
+      </div>
+    </header>
+
+    <main class="content">
+      <section class="feature-grid">
+        <article>
+          <h2>Curated by age</h2>
+          <p>Filter videos for ages 3-5, 4-7, and 7+ in one click.</p>
+        </article>
+        <article>
+          <h2>Fast admin publishing</h2>
+          <p>Add or edit videos from a simple CMS dashboard.</p>
+        </article>
+        <article>
+          <h2>Domain-ready structure</h2>
+          <p>
+            `xerivolearn.com` for marketing, `app` for users, and `admin` for
+            content operations.
+          </p>
+        </article>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>2026 XerivoLearn. Built for joyful learning.</p>
+    </footer>
+
+    <script>
+      (function () {
+        const host = location.hostname.toLowerCase();
+        const isPrimaryDomain =
+          host === "xerivolearn.com" || host === "www.xerivolearn.com";
+        if (isPrimaryDomain) {
+          return;
+        }
+
+        const appHref = "/app/";
+        const adminHref = "/admin/";
+        document.getElementById("app-link").href = appHref;
+        document.getElementById("admin-link").href = adminHref;
+        document.getElementById("hero-app-link").href = appHref;
+        document.getElementById("hero-admin-link").href = adminHref;
+      })();
+    </script>
+  </body>
+</html>

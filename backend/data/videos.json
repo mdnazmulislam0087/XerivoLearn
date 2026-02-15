@@ -1,0 +1,28 @@
+[
+  {
+    "id": "demo-video-1",
+    "title": "ABC Song for Kids",
+    "description": "A simple alphabet song demo entry.",
+    "category": "Learning",
+    "ageGroup": "3-5",
+    "duration": "2:10",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1485546784815-e380f3297414?auto=format&fit=crop&w=900&q=80",
+    "videoUrl": "https://www.youtube.com/watch?v=75p-N9YKqNo",
+    "isPublished": true,
+    "createdAt": "2026-02-01T10:00:00.000Z",
+    "updatedAt": "2026-02-01T10:00:00.000Z"
+  },
+  {
+    "id": "demo-video-2",
+    "title": "Counting Adventure",
+    "description": "Fun counting practice with animation.",
+    "category": "Math",
+    "ageGroup": "4-7",
+    "duration": "3:05",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1557862921-37829c790f19?auto=format&fit=crop&w=900&q=80",
+    "videoUrl": "https://www.youtube.com/watch?v=DR-cfDsHCGA",
+    "isPublished": true,
+    "createdAt": "2026-02-03T10:00:00.000Z",
+    "updatedAt": "2026-02-03T10:00:00.000Z"
+  }
+]

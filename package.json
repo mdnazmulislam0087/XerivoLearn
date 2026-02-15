@@ -1,0 +1,9 @@
+{
+  "name": "xerivolearn-platform",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Kids video platform starter with marketing, app, and admin CMS surfaces.",
+  "scripts": {
+    "start": "node backend/server.js"
+  }
+}

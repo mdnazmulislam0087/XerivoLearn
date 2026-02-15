@@ -13,58 +13,105 @@
     />
   </head>
   <body>
-    <div class="sky-glow sky-glow-left"></div>
-    <div class="sky-glow sky-glow-right"></div>
+    <div class="bg-shape shape-1"></div>
+    <div class="bg-shape shape-2"></div>
+    <div class="bg-shape shape-3"></div>
 
-    <header class="hero">
-      <div class="hero__nav">
-        <p class="logo">XerivoLearn</p>
-        <div class="hero__links">
-          <a id="app-link" href="https://app.xerivolearn.com">Kids App</a>
-          <a id="admin-link" href="https://admin.xerivolearn.com">Admin CMS</a>
-        </div>
-      </div>
-
-      <div class="hero__content">
-        <p class="eyebrow">Playful Learning Platform</p>
-        <h1>Safe cartoon videos that help children learn every day.</h1>
-        <p>
-          XerivoLearn gives parents and teachers a clean, ad-light video space
-          for early learning, numbers, stories, and songs.
-        </p>
-        <div class="hero__actions">
-          <a id="hero-app-link" class="button button-primary" href="https://app.xerivolearn.com"
-            >Open Kids App</a
-          >
-          <a id="hero-admin-link" class="button button-secondary" href="https://admin.xerivolearn.com"
-            >Manage Content</a
-          >
-        </div>
-      </div>
+    <header class="site-header">
+      <a class="logo" href="/">XerivoLearn</a>
+      <nav class="site-nav">
+        <a id="app-link" href="https://app.xerivolearn.com">Kids App</a>
+        <a id="admin-link" href="https://admin.xerivolearn.com">Admin CMS</a>
+      </nav>
     </header>
 
-    <main class="content">
-      <section class="feature-grid">
-        <article>
-          <h2>Curated by age</h2>
-          <p>Filter videos for ages 3-5, 4-7, and 7+ in one click.</p>
-        </article>
-        <article>
-          <h2>Fast admin publishing</h2>
-          <p>Add or edit videos from a simple CMS dashboard.</p>
-        </article>
-        <article>
-          <h2>Domain-ready structure</h2>
-          <p>
-            `xerivolearn.com` for marketing, `app` for users, and `admin` for
-            content operations.
+    <main>
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">Cartoon Learning Platform</p>
+          <h1>Beautiful learning moments for children and full clarity for parents.</h1>
+          <p class="hero-text">
+            XerivoLearn is designed for young kids to enjoy stories, songs, and
+            early-learning videos while parents get a safer and cleaner viewing experience.
           </p>
+          <div class="hero-actions">
+            <a id="hero-app-link" class="button button-primary" href="https://app.xerivolearn.com">
+              Explore Kids App
+            </a>
+            <a id="hero-admin-link" class="button button-secondary" href="https://admin.xerivolearn.com">
+              Open CMS
+            </a>
+          </div>
+        </div>
+
+        <aside class="hero-panel">
+          <h2>Today in XerivoLearn</h2>
+          <ul>
+            <li>Age-based recommendations for 3-5, 4-7, and 7+</li>
+            <li>Ad-light viewing flow for focused attention</li>
+            <li>Fast CMS workflow to publish videos in minutes</li>
+          </ul>
+          <div class="panel-stats">
+            <article>
+              <p>Audience</p>
+              <strong>Kids + Parents</strong>
+            </article>
+            <article>
+              <p>CMS style</p>
+              <strong>Simple + Fast</strong>
+            </article>
+          </div>
+        </aside>
+      </section>
+
+      <section class="feature-grid">
+        <article class="feature feature-sun">
+          <h3>Joyful visuals</h3>
+          <p>Large cards, bright colors, and readable text for children and family viewing.</p>
         </article>
+        <article class="feature feature-sea">
+          <h3>Parent confidence</h3>
+          <p>Clean browsing with clear age labels, categories, and direct video links.</p>
+        </article>
+        <article class="feature feature-leaf">
+          <h3>Creator control</h3>
+          <p>Upload, edit, publish, and unpublish in one CMS dashboard.</p>
+        </article>
+      </section>
+
+      <section class="journey">
+        <h2>How families use XerivoLearn</h2>
+        <div class="journey-grid">
+          <article>
+            <span>1</span>
+            <h3>Parent picks a safe playlist</h3>
+            <p>Search by topic and age to prepare an easy session for your child.</p>
+          </article>
+          <article>
+            <span>2</span>
+            <h3>Child watches and learns</h3>
+            <p>Friendly cards guide children to songs, stories, language, and math videos.</p>
+          </article>
+          <article>
+            <span>3</span>
+            <h3>You publish new content quickly</h3>
+            <p>Use CMS controls to keep your library fresh every day.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="cta">
+        <h2>Ready to launch your children-first video platform?</h2>
+        <p>Start now on Railway and attach your custom domain whenever you are ready.</p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="https://app.xerivolearn.com">Open App Preview</a>
+          <a class="button button-secondary" href="https://admin.xerivolearn.com">Open CMS Preview</a>
+        </div>
       </section>
     </main>
 
     <footer class="footer">
-      <p>2026 XerivoLearn. Built for joyful learning.</p>
+      <p>2026 XerivoLearn. Learning that feels playful and trustworthy.</p>
     </footer>
 
     <script>
@@ -82,6 +129,9 @@
         document.getElementById("admin-link").href = adminHref;
         document.getElementById("hero-app-link").href = appHref;
         document.getElementById("hero-admin-link").href = adminHref;
+
+        document.querySelectorAll(".cta .button")[0].href = appHref;
+        document.querySelectorAll(".cta .button")[1].href = adminHref;
       })();
     </script>
   </body>

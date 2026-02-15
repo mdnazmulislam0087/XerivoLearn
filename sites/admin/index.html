@@ -14,71 +14,113 @@
   </head>
   <body>
     <header class="topbar">
-      <h1>XerivoLearn Admin CMS</h1>
-      <a id="open-app-link" class="open-app" href="https://app.xerivolearn.com">Open User App</a>
+      <div>
+        <p class="eyebrow">XerivoLearn Studio</p>
+        <h1>Video CMS Dashboard</h1>
+      </div>
+      <a id="open-app-link" class="open-app" href="https://app.xerivolearn.com">Open Kids App</a>
     </header>
 
-    <main class="layout">
-      <section class="panel auth-panel">
-        <h2>Admin Access</h2>
-        <p>Enter your `ADMIN_TOKEN` from Railway Variables (or local `.env`).</p>
-        <input id="token-input" type="password" placeholder="Admin token" />
-        <button id="save-token-btn" type="button">Save Token</button>
-        <p id="token-status" class="status"></p>
-      </section>
-
-      <section class="panel">
-        <h2 id="form-title">Add New Video</h2>
-        <form id="video-form">
-          <label>
-            Title
-            <input id="title" required />
-          </label>
-          <label>
-            Description
-            <textarea id="description" rows="3"></textarea>
-          </label>
-          <label>
-            Category
-            <input id="category" placeholder="Learning, Math, Story, etc." />
-          </label>
-          <div class="split">
-            <label>
-              Age Group
-              <select id="ageGroup">
-                <option value="3-5">3-5</option>
-                <option value="4-7">4-7</option>
-                <option value="7+">7+</option>
-              </select>
-            </label>
-            <label>
-              Duration
-              <input id="duration" placeholder="2:30" />
-            </label>
-          </div>
-          <label>
-            Thumbnail URL
-            <input id="thumbnailUrl" type="url" placeholder="https://..." />
-          </label>
-          <label>
-            Video URL
-            <input id="videoUrl" type="url" required placeholder="https://..." />
-          </label>
-          <label class="checkbox">
-            <input id="isPublished" type="checkbox" checked />
-            Published
-          </label>
+    <main class="dashboard">
+      <aside class="left-column">
+        <section class="panel auth-panel">
+          <h2>Admin Access</h2>
+          <p>Sign in with `ADMIN_EMAIL` and `ADMIN_PASSWORD` from your server config.</p>
+          <input id="auth-email" type="email" placeholder="Admin email" />
+          <input id="auth-password" type="password" placeholder="Admin password" />
           <div class="actions">
-            <button type="submit" id="save-btn">Save Video</button>
-            <button type="button" id="cancel-btn" class="muted hidden">Cancel Edit</button>
+            <button id="auth-login-btn" type="button">Sign In</button>
+            <button id="auth-logout-btn" class="muted hidden" type="button">Logout</button>
           </div>
-          <p id="form-status" class="status"></p>
-        </form>
-      </section>
+          <p id="auth-user" class="auth-user"></p>
+          <p id="auth-status" class="status"></p>
+        </section>
 
-      <section class="panel">
-        <h2>Video Library</h2>
-        <div id="video-list" class="video-list"></div>
+        <section class="panel stats-panel">
+          <h2>Library Snapshot</h2>
+          <div class="stats-grid">
+            <article>
+              <p>Total Videos</p>
+              <strong id="stat-total">0</strong>
+            </article>
+            <article>
+              <p>Published</p>
+              <strong id="stat-published">0</strong>
+            </article>
+            <article>
+              <p>Drafts</p>
+              <strong id="stat-drafts">0</strong>
+            </article>
+          </div>
+        </section>
+
+        <section class="panel tips-panel">
+          <h2>Publishing Tips</h2>
+          <ul>
+            <li>Keep titles short and clear for parents.</li>
+            <li>Use category + age labels for easy discovery.</li>
+            <li>Add strong thumbnails to increase watch clicks.</li>
+          </ul>
+        </section>
+      </aside>
+
+      <section class="right-column">
+        <section class="panel form-panel">
+          <h2 id="form-title">Add New Video</h2>
+          <form id="video-form">
+            <label>
+              Title
+              <input id="title" required />
+            </label>
+            <label>
+              Description
+              <textarea id="description" rows="3"></textarea>
+            </label>
+            <label>
+              Category
+              <input id="category" placeholder="Learning, Math, Story, etc." />
+            </label>
+            <div class="split">
+              <label>
+                Age Group
+                <select id="ageGroup">
+                  <option value="3-5">3-5</option>
+                  <option value="4-7">4-7</option>
+                  <option value="7+">7+</option>
+                </select>
+              </label>
+              <label>
+                Duration
+                <input id="duration" placeholder="2:30" />
+              </label>
+            </div>
+            <label>
+              Thumbnail URL
+              <input id="thumbnailUrl" type="url" placeholder="https://..." />
+            </label>
+            <label>
+              Video URL
+              <input id="videoUrl" type="url" required placeholder="https://..." />
+            </label>
+            <label class="checkbox">
+              <input id="isPublished" type="checkbox" checked />
+              Published
+            </label>
+            <div class="actions">
+              <button type="submit" id="save-btn">Save Video</button>
+              <button type="button" id="cancel-btn" class="muted hidden">Cancel Edit</button>
+            </div>
+            <p id="form-status" class="status"></p>
+          </form>
+        </section>
+
+        <section class="panel library-panel">
+          <div class="library-head">
+            <h2>Video Library</h2>
+            <input id="library-search" type="search" placeholder="Search videos..." />
+          </div>
+          <div id="video-list" class="video-list"></div>
+        </section>
       </section>
     </main>
 

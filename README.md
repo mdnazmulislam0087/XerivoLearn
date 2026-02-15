@@ -1,72 +1,100 @@
-# XerivoLearn Starter (Marketing + App + Admin CMS)
+# XerivoLearn Platform (Marketing + App + Admin CMS)
 
-This starter matches your requested structure:
+This project matches your structure:
 
-- `xerivolearn.com` -> marketing static experience
-- `app.xerivolearn.com` -> user app (video library)
+- `xerivolearn.com` -> marketing
+- `app.xerivolearn.com` -> parent/child video app
 - `admin.xerivolearn.com` -> admin CMS
 
-It also supports admin inside app (`/admin`) if you prefer one app domain.
+Single-host fallback also works (Railway free domain):
+
+- `/` marketing
+- `/app/` user app
+- `/admin/` admin CMS
 
 ## Project Structure
 
 ```text
 backend/
   data/videos.json
+  data/users.json
+  data/favorites.json
+  data/children.json
+  data/password_resets.json
   server.js
 sites/
   marketing/
   app/
   admin/
 .env.example
-package.json
-DEPLOYMENT.md
+railway.json
 ```
 
 ## Quick Start
 
-1. Create env file:
-   - Copy `.env.example` to `.env`
-   - Set a strong `ADMIN_TOKEN`
-2. Start server:
+1. Copy `.env.example` to `.env`
+2. Set at least:
+   - `JWT_SECRET`
+   - `ADMIN_EMAIL`
+   - `ADMIN_PASSWORD`
+3. Run:
    - `npm start`
-3. Open local URLs:
-   - Marketing: `http://localhost:8080/`
-   - User app: `http://localhost:8080/app/`
-   - Admin CMS: `http://localhost:8080/admin/`
+4. Open:
+   - `http://localhost:8080/`
+   - `http://localhost:8080/app/`
+   - `http://localhost:8080/admin/`
 
-## Deploy on Railway
+## Auth Features Added
 
-1. Push this project to GitHub.
-2. In Railway, create a new project from that GitHub repo.
-3. Add environment variable in Railway:
-   - `ADMIN_TOKEN=your-strong-token`
-4. Deploy (Railway will run `npm start` from `railway.json`).
-5. Add custom domains in Railway:
-   - `xerivolearn.com`
-   - `app.xerivolearn.com`
-   - `admin.xerivolearn.com`
+- Admin login with email/password
+- Parent registration + login
+- Password reset flow (request + reset token)
+- JWT session auth
+- Role-based API checks (`admin`, `parent`)
+- Parent favorites save/toggle
+- Child profiles with avatar selection
 
-Notes:
-- `PORT` is provided automatically by Railway.
-- Before custom domains are attached, preview domain links fallback to `/app/` and `/admin/`.
+## Main API Endpoints
 
-## How CMS Works
-
-- Public videos endpoint:
+- Public:
   - `GET /api/videos`
-- Admin endpoints (require header `X-Admin-Token`):
+- Auth:
+  - `POST /api/auth/register`
+  - `POST /api/auth/login`
+  - `POST /api/auth/forgot-password`
+  - `POST /api/auth/reset-password`
+  - `GET /api/auth/me`
+- Parent:
+  - `GET /api/parent/favorites`
+  - `POST /api/parent/favorites/:videoId`
+  - `GET /api/parent/children`
+  - `POST /api/parent/children`
+  - `PUT /api/parent/children/:id`
+  - `DELETE /api/parent/children/:id`
+- Admin:
+  - `GET /api/admin/me`
   - `GET /api/admin/videos`
   - `POST /api/admin/videos`
   - `PUT /api/admin/videos/:id`
   - `DELETE /api/admin/videos/:id`
 
-Video data is stored in `backend/data/videos.json`.
+## Railway Deploy
 
-## Next Features You Can Add
+1. Push repo to GitHub
+2. Create Railway project from repo
+3. Add Railway Variables:
+   - `JWT_SECRET`
+   - `ADMIN_EMAIL`
+   - `ADMIN_PASSWORD`
+   - Optional: `JWT_TTL_SECONDS`
+   - Optional: `APP_BASE_URL`
+   - Optional: `PASSWORD_RESET_TTL_MINUTES`
+   - Optional: `PASSWORD_RESET_WEBHOOK_URL`
+   - Optional: `PASSWORD_RESET_DEBUG`
+4. Deploy
+5. Use free URL first, then attach custom domains later
 
-- Parent and child profiles
-- JWT login for admin and users
-- Progress tracking and watch history
-- Cloud storage for thumbnails and video files
-- Role-based CMS access
+Notes:
+- On first start, admin user is auto-created in `backend/data/users.json` from `ADMIN_EMAIL` and `ADMIN_PASSWORD`.
+- Keep `ADMIN_PASSWORD` and `JWT_SECRET` strong.
+- Password reset links are logged to server console in debug mode (or sent to webhook if configured).

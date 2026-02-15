@@ -1,4 +1,5 @@
 const http = require("http");
+const https = require("https");
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
@@ -10,6 +11,12 @@ try {
   if ((process.env.DATABASE_URL || "").trim()) {
     throw error;
   }
+}
+let nodemailer = null;
+try {
+  nodemailer = require("nodemailer");
+} catch {
+  nodemailer = null;
 }
 
 const ROOT_DIR = path.resolve(__dirname, "..");
@@ -33,10 +40,26 @@ const PASSWORD_RESET_FROM_EMAIL = (process.env.PASSWORD_RESET_FROM_EMAIL || "").
 const RESEND_API_KEY = (process.env.RESEND_API_KEY || "").trim();
 const CAPTCHA_TTL_MINUTES = Number(process.env.CAPTCHA_TTL_MINUTES || 10);
 const DATABASE_URL = (process.env.DATABASE_URL || "").trim();
+const REQUIRE_POSTGRES =
+  String(process.env.REQUIRE_POSTGRES || (process.env.NODE_ENV === "production" ? "true" : "false")).toLowerCase() ===
+  "true";
 const PG_SSL =
   String(process.env.PG_SSL || (process.env.NODE_ENV === "production" ? "true" : "false")).toLowerCase() ===
   "true";
+const SMTP_HOST = (process.env.SMTP_HOST || "").trim();
+const SMTP_PORT = Number(process.env.SMTP_PORT || 587);
+const SMTP_USER = (process.env.SMTP_USER || "").trim();
+const SMTP_PASS = (process.env.SMTP_PASS || "").trim();
+const SMTP_SECURE =
+  String(process.env.SMTP_SECURE || (SMTP_PORT === 465 ? "true" : "false")).toLowerCase() === "true";
+const SMTP_FROM_EMAIL = (process.env.SMTP_FROM_EMAIL || PASSWORD_RESET_FROM_EMAIL || SMTP_USER).trim();
 const USE_POSTGRES = Boolean(DATABASE_URL);
+
+if (REQUIRE_POSTGRES && !USE_POSTGRES) {
+  throw new Error(
+    "DATABASE_URL is required when REQUIRE_POSTGRES=true. Add Railway Postgres and set DATABASE_URL."
+  );
+}
 
 const DATA_DIR = path.join(__dirname, "data");
 const VIDEOS_FILE = path.join(DATA_DIR, "videos.json");
@@ -56,6 +79,7 @@ const pool = USE_POSTGRES && Pool
       ssl: PG_SSL ? { rejectUnauthorized: false } : false
     })
   : null;
+let smtpTransporter = null;
 
 const JSON_HEADERS = {
   "Content-Type": "application/json; charset=utf-8",
@@ -110,6 +134,7 @@ async function bootstrapServer() {
     await ensureDefaultSettings();
     await ensureDefaultAdminUser();
     await ensureDefaultEducatorUser();
+    logPasswordResetConfig();
 
     server.listen(PORT, () => {
       console.log(`XerivoLearn starter running on http://localhost:${PORT}`);
@@ -127,7 +152,13 @@ async function bootstrapServer() {
 
 async function handleApi(req, res, pathname, searchParams) {
   if (req.method === "GET" && pathname === "/api/health") {
-    sendJson(res, 200, { ok: true, service: "xerivolearn-api" });
+    sendJson(res, 200, {
+      ok: true,
+      service: "xerivolearn-api",
+      storage: USE_POSTGRES ? "postgres" : "json",
+      requirePostgres: REQUIRE_POSTGRES,
+      passwordResetProviders: getPasswordResetProviderFlags()
+    });
     return;
   }
 
@@ -189,7 +220,15 @@ async function handleApi(req, res, pathname, searchParams) {
     };
 
     users.push(user);
-    await saveUsers(users);
+    try {
+      await saveUsers(users);
+    } catch (error) {
+      if (isDatabaseUniqueViolation(error)) {
+        sendJson(res, 409, { error: "Email already registered." });
+        return;
+      }
+      throw error;
+    }
 
     const token = createAuthToken(user);
     sendJson(res, 201, { token, user: toPublicUser(user) });
@@ -227,11 +266,12 @@ async function handleApi(req, res, pathname, searchParams) {
       return;
     }
 
+    const resetMessage = getPasswordResetPublicMessage();
     const email = normalizeEmail(payload.email || "");
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       sendJson(res, 200, {
         success: true,
-        message: "If an account exists, a reset link has been sent."
+        message: resetMessage
       });
       return;
     }
@@ -239,6 +279,7 @@ async function handleApi(req, res, pathname, searchParams) {
     const users = await loadUsers();
     const user = users.find((item) => item.email === email);
     let debugResetUrl = "";
+    let debugDelivery = null;
 
     if (user) {
       const token = crypto.randomBytes(32).toString("hex");
@@ -266,16 +307,17 @@ async function handleApi(req, res, pathname, searchParams) {
       await savePasswordResets(resets);
 
       const resetUrl = buildPasswordResetUrl(req, token);
-      await dispatchPasswordReset(user, resetUrl);
+      const delivery = await dispatchPasswordReset(user, resetUrl);
       if (PASSWORD_RESET_DEBUG) {
         debugResetUrl = resetUrl;
+        debugDelivery = delivery;
       }
     }
 
     sendJson(res, 200, {
       success: true,
-      message: "If an account exists, a reset link has been sent.",
-      ...(PASSWORD_RESET_DEBUG ? { debugResetUrl } : {})
+      message: resetMessage,
+      ...(PASSWORD_RESET_DEBUG ? { debugResetUrl, debugDelivery } : {})
     });
     return;
   }
@@ -795,6 +837,11 @@ async function initializeStorage() {
   ensureDataStore();
   if (!USE_POSTGRES) {
     console.log("Storage mode: JSON files");
+    if (process.env.NODE_ENV === "production") {
+      console.warn(
+        "Production is running without DATABASE_URL. Data will be file-based and may not persist on Railway restarts."
+      );
+    }
     return;
   }
 
@@ -1626,77 +1673,259 @@ async function dispatchPasswordReset(user, resetUrl) {
     resetUrl
   };
 
-  let emailSent = false;
+  const attempts = [];
 
-  if (RESEND_API_KEY && PASSWORD_RESET_FROM_EMAIL) {
+  if (hasSmtpPasswordResetProvider()) {
     try {
-      if (typeof fetch !== "function") {
-        throw new Error("Global fetch is not available in this Node runtime.");
-      }
+      const transporter = getSmtpTransporter();
+      await transporter.sendMail({
+        from: SMTP_FROM_EMAIL,
+        to: user.email,
+        subject: payload.subject,
+        text: payload.message,
+        html: buildPasswordResetEmailHtml(resetUrl)
+      });
+      attempts.push({ provider: "smtp", ok: true });
+      return { sent: true, provider: "smtp", attempts };
+    } catch (error) {
+      attempts.push({ provider: "smtp", ok: false, error: toErrorMessage(error) });
+      console.error("Password reset email via SMTP failed:", error);
+    }
+  }
 
-      const response = await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${RESEND_API_KEY}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
+  if (hasResendPasswordResetProvider()) {
+    try {
+      const response = await postJson(
+        "https://api.resend.com/emails",
+        {
           from: PASSWORD_RESET_FROM_EMAIL,
           to: [user.email],
           subject: payload.subject,
           text: payload.message,
-          html: `
-            <div style="font-family:Arial,sans-serif;line-height:1.5;color:#1a2e5f">
-              <h2 style="margin-bottom:8px">Reset your XerivoLearn password</h2>
-              <p style="margin-top:0">Click the button below to reset your password.</p>
-              <p>
-                <a href="${resetUrl}" style="display:inline-block;padding:10px 14px;background:#1f9bdd;color:#fff;text-decoration:none;border-radius:8px">
-                  Reset Password
-                </a>
-              </p>
-              <p style="font-size:13px;color:#4b5f89">If you did not request this, you can ignore this email.</p>
-            </div>
-          `
-        })
-      });
+          html: buildPasswordResetEmailHtml(resetUrl)
+        },
+        {
+          Authorization: `Bearer ${RESEND_API_KEY}`
+        }
+      );
 
       if (!response.ok) {
-        const body = await response.text();
-        throw new Error(`Resend responded with ${response.status}: ${body}`);
+        throw new Error(`Resend responded with ${response.statusCode}: ${response.body}`);
       }
-      emailSent = true;
+
+      attempts.push({ provider: "resend", ok: true });
+      return { sent: true, provider: "resend", attempts };
     } catch (error) {
+      attempts.push({ provider: "resend", ok: false, error: toErrorMessage(error) });
       console.error("Password reset email via Resend failed:", error);
     }
   }
 
-  if (PASSWORD_RESET_WEBHOOK_URL) {
+  if (hasWebhookPasswordResetProvider()) {
     try {
-      if (typeof fetch !== "function") {
-        throw new Error("Global fetch is not available in this Node runtime.");
+      const response = await postJson(PASSWORD_RESET_WEBHOOK_URL, payload);
+      if (!response.ok) {
+        throw new Error(`Webhook responded with ${response.statusCode}: ${response.body}`);
       }
-      await fetch(PASSWORD_RESET_WEBHOOK_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(payload)
-      });
-      emailSent = true;
+
+      attempts.push({ provider: "webhook", ok: true });
+      return { sent: true, provider: "webhook", attempts };
     } catch (error) {
+      attempts.push({ provider: "webhook", ok: false, error: toErrorMessage(error) });
       console.error("Password reset webhook failed:", error);
     }
   }
 
-  if (!emailSent) {
-    // Fallback for development and misconfigured environments.
-    console.log(`[PasswordReset] ${user.email} -> ${resetUrl}`);
-    if (!RESEND_API_KEY || !PASSWORD_RESET_FROM_EMAIL) {
-      console.warn(
-        "Password reset email provider not configured. Set RESEND_API_KEY and PASSWORD_RESET_FROM_EMAIL in Railway variables."
-      );
-    }
+  // Fallback for development and misconfigured environments.
+  console.log(`[PasswordReset] ${user.email} -> ${resetUrl}`);
+  if (!hasAnyPasswordResetProvider()) {
+    console.warn(
+      "Password reset provider not configured. Configure SMTP or RESEND in Railway Variables."
+    );
+  } else {
+    console.warn("Password reset providers are configured but all delivery attempts failed. Check logs.");
   }
+
+  return {
+    sent: false,
+    provider: "console",
+    attempts
+  };
+}
+
+function buildPasswordResetEmailHtml(resetUrl) {
+  return `
+    <div style="font-family:Arial,sans-serif;line-height:1.5;color:#1a2e5f">
+      <h2 style="margin-bottom:8px">Reset your XerivoLearn password</h2>
+      <p style="margin-top:0">Click the button below to reset your password.</p>
+      <p>
+        <a href="${resetUrl}" style="display:inline-block;padding:10px 14px;background:#1f9bdd;color:#fff;text-decoration:none;border-radius:8px">
+          Reset Password
+        </a>
+      </p>
+      <p style="font-size:13px;color:#4b5f89">If you did not request this, you can ignore this email.</p>
+    </div>
+  `;
+}
+
+function getSmtpTransporter() {
+  if (smtpTransporter) {
+    return smtpTransporter;
+  }
+  if (!nodemailer) {
+    throw new Error("SMTP is configured but nodemailer is not installed.");
+  }
+
+  const auth =
+    SMTP_USER || SMTP_PASS
+      ? {
+          user: SMTP_USER,
+          pass: SMTP_PASS
+        }
+      : undefined;
+
+  smtpTransporter = nodemailer.createTransport({
+    host: SMTP_HOST,
+    port: SMTP_PORT,
+    secure: SMTP_SECURE,
+    ...(auth ? { auth } : {})
+  });
+
+  return smtpTransporter;
+}
+
+function hasSmtpPasswordResetProvider() {
+  if (!SMTP_HOST || !SMTP_FROM_EMAIL) {
+    return false;
+  }
+  if (!SMTP_USER && !SMTP_PASS) {
+    return true;
+  }
+  return Boolean(SMTP_USER && SMTP_PASS);
+}
+
+function hasResendPasswordResetProvider() {
+  return Boolean(RESEND_API_KEY && PASSWORD_RESET_FROM_EMAIL);
+}
+
+function hasWebhookPasswordResetProvider() {
+  return Boolean(PASSWORD_RESET_WEBHOOK_URL);
+}
+
+function hasAnyPasswordResetProvider() {
+  return (
+    hasSmtpPasswordResetProvider() ||
+    hasResendPasswordResetProvider() ||
+    hasWebhookPasswordResetProvider()
+  );
+}
+
+function getPasswordResetPublicMessage() {
+  if (hasAnyPasswordResetProvider()) {
+    return "If an account exists, a reset link has been sent.";
+  }
+  return "Password reset email is not configured yet. Contact support to reset your password.";
+}
+
+function getPasswordResetProviderFlags() {
+  return {
+    smtp: hasSmtpPasswordResetProvider(),
+    resend: hasResendPasswordResetProvider(),
+    webhook: hasWebhookPasswordResetProvider()
+  };
+}
+
+function logPasswordResetConfig() {
+  const providers = getPasswordResetProviderFlags();
+  const enabled = Object.entries(providers)
+    .filter(([, value]) => value)
+    .map(([key]) => key);
+
+  if (enabled.length === 0) {
+    console.warn(
+      "Password reset delivery providers: none. Reset links will be logged in server console only."
+    );
+    return;
+  }
+
+  console.log(`Password reset delivery providers: ${enabled.join(", ")}`);
+
+  if (SMTP_HOST && !nodemailer) {
+    console.warn("SMTP host is set but nodemailer dependency is missing.");
+  }
+}
+
+function postJson(url, payload, extraHeaders = {}) {
+  return new Promise((resolve, reject) => {
+    let target = null;
+    try {
+      target = new URL(url);
+    } catch (error) {
+      reject(new Error(`Invalid URL: ${url}`));
+      return;
+    }
+
+    const transport = target.protocol === "https:" ? https : target.protocol === "http:" ? http : null;
+    if (!transport) {
+      reject(new Error(`Unsupported protocol for ${url}`));
+      return;
+    }
+
+    const body = JSON.stringify(payload || {});
+    const request = transport.request(
+      {
+        method: "POST",
+        protocol: target.protocol,
+        hostname: target.hostname,
+        port: target.port || (target.protocol === "https:" ? 443 : 80),
+        path: `${target.pathname}${target.search}`,
+        headers: {
+          "Content-Type": "application/json",
+          "Content-Length": Buffer.byteLength(body),
+          ...extraHeaders
+        },
+        timeout: 15000
+      },
+      (response) => {
+        let raw = "";
+        response.setEncoding("utf8");
+        response.on("data", (chunk) => {
+          raw += chunk;
+        });
+        response.on("end", () => {
+          resolve({
+            ok: Number(response.statusCode) >= 200 && Number(response.statusCode) < 300,
+            statusCode: Number(response.statusCode || 0),
+            body: raw
+          });
+        });
+      }
+    );
+
+    request.on("timeout", () => {
+      request.destroy(new Error(`Request timed out for ${url}`));
+    });
+
+    request.on("error", reject);
+    request.write(body);
+    request.end();
+  });
+}
+
+function toErrorMessage(error) {
+  if (!error) {
+    return "Unknown error";
+  }
+  if (typeof error.message === "string" && error.message.trim()) {
+    return error.message.trim();
+  }
+  return String(error);
+}
+
+function isDatabaseUniqueViolation(error) {
+  const code = String(error?.code || "");
+  const message = String(error?.message || "");
+  return code === "23505" || /duplicate key value/i.test(message);
 }
 
 function normalizeEmail(value) {

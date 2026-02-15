@@ -9,6 +9,7 @@
 3. Add a `PostgreSQL` service in Railway and copy its `DATABASE_URL`.
 4. Set environment variables:
    - `DATABASE_URL` (from Railway Postgres service)
+   - `REQUIRE_POSTGRES=true` (recommended in production)
    - `JWT_SECRET=your-long-random-secret`
    - `ADMIN_EMAIL=admin@yourdomain.com`
    - `ADMIN_PASSWORD=your-strong-admin-password`
@@ -20,6 +21,12 @@
    - Optional: `APP_BASE_URL=https://xerivolearn.com`
    - Optional: `PASSWORD_RESET_TTL_MINUTES=30`
    - Optional: `PASSWORD_RESET_DEBUG=false`
+   - Optional SMTP provider: `SMTP_HOST=smtp.yourprovider.com`
+   - Optional SMTP provider: `SMTP_PORT=587`
+   - Optional SMTP provider: `SMTP_SECURE=false`
+   - Optional SMTP provider: `SMTP_USER=your-smtp-user`
+   - Optional SMTP provider: `SMTP_PASS=your-smtp-password`
+   - Optional SMTP provider: `SMTP_FROM_EMAIL=noreply@yourdomain.com`
    - Optional: `PASSWORD_RESET_FROM_EMAIL=noreply@yourdomain.com`
    - Optional: `RESEND_API_KEY=re_xxx`
    - Optional: `PASSWORD_RESET_WEBHOOK_URL=https://your-email-worker.example/send`
@@ -87,7 +94,7 @@ Single-host fallback paths still work:
 - Rotate admin/educator passwords periodically.
 - If you use optional `ADMIN_TOKEN` fallback, keep it private.
 - Disable `PASSWORD_RESET_DEBUG` in production.
-- For automatic reset emails, configure `RESEND_API_KEY` and `PASSWORD_RESET_FROM_EMAIL`.
+- For automatic reset emails, configure SMTP (`SMTP_*`) or Resend (`RESEND_API_KEY` + `PASSWORD_RESET_FROM_EMAIL`).
 
 ## 6) Optional: Keep subdomains for later
 

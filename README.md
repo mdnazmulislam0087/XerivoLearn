@@ -46,6 +46,7 @@ railway.json
 3. For Railway Postgres (recommended), set:
    - `DATABASE_URL` (from Railway Postgres service)
    - Optional: `PG_SSL=true`
+   - Optional: `REQUIRE_POSTGRES=true` (recommended on Railway production)
 4. Run:
    - `npm start`
 5. Open:
@@ -120,6 +121,7 @@ Parent-only watching is enforced at API level:
 2. Create Railway project from repo
 3. Add Railway Variables:
    - `DATABASE_URL` (from Railway Postgres)
+   - `REQUIRE_POSTGRES=true` (recommended)
    - `JWT_SECRET`
    - `ADMIN_EMAIL`
    - `ADMIN_PASSWORD`
@@ -130,6 +132,7 @@ Parent-only watching is enforced at API level:
    - Optional: `APP_BASE_URL`
    - Optional: `PG_SSL=true`
    - Optional: `PASSWORD_RESET_TTL_MINUTES`
+   - Optional SMTP provider: `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM_EMAIL`
    - Optional: `PASSWORD_RESET_FROM_EMAIL`
    - Optional: `RESEND_API_KEY`
    - Optional: `PASSWORD_RESET_WEBHOOK_URL`
@@ -144,5 +147,5 @@ Notes:
 - With `DATABASE_URL` set, data is stored in PostgreSQL and the schema is auto-created.
 - First PostgreSQL boot can auto-import existing JSON data from `backend/data/` if DB is empty.
 - Keep `ADMIN_PASSWORD`, `EDUCATOR_PASSWORD`, and `JWT_SECRET` strong.
-- Password reset emails are sent automatically when `RESEND_API_KEY` + `PASSWORD_RESET_FROM_EMAIL` are configured.
-- If no email provider is configured, reset links are logged only for server-side debugging.
+- Password reset emails are sent automatically when SMTP (`SMTP_*`) or Resend (`RESEND_API_KEY` + `PASSWORD_RESET_FROM_EMAIL`) is configured.
+- If no provider is configured, reset links are logged only for server-side debugging.

@@ -21,69 +21,92 @@
     </div>
 
     <main class="shell">
-      <header class="topbar">
-        <a id="home-link" class="brand" href="https://xerivolearn.com">XerivoLearn</a>
-        <nav class="topbar-nav" aria-label="Primary navigation">
-          <a id="nav-parent-link" href="https://app.xerivolearn.com" data-i18n="nav_parents">Parents</a>
-          <a id="nav-educator-link" href="https://educator.xerivolearn.com" data-i18n="nav_educators">Educators</a>
-          <a id="nav-admin-link" href="https://admin.xerivolearn.com" data-i18n="nav_admin">Admin CMS</a>
-        </nav>
-        <div class="lang-switch" aria-label="Language switch">
-          <button id="lang-en" type="button">EN</button>
-          <button id="lang-bn" type="button">BN</button>
-        </div>
-      </header>
-
-      <section class="hero card">
-        <div class="hero-copy">
-          <p class="hero-chip" data-i18n="hero_chip">Ages 3-10</p>
-          <h1 data-i18n="hero_title">A magical cartoon classroom for curious kids</h1>
-          <p class="hero-text" data-i18n="hero_text">
-            Short animated lessons, bedtime stories, and playful science videos that children love and parents trust.
-          </p>
-          <div class="hero-actions">
-            <a id="hero-parent-link" class="btn btn-primary" href="https://app.xerivolearn.com" data-i18n="cta_parent">
-              Enter Parent App
-            </a>
-            <a
-              id="hero-educator-link"
-              class="btn btn-secondary"
-              href="https://educator.xerivolearn.com"
-              data-i18n="cta_educator"
-            >
-              Educator Portal
-            </a>
+      <section class="showcase card">
+        <header class="showcase-topbar">
+          <a id="home-link" class="brand" href="https://xerivolearn.com">XerivoLearn</a>
+          <nav class="showcase-nav" aria-label="Primary navigation">
+            <a id="nav-parent-link" href="https://app.xerivolearn.com" data-i18n="nav_parents">Parents</a>
+            <a id="nav-educator-link" href="https://educator.xerivolearn.com" data-i18n="nav_educators">Educators</a>
+            <a id="nav-admin-link" href="https://admin.xerivolearn.com" data-i18n="nav_admin">Admin CMS</a>
+          </nav>
+          <div class="lang-switch" aria-label="Language switch">
+            <button id="lang-en" type="button">EN</button>
+            <button id="lang-bn" type="button">BN</button>
           </div>
-          <div class="hero-pills">
-            <span data-i18n="pill_1">Bilingual learning</span>
-            <span data-i18n="pill_2">Safe for children</span>
-            <span data-i18n="pill_3">Mobile friendly</span>
-          </div>
-        </div>
+        </header>
 
-        <div class="hero-art" aria-label="Animated mascots">
-          <figure class="mascot mascot-bunny">
-            <img src="./assets/characters/bunny.svg" alt="Friendly bunny mascot" />
-          </figure>
-          <figure class="mascot mascot-robot">
-            <img src="./assets/characters/robot.svg" alt="Friendly robot mascot" />
-          </figure>
-          <figure class="mascot mascot-book">
-            <img src="./assets/characters/book.svg" alt="Smiling book mascot" />
-          </figure>
-          <p class="speech speech-1" data-i18n="speech_1">Let's learn ABC!</p>
-          <p class="speech speech-2" data-i18n="speech_2">Science can be fun!</p>
-        </div>
+        <section class="showcase-hero">
+          <div class="showcase-mascots" aria-hidden="true">
+            <figure class="mascot mascot-bunny">
+              <img src="./assets/characters/bunny.svg" alt="" />
+            </figure>
+            <figure class="mascot mascot-robot">
+              <img src="./assets/characters/robot.svg" alt="" />
+            </figure>
+            <figure class="mascot mascot-book">
+              <img src="./assets/characters/book.svg" alt="" />
+            </figure>
+          </div>
+          <div class="showcase-copy">
+            <h1 data-i18n="hero_title">A Magical Cartoon World</h1>
+            <p data-i18n="hero_text">
+              Happy songs, bedtime stories, and playful science cartoons made for little learners.
+            </p>
+            <div class="showcase-actions">
+              <a id="hero-parent-link" class="btn btn-primary" href="https://app.xerivolearn.com" data-i18n="cta_parent">
+                Enter Parent App
+              </a>
+              <a
+                id="hero-educator-link"
+                class="btn btn-primary ghost"
+                href="https://educator.xerivolearn.com"
+                data-i18n="cta_educator"
+              >
+                Educator Portal
+              </a>
+            </div>
+          </div>
+        </section>
+
+        <section class="showcase-features" aria-label="Feature highlights">
+          <article class="show-tile tile-blue">
+            <p class="tile-icon" aria-hidden="true">&#128290;</p>
+            <h2>
+              <span data-i18n="topic_alpha">Alphabet</span>
+              <span>&amp;</span>
+              <span data-i18n="topic_numbers">Numbers</span>
+            </h2>
+          </article>
+          <article class="show-tile tile-mint">
+            <p class="tile-icon" aria-hidden="true">&#127769;</p>
+            <h2 data-i18n="topic_story">Bedtime Stories</h2>
+          </article>
+          <article class="show-tile tile-green">
+            <p class="tile-icon" aria-hidden="true">&#127760;</p>
+            <h2 data-i18n="trust_item_3_title">Bangla + English mode</h2>
+          </article>
+        </section>
+
+        <section class="showcase-prices" aria-label="Subscription plans">
+          <a id="price-parent-link" class="price-orb parent" href="https://app.xerivolearn.com">
+            <p class="price-value" data-i18n="parent_price">$1/month</p>
+            <p class="price-label" data-i18n="parent_plan">Parent Plan</p>
+          </a>
+          <a id="price-educator-link" class="price-orb educator" href="https://educator.xerivolearn.com">
+            <p class="price-value" data-i18n="educator_price">$20/year</p>
+            <p class="price-label" data-i18n="educator_plan">Educator Plan</p>
+          </a>
+        </section>
       </section>
 
       <section class="topics card">
         <div class="section-head">
-          <h2 data-i18n="topics_title">Learning zones made for kids</h2>
-          <p data-i18n="topics_text">Colorful, bite-sized videos organized by age and topic.</p>
+          <h2 data-i18n="topics_title">More fun learning zones</h2>
+          <p data-i18n="topics_text">Age-friendly categories for playful daily learning.</p>
         </div>
         <div class="topic-grid">
           <article class="topic-card tone-blue">
-            <div class="topic-icon" aria-hidden="true">&#128292;</div>
+            <div class="topic-icon" aria-hidden="true">&#128290;</div>
             <h3 data-i18n="topic_alpha">Alphabet</h3>
             <p data-i18n="topic_alpha_text">Letter songs and phonics adventures.</p>
           </article>
@@ -187,35 +210,6 @@
         </div>
       </section>
 
-      <section class="pricing card">
-        <div class="section-head">
-          <h2 data-i18n="pricing_title">Simple plans</h2>
-          <p data-i18n="pricing_text">Choose a plan for home or classroom.</p>
-        </div>
-        <div class="pricing-grid">
-          <article class="price-card parent">
-            <p class="price" data-i18n="parent_price">$1 / month</p>
-            <h3 data-i18n="parent_plan">Parent Plan</h3>
-            <p data-i18n="parent_plan_text">Watch cartoons, stories, and learning videos at home.</p>
-            <a id="price-parent-link" class="btn btn-primary" href="https://app.xerivolearn.com" data-i18n="start_parent">
-              Start Parent Plan
-            </a>
-          </article>
-          <article class="price-card educator">
-            <p class="price" data-i18n="educator_price">$20 / year</p>
-            <h3 data-i18n="educator_plan">Educator Plan</h3>
-            <p data-i18n="educator_plan_text">Designed for teachers with annual classroom access.</p>
-            <a
-              id="price-educator-link"
-              class="btn btn-secondary"
-              href="https://educator.xerivolearn.com"
-              data-i18n="start_educator"
-            >
-              Start Educator Plan
-            </a>
-          </article>
-        </div>
-      </section>
     </main>
 
     <script>
@@ -231,9 +225,8 @@
             nav_educators: "Educators",
             nav_admin: "Admin CMS",
             hero_chip: "Ages 3-10",
-            hero_title: "A magical cartoon classroom for curious kids",
-            hero_text:
-              "Short animated lessons, bedtime stories, and playful science videos that children love and parents trust.",
+            hero_title: "A Magical Cartoon World",
+            hero_text: "Happy songs, bedtime stories, and playful science cartoons made for little learners.",
             cta_parent: "Enter Parent App",
             cta_educator: "Educator Portal",
             pill_1: "Bilingual learning",
@@ -241,8 +234,8 @@
             pill_3: "Mobile friendly",
             speech_1: "Let's learn ABC!",
             speech_2: "Science can be fun!",
-            topics_title: "Learning zones made for kids",
-            topics_text: "Colorful, bite-sized videos organized by age and topic.",
+            topics_title: "More fun learning zones",
+            topics_text: "Age-friendly categories for playful daily learning.",
             topic_alpha: "Alphabet",
             topic_alpha_text: "Letter songs and phonics adventures.",
             topic_numbers: "Numbers",
@@ -267,7 +260,7 @@
             trust_item_1_text: "Curated videos designed for young learners.",
             trust_item_2_title: "Quick, focused lessons",
             trust_item_2_text: "Short formats match real family routines.",
-            trust_item_3_title: "Bangla + English mode",
+            trust_item_3_title: "Bilingual Mode (Bangla + English)",
             trust_item_3_text: "Switch language anytime and keep it saved.",
             testimonials_title: "What families are saying",
             testimonials_text: "Parent feedback from early XerivoLearn users.",
@@ -279,11 +272,11 @@
             quote_3_by: "Nusrat, Guardian",
             pricing_title: "Simple plans",
             pricing_text: "Choose a plan for home or classroom.",
-            parent_price: "$1 / month",
+            parent_price: "$1/month",
             parent_plan: "Parent Plan",
             parent_plan_text: "Watch cartoons, stories, and learning videos at home.",
             start_parent: "Start Parent Plan",
-            educator_price: "$20 / year",
+            educator_price: "$20/year",
             educator_plan: "Educator Plan",
             educator_plan_text: "Designed for teachers with annual classroom access.",
             start_educator: "Start Educator Plan"

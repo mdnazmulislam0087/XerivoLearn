@@ -17,9 +17,7 @@ const librarySearch = document.getElementById("library-search");
 const statTotal = document.getElementById("stat-total");
 const statPublished = document.getElementById("stat-published");
 const statDrafts = document.getElementById("stat-drafts");
-const termsText = document.getElementById("terms-text");
-const saveTermsBtn = document.getElementById("save-terms-btn");
-const termsStatus = document.getElementById("terms-status");
+const authSections = Array.from(document.querySelectorAll(".requires-auth"));
 
 const fields = {
   title: document.getElementById("title"),
@@ -37,8 +35,7 @@ const state = {
   user: null,
   editingId: null,
   videos: [],
-  searchQuery: "",
-  settings: null
+  searchQuery: ""
 };
 
 authEmail.value = localStorage.getItem("xerivo_admin_email") || "";
@@ -105,35 +102,6 @@ cancelBtn.addEventListener("click", () => {
   resetForm();
 });
 
-saveTermsBtn.addEventListener("click", async () => {
-  termsStatus.textContent = "";
-  try {
-    assertAuthenticated();
-    const termsAndConditions = termsText.value.trim();
-    if (termsAndConditions.length < 40) {
-      throw new Error("Terms must be at least 40 characters.");
-    }
-
-    const response = await adminFetch("/api/admin/settings/terms", {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ termsAndConditions })
-    });
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data.error || "Could not save terms.");
-    }
-
-    state.settings = data;
-    termsText.value = data.termsAndConditions || "";
-    termsStatus.textContent = "Terms and Conditions updated.";
-  } catch (error) {
-    termsStatus.textContent = error.message;
-  }
-});
-
 bootstrap();
 
 async function bootstrap() {
@@ -145,7 +113,7 @@ async function bootstrap() {
 
   try {
     await refreshAdminSession();
-    await Promise.all([loadVideos(), loadAdminSettings()]);
+    await loadVideos();
   } catch (error) {
     clearSession();
     showLoggedOut(error.message || "Your session expired. Sign in again.");
@@ -186,7 +154,7 @@ async function loginAdmin() {
 
     authPassword.value = "";
     showLoggedIn();
-    await Promise.all([loadVideos(), loadAdminSettings()]);
+    await loadVideos();
   } catch (error) {
     clearSession();
     showLoggedOut(error.message);
@@ -240,26 +208,6 @@ async function loadVideos() {
     state.videos = [];
     updateStats();
     videoList.innerHTML = `<p>${escapeHtml(error.message)}</p>`;
-  }
-}
-
-async function loadAdminSettings() {
-  if (!state.token) {
-    state.settings = null;
-    termsText.value = "";
-    return;
-  }
-
-  try {
-    const response = await adminFetch("/api/admin/settings", { method: "GET" });
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data.error || "Could not load settings.");
-    }
-    state.settings = data;
-    termsText.value = data.termsAndConditions || "";
-  } catch (error) {
-    termsStatus.textContent = error.message;
   }
 }
 
@@ -431,23 +379,21 @@ function showLoggedOut(message) {
   authStatus.textContent = message || "";
   authUser.textContent = "";
   authLogoutBtn.classList.add("hidden");
-  termsStatus.textContent = "";
-  termsText.value = "";
-  state.settings = null;
   state.videos = [];
   updateStats();
   videoList.innerHTML = "<p>Sign in to load your CMS video library.</p>";
 }
 
 function setCmsEnabled(enabled) {
+  authSections.forEach((section) => {
+    section.classList.toggle("hidden", !enabled);
+  });
   Object.values(fields).forEach((field) => {
     field.disabled = !enabled;
   });
   saveBtn.disabled = !enabled;
   cancelBtn.disabled = !enabled;
   librarySearch.disabled = !enabled;
-  termsText.disabled = !enabled;
-  saveTermsBtn.disabled = !enabled;
 }
 
 function clearSession() {

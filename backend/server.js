@@ -26,6 +26,7 @@ const NODE_ENV = envString("NODE_ENV", "");
 const IS_PRODUCTION = NODE_ENV === "production";
 const PORT = envNumber("PORT", 8080);
 const ADMIN_TOKEN = envString("ADMIN_TOKEN", "");
+const ALLOW_LEGACY_ADMIN_TOKEN = envBoolean("ALLOW_LEGACY_ADMIN_TOKEN", false);
 const ADMIN_EMAIL = envString("ADMIN_EMAIL", "admin@xerivolearn.com").toLowerCase();
 const ADMIN_PASSWORD = envString("ADMIN_PASSWORD", "Admin123!change");
 const EDUCATOR_EMAIL = envString("EDUCATOR_EMAIL", "educator@xerivolearn.com").toLowerCase();
@@ -1542,7 +1543,7 @@ async function requireAuth(req, res, roles) {
 }
 
 function isLegacyAdminToken(req) {
-  if (!ADMIN_TOKEN) {
+  if (!ALLOW_LEGACY_ADMIN_TOKEN || !ADMIN_TOKEN) {
     return false;
   }
   const token = req.headers["x-admin-token"];

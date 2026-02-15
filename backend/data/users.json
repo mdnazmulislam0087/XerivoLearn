@@ -1,1 +1,13 @@
-[]
+[
+  {
+    "id": "1daf3e2a-e84f-49e6-a044-0dd35eadd893",
+    "name": "Xerivo Admin",
+    "email": "admin@xerivolearn.com",
+    "role": "admin",
+    "passwordHash": "4002e7467b7d4ab25b7f4626ad6f39417f479cfb16e2081edd617765c04a612d18a470de9349ef0d7c17fea23bf4118d6fa0df45dca2483c22c8e75c35179f32",
+    "passwordSalt": "fa36fc34537241ef10ddc8e014cb3c21",
+    "passwordIterations": 120000,
+    "createdAt": "2026-02-15T01:18:52.599Z",
+    "updatedAt": "2026-02-15T01:18:52.599Z"
+  }
+]

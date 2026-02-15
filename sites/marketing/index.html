@@ -8,130 +8,345 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@400;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@400;600;700;800&family=Noto+Sans+Bengali:wght@400;600;700;800&display=swap"
       rel="stylesheet"
     />
   </head>
   <body>
-    <div class="bg-shape shape-1"></div>
-    <div class="bg-shape shape-2"></div>
-    <div class="bg-shape shape-3"></div>
+    <div class="bg-orb orb-a"></div>
+    <div class="bg-orb orb-b"></div>
+    <div class="bg-orb orb-c"></div>
+    <div class="bg-grid"></div>
 
     <header class="site-header">
       <a class="logo" href="/">XerivoLearn</a>
-      <nav class="site-nav">
-        <a id="app-link" href="https://app.xerivolearn.com">Kids App</a>
-        <a id="admin-link" href="https://admin.xerivolearn.com">Admin CMS</a>
-      </nav>
+      <div class="header-actions">
+        <nav class="site-nav">
+          <a id="app-link" href="https://app.xerivolearn.com" data-i18n="nav_app">Kids App</a>
+          <a id="admin-link" href="https://admin.xerivolearn.com" data-i18n="nav_admin">Admin CMS</a>
+        </nav>
+        <div class="lang-switch" aria-label="Language switch">
+          <button id="lang-en" type="button">EN</button>
+          <button id="lang-bn" type="button">BN</button>
+        </div>
+      </div>
     </header>
 
     <main>
       <section class="hero">
         <div class="hero-copy">
-          <p class="eyebrow">Cartoon Learning Platform</p>
-          <h1>Beautiful learning moments for children and full clarity for parents.</h1>
-          <p class="hero-text">
-            XerivoLearn is designed for young kids to enjoy stories, songs, and
-            early-learning videos while parents get a safer and cleaner viewing experience.
+          <p class="eyebrow" data-i18n="hero_eyebrow">Kids-First Learning Platform</p>
+          <h1 data-i18n="hero_title">Colorful cartoon learning for children. Peace of mind for parents.</h1>
+          <p class="hero-text" data-i18n="hero_text">
+            Story videos, songs, alphabet, numbers, and guided topics in a joyful interface
+            designed for young learners and trusted by families.
           </p>
           <div class="hero-actions">
-            <a id="hero-app-link" class="button button-primary" href="https://app.xerivolearn.com">
-              Explore Kids App
+            <a
+              id="hero-app-link"
+              class="button button-primary"
+              href="https://app.xerivolearn.com"
+              data-i18n="hero_btn_app"
+            >
+              Open Kids App
             </a>
-            <a id="hero-admin-link" class="button button-secondary" href="https://admin.xerivolearn.com">
-              Open CMS
+            <a
+              id="hero-admin-link"
+              class="button button-secondary"
+              href="https://admin.xerivolearn.com"
+              data-i18n="hero_btn_admin"
+            >
+              Manage Library
             </a>
+          </div>
+          <div class="hero-badges">
+            <span data-i18n="hero_badge_age">Age-based filters</span>
+            <span data-i18n="hero_badge_parent">Parent accounts</span>
+            <span data-i18n="hero_badge_child">Child profiles</span>
           </div>
         </div>
 
-        <aside class="hero-panel">
-          <h2>Today in XerivoLearn</h2>
-          <ul>
-            <li>Age-based recommendations for 3-5, 4-7, and 7+</li>
-            <li>Ad-light viewing flow for focused attention</li>
-            <li>Fast CMS workflow to publish videos in minutes</li>
-          </ul>
-          <div class="panel-stats">
-            <article>
-              <p>Audience</p>
-              <strong>Kids + Parents</strong>
-            </article>
-            <article>
-              <p>CMS style</p>
-              <strong>Simple + Fast</strong>
-            </article>
-          </div>
+        <aside class="hero-stage">
+          <article class="stage-card stage-main">
+            <p data-i18n="stage_mix_label">Today's Learning Mix</p>
+            <h2 data-i18n="stage_mix_title">Songs + Stories + Early Math</h2>
+            <div class="tag-row">
+              <span data-i18n="stage_tag_35">Age 3-5</span>
+              <span data-i18n="stage_tag_47">Age 4-7</span>
+              <span data-i18n="stage_tag_7">Age 7+</span>
+            </div>
+          </article>
+          <article class="stage-card stage-small top">
+            <p data-i18n="stage_parent_label">Parent Tools</p>
+            <strong data-i18n="stage_parent_value">Favorites + Child Profiles</strong>
+          </article>
+          <article class="stage-card stage-small bottom">
+            <p data-i18n="stage_cms_label">CMS Control</p>
+            <strong data-i18n="stage_cms_value">Publish in Minutes</strong>
+          </article>
         </aside>
       </section>
 
-      <section class="feature-grid">
-        <article class="feature feature-sun">
-          <h3>Joyful visuals</h3>
-          <p>Large cards, bright colors, and readable text for children and family viewing.</p>
+      <section class="audience">
+        <article class="audience-card kids">
+          <h3 data-i18n="audience_kids_title">For Children</h3>
+          <ul>
+            <li data-i18n="audience_kids_1">Big playful cards and bright visuals</li>
+            <li data-i18n="audience_kids_2">Simple age-friendly browsing</li>
+            <li data-i18n="audience_kids_3">Topics that feel like fun, not homework</li>
+          </ul>
         </article>
-        <article class="feature feature-sea">
-          <h3>Parent confidence</h3>
-          <p>Clean browsing with clear age labels, categories, and direct video links.</p>
-        </article>
-        <article class="feature feature-leaf">
-          <h3>Creator control</h3>
-          <p>Upload, edit, publish, and unpublish in one CMS dashboard.</p>
+        <article class="audience-card parents">
+          <h3 data-i18n="audience_parents_title">For Parents</h3>
+          <ul>
+            <li data-i18n="audience_parents_1">Track favorites for each child profile</li>
+            <li data-i18n="audience_parents_2">Set up quick watch sessions by age group</li>
+            <li data-i18n="audience_parents_3">Cleaner discovery and stronger content control</li>
+          </ul>
         </article>
       </section>
 
-      <section class="journey">
-        <h2>How families use XerivoLearn</h2>
-        <div class="journey-grid">
+      <section class="preview">
+        <h2 data-i18n="preview_title">Explore The Experience</h2>
+        <div class="preview-grid">
+          <article class="preview-card sky">
+            <h3 data-i18n="preview_library_title">Learning Library</h3>
+            <p data-i18n="preview_library_text">Search and filter by age, category, and favorite videos.</p>
+          </article>
+          <article class="preview-card mint">
+            <h3 data-i18n="preview_child_title">Child Profiles</h3>
+            <p data-i18n="preview_child_text">Create profile avatars so each child gets a tailored view.</p>
+          </article>
+          <article class="preview-card peach">
+            <h3 data-i18n="preview_login_title">Parent Login</h3>
+            <p data-i18n="preview_login_text">Secure account login with password reset flow included.</p>
+          </article>
+          <article class="preview-card blue">
+            <h3 data-i18n="preview_admin_title">Admin Studio</h3>
+            <p data-i18n="preview_admin_text">Add, edit, publish, or hide videos with dashboard controls.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="steps">
+        <h2 data-i18n="steps_title">How XerivoLearn Works</h2>
+        <div class="steps-grid">
           <article>
             <span>1</span>
-            <h3>Parent picks a safe playlist</h3>
-            <p>Search by topic and age to prepare an easy session for your child.</p>
+            <h3 data-i18n="steps_1_title">Create Parent Account</h3>
+            <p data-i18n="steps_1_text">Register once and add children with custom avatars.</p>
           </article>
           <article>
             <span>2</span>
-            <h3>Child watches and learns</h3>
-            <p>Friendly cards guide children to songs, stories, language, and math videos.</p>
+            <h3 data-i18n="steps_2_title">Pick Child + Topic</h3>
+            <p data-i18n="steps_2_text">Use filters to quickly find suitable videos by age and interest.</p>
           </article>
           <article>
             <span>3</span>
-            <h3>You publish new content quickly</h3>
-            <p>Use CMS controls to keep your library fresh every day.</p>
+            <h3 data-i18n="steps_3_title">Grow Your Library</h3>
+            <p data-i18n="steps_3_text">Use CMS to publish fresh learning content consistently.</p>
           </article>
         </div>
       </section>
 
       <section class="cta">
-        <h2>Ready to launch your children-first video platform?</h2>
-        <p>Start now on Railway and attach your custom domain whenever you are ready.</p>
+        <h2 data-i18n="cta_title">Ready to build a magical learning home for families?</h2>
+        <p data-i18n="cta_text">Start on Railway now and connect your custom domain when ready.</p>
         <div class="hero-actions">
-          <a class="button button-primary" href="https://app.xerivolearn.com">Open App Preview</a>
-          <a class="button button-secondary" href="https://admin.xerivolearn.com">Open CMS Preview</a>
+          <a
+            id="cta-app-link"
+            class="button button-primary"
+            href="https://app.xerivolearn.com"
+            data-i18n="cta_btn_app"
+          >
+            Try App Preview
+          </a>
+          <a
+            id="cta-admin-link"
+            class="button button-secondary"
+            href="https://admin.xerivolearn.com"
+            data-i18n="cta_btn_admin"
+          >
+            Open CMS Preview
+          </a>
         </div>
       </section>
     </main>
 
     <footer class="footer">
-      <p>2026 XerivoLearn. Learning that feels playful and trustworthy.</p>
+      <p data-i18n="footer_text">2026 XerivoLearn. Joyful learning for kids, confidence for parents.</p>
     </footer>
 
     <script>
       (function () {
+        const STORAGE_KEY = "xerivo_lang";
+        const supportedLanguages = new Set(["en", "bn"]);
+
+        const translations = {
+          en: {
+            page_title: "XerivoLearn | Cartoon Learning Videos for Kids",
+            nav_app: "Kids App",
+            nav_admin: "Admin CMS",
+            hero_eyebrow: "Kids-First Learning Platform",
+            hero_title: "Colorful cartoon learning for children. Peace of mind for parents.",
+            hero_text:
+              "Story videos, songs, alphabet, numbers, and guided topics in a joyful interface designed for young learners and trusted by families.",
+            hero_btn_app: "Open Kids App",
+            hero_btn_admin: "Manage Library",
+            hero_badge_age: "Age-based filters",
+            hero_badge_parent: "Parent accounts",
+            hero_badge_child: "Child profiles",
+            stage_mix_label: "Today's Learning Mix",
+            stage_mix_title: "Songs + Stories + Early Math",
+            stage_tag_35: "Age 3-5",
+            stage_tag_47: "Age 4-7",
+            stage_tag_7: "Age 7+",
+            stage_parent_label: "Parent Tools",
+            stage_parent_value: "Favorites + Child Profiles",
+            stage_cms_label: "CMS Control",
+            stage_cms_value: "Publish in Minutes",
+            audience_kids_title: "For Children",
+            audience_kids_1: "Big playful cards and bright visuals",
+            audience_kids_2: "Simple age-friendly browsing",
+            audience_kids_3: "Topics that feel like fun, not homework",
+            audience_parents_title: "For Parents",
+            audience_parents_1: "Track favorites for each child profile",
+            audience_parents_2: "Set up quick watch sessions by age group",
+            audience_parents_3: "Cleaner discovery and stronger content control",
+            preview_title: "Explore The Experience",
+            preview_library_title: "Learning Library",
+            preview_library_text: "Search and filter by age, category, and favorite videos.",
+            preview_child_title: "Child Profiles",
+            preview_child_text: "Create profile avatars so each child gets a tailored view.",
+            preview_login_title: "Parent Login",
+            preview_login_text: "Secure account login with password reset flow included.",
+            preview_admin_title: "Admin Studio",
+            preview_admin_text: "Add, edit, publish, or hide videos with dashboard controls.",
+            steps_title: "How XerivoLearn Works",
+            steps_1_title: "Create Parent Account",
+            steps_1_text: "Register once and add children with custom avatars.",
+            steps_2_title: "Pick Child + Topic",
+            steps_2_text: "Use filters to quickly find suitable videos by age and interest.",
+            steps_3_title: "Grow Your Library",
+            steps_3_text: "Use CMS to publish fresh learning content consistently.",
+            cta_title: "Ready to build a magical learning home for families?",
+            cta_text: "Start on Railway now and connect your custom domain when ready.",
+            cta_btn_app: "Try App Preview",
+            cta_btn_admin: "Open CMS Preview",
+            footer_text: "2026 XerivoLearn. Joyful learning for kids, confidence for parents."
+          },
+          bn: {
+            page_title: "XerivoLearn | শিশুদের কার্টুন শেখার ভিডিও প্ল্যাটফর্ম",
+            nav_app: "কিডস অ্যাপ",
+            nav_admin: "অ্যাডমিন সিএমএস",
+            hero_eyebrow: "শিশুদের জন্য আগে ভাবা লার্নিং প্ল্যাটফর্ম",
+            hero_title: "শিশুদের জন্য রঙিন কার্টুন লার্নিং। অভিভাবকদের জন্য নিশ্চিন্ত অভিজ্ঞতা।",
+            hero_text:
+              "গল্প, গান, বর্ণমালা, সংখ্যা এবং গাইডেড টপিকসহ একটি আনন্দময় ইন্টারফেস, যা ছোট শিক্ষার্থীদের জন্য ডিজাইন করা এবং পরিবারে ভরসাযোগ্য।",
+            hero_btn_app: "কিডস অ্যাপ খুলুন",
+            hero_btn_admin: "লাইব্রেরি ম্যানেজ করুন",
+            hero_badge_age: "বয়সভিত্তিক ফিল্টার",
+            hero_badge_parent: "অভিভাবক অ্যাকাউন্ট",
+            hero_badge_child: "চাইল্ড প্রোফাইল",
+            stage_mix_label: "আজকের শেখার মিক্স",
+            stage_mix_title: "গান + গল্প + প্রাথমিক গণিত",
+            stage_tag_35: "বয়স ৩-৫",
+            stage_tag_47: "বয়স ৪-৭",
+            stage_tag_7: "বয়স ৭+",
+            stage_parent_label: "প্যারেন্ট টুলস",
+            stage_parent_value: "ফেভারিটস + চাইল্ড প্রোফাইল",
+            stage_cms_label: "সিএমএস কন্ট্রোল",
+            stage_cms_value: "মিনিটে পাবলিশ করুন",
+            audience_kids_title: "শিশুদের জন্য",
+            audience_kids_1: "বড়, আকর্ষণীয় কার্ড এবং উজ্জ্বল ভিজ্যুয়াল",
+            audience_kids_2: "সহজ, বয়স উপযোগী ব্রাউজিং",
+            audience_kids_3: "শেখার বিষয়, কিন্তু মজার অনুভূতি",
+            audience_parents_title: "অভিভাবকদের জন্য",
+            audience_parents_1: "প্রতিটি চাইল্ড প্রোফাইলের জন্য ফেভারিটস সংরক্ষণ",
+            audience_parents_2: "বয়সভিত্তিক দ্রুত ওয়াচ সেশন সেটআপ",
+            audience_parents_3: "আরও পরিষ্কার ডিসকভারি এবং ভালো কনটেন্ট কন্ট্রোল",
+            preview_title: "এক নজরে অভিজ্ঞতা",
+            preview_library_title: "লার্নিং লাইব্রেরি",
+            preview_library_text: "বয়স, ক্যাটাগরি এবং ফেভারিট ভিডিও দিয়ে সার্চ ও ফিল্টার করুন।",
+            preview_child_title: "চাইল্ড প্রোফাইল",
+            preview_child_text: "প্রতি শিশুর জন্য আলাদা অবতারসহ প্রোফাইল তৈরি করুন।",
+            preview_login_title: "প্যারেন্ট লগইন",
+            preview_login_text: "সিকিউর লগইন এবং পাসওয়ার্ড রিসেট সুবিধা।",
+            preview_admin_title: "অ্যাডমিন স্টুডিও",
+            preview_admin_text: "ড্যাশবোর্ড থেকে ভিডিও যোগ, এডিট, পাবলিশ বা হাইড করুন।",
+            steps_title: "XerivoLearn কীভাবে কাজ করে",
+            steps_1_title: "প্যারেন্ট অ্যাকাউন্ট তৈরি করুন",
+            steps_1_text: "একবার রেজিস্টার করে শিশুদের অবতারসহ প্রোফাইল যোগ করুন।",
+            steps_2_title: "শিশু ও টপিক নির্বাচন করুন",
+            steps_2_text: "বয়স ও আগ্রহ অনুযায়ী দ্রুত ভিডিও খুঁজে নিন।",
+            steps_3_title: "লাইব্রেরি বাড়ান",
+            steps_3_text: "সিএমএস ব্যবহার করে নিয়মিত নতুন কনটেন্ট পাবলিশ করুন।",
+            cta_title: "পরিবারের জন্য দারুণ শেখার একটি জগৎ তৈরি করতে প্রস্তুত?",
+            cta_text: "এখনই Railway-এ শুরু করুন, পরে চাইলে কাস্টম ডোমেইন যুক্ত করুন।",
+            cta_btn_app: "অ্যাপ প্রিভিউ দেখুন",
+            cta_btn_admin: "সিএমএস প্রিভিউ খুলুন",
+            footer_text: "২০২৬ XerivoLearn। শিশুদের আনন্দময় শেখা, অভিভাবকদের নিশ্চিন্ত ভরসা।"
+          }
+        };
+
+        const mapText = (lang) => {
+          const dict = translations[lang] || translations.en;
+          document.title = dict.page_title;
+          document.documentElement.lang = lang;
+          document.querySelectorAll("[data-i18n]").forEach((node) => {
+            const key = node.getAttribute("data-i18n");
+            if (key && dict[key]) {
+              node.textContent = dict[key];
+            }
+          });
+        };
+
+        const setActiveButton = (lang) => {
+          const enButton = document.getElementById("lang-en");
+          const bnButton = document.getElementById("lang-bn");
+          enButton.classList.toggle("active", lang === "en");
+          bnButton.classList.toggle("active", lang === "bn");
+        };
+
+        const saveLanguage = (lang) => {
+          try {
+            localStorage.setItem(STORAGE_KEY, lang);
+          } catch {}
+        };
+
+        const loadLanguage = () => {
+          try {
+            const lang = localStorage.getItem(STORAGE_KEY) || "en";
+            return supportedLanguages.has(lang) ? lang : "en";
+          } catch {
+            return "en";
+          }
+        };
+
+        const applyLanguage = (lang) => {
+          const targetLang = supportedLanguages.has(lang) ? lang : "en";
+          mapText(targetLang);
+          setActiveButton(targetLang);
+          saveLanguage(targetLang);
+        };
+
+        document.getElementById("lang-en").addEventListener("click", () => applyLanguage("en"));
+        document.getElementById("lang-bn").addEventListener("click", () => applyLanguage("bn"));
+
         const host = location.hostname.toLowerCase();
-        const isPrimaryDomain =
-          host === "xerivolearn.com" || host === "www.xerivolearn.com";
-        if (isPrimaryDomain) {
-          return;
+        const isPrimaryDomain = host === "xerivolearn.com" || host === "www.xerivolearn.com";
+        if (!isPrimaryDomain) {
+          const appHref = "/app/";
+          const adminHref = "/admin/";
+          document.getElementById("app-link").href = appHref;
+          document.getElementById("admin-link").href = adminHref;
+          document.getElementById("hero-app-link").href = appHref;
+          document.getElementById("hero-admin-link").href = adminHref;
+          document.getElementById("cta-app-link").href = appHref;
+          document.getElementById("cta-admin-link").href = adminHref;
         }
 
-        const appHref = "/app/";
-        const adminHref = "/admin/";
-        document.getElementById("app-link").href = appHref;
-        document.getElementById("admin-link").href = adminHref;
-        document.getElementById("hero-app-link").href = appHref;
-        document.getElementById("hero-admin-link").href = adminHref;
-
-        document.querySelectorAll(".cta .button")[0].href = appHref;
-        document.querySelectorAll(".cta .button")[1].href = adminHref;
+        applyLanguage(loadLanguage());
       })();
     </script>
   </body>

@@ -152,22 +152,26 @@ html[lang="bn"] .brand {
 }
 
 .showcase-topbar {
-  background: var(--surface);
-  border: 1px solid var(--line);
+  background: linear-gradient(140deg, #c7eeff, #a9dcff);
+  border: 1px solid #9fd2f5;
   border-radius: calc(var(--radius-lg) + 2px);
   padding: 10px 12px;
   display: grid;
   gap: 10px;
   align-items: center;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
 }
 
 .brand {
   justify-self: center;
   text-decoration: none;
-  color: var(--brand);
+  color: #ff9a3a;
   font-size: clamp(1.65rem, 6vw, 2.35rem);
   font-weight: 800;
   letter-spacing: 0.25px;
+  text-shadow:
+    0 2px 0 #fff,
+    0 4px 10px rgba(33, 64, 104, 0.16);
 }
 
 .showcase-nav {
@@ -181,9 +185,9 @@ html[lang="bn"] .brand {
   text-decoration: none;
   padding: 8px 14px;
   border-radius: 999px;
-  border: 1px solid var(--line);
-  color: #2e4b81;
-  background: #fff;
+  border: 1px solid #9fcaec;
+  color: #2f4c81;
+  background: #ffffffcf;
   font-weight: 800;
   line-height: 1;
   transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
@@ -192,21 +196,21 @@ html[lang="bn"] .brand {
 .showcase-nav a:nth-child(2) {
   color: #fff;
   border-color: transparent;
-  background: linear-gradient(120deg, var(--primary-a), var(--primary-b));
+  background: linear-gradient(120deg, #ffb543, #ff9133);
 }
 
 .showcase-nav a:nth-child(3) {
   color: #fff;
   border-color: transparent;
-  background: linear-gradient(120deg, #57cc8e, #1eab78);
+  background: linear-gradient(120deg, #45ce90, #1fae77);
 }
 
 .lang-switch {
   justify-self: center;
   display: inline-flex;
   gap: 4px;
-  background: #fff;
-  border: 1px solid var(--line);
+  background: #ffffffd6;
+  border: 1px solid #9fcaec;
   border-radius: 999px;
   padding: 4px;
 }
@@ -225,17 +229,17 @@ html[lang="bn"] .brand {
 
 .lang-switch button.active {
   color: #fff;
-  background: linear-gradient(130deg, #2ab88a, #2ea9dc);
+  background: linear-gradient(130deg, #46cb94, #2aa9df);
 }
 
 .showcase-hero {
   position: relative;
   display: grid;
   gap: 16px;
-  background: linear-gradient(145deg, #fff4cf 0%, #ffe8b5 44%, #f2f8ff 100%);
-  border: 1px solid #f1e1bf;
+  background: linear-gradient(145deg, #ffe67a 0%, #ffd94e 45%, #ffe884 100%);
+  border: 1px solid #f4d44e;
   border-radius: var(--radius-lg);
-  padding: 18px;
+  padding: 20px;
   overflow: hidden;
 }
 
@@ -252,7 +256,7 @@ html[lang="bn"] .brand {
   height: 220px;
   right: -70px;
   top: -80px;
-  background: #ffe39f73;
+  background: #ffefad8a;
 }
 
 .showcase-hero::after {
@@ -260,7 +264,7 @@ html[lang="bn"] .brand {
   height: 170px;
   left: -65px;
   bottom: -70px;
-  background: #d1ebff9c;
+  background: #ffcf6761;
 }
 
 .showcase-copy,
@@ -277,9 +281,15 @@ html[lang="bn"] .brand {
 
 .showcase-copy h1 {
   font-size: clamp(2rem, 8vw, 3.35rem);
-  line-height: 0.96;
-  color: #32497a;
-  letter-spacing: -0.01em;
+  line-height: 0.93;
+  color: #5c3b22;
+  letter-spacing: 0.01em;
+  text-shadow:
+    -2px -2px 0 #fff,
+    2px -2px 0 #fff,
+    -2px 2px 0 #fff,
+    2px 2px 0 #fff,
+    0 5px 10px rgba(109, 75, 40, 0.2);
 }
 
 .showcase-copy p {
@@ -313,18 +323,20 @@ html[lang="bn"] .brand {
 
 .btn-primary {
   color: #fff;
-  background: linear-gradient(120deg, var(--primary-a), var(--primary-b));
-  box-shadow: 0 10px 20px rgba(248, 147, 64, 0.25);
+  background: linear-gradient(120deg, #ff9f38, #ff7f24);
+  box-shadow: 0 10px 20px rgba(245, 133, 42, 0.3);
 }
 
 .btn-secondary {
-  color: #2d4b80;
-  background: #fff;
-  border-color: var(--line);
+  color: #fff;
+  background: linear-gradient(120deg, #ffab45, #ff8530);
+  border-color: transparent;
+  box-shadow: 0 10px 20px rgba(245, 133, 42, 0.25);
 }
 
 .showcase-actions .btn {
   animation: buttonBounce 3.6s ease-in-out infinite;
+  min-width: 168px;
 }
 
 .showcase-actions .btn:nth-child(2) {
@@ -1061,8 +1073,10 @@ html[lang="bn"] .brand {
 }
 
 @media (max-width: 699px) {
-  .btn {
-    width: 100%;
+  .showcase-actions .btn {
+    width: auto;
+    min-width: 0;
+    flex: 1 1 145px;
   }
 
   .demo-controls {

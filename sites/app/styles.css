@@ -280,12 +280,76 @@ html[lang="bn"] .mini-status {
   text-decoration: underline;
 }
 
+.terms-check {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin: 2px 0 2px;
+  font-size: 0.93rem;
+  color: #294676;
+  font-weight: 700;
+}
+
+.terms-check input {
+  width: auto;
+  margin: 2px 0 0;
+}
+
+.captcha-row {
+  margin-top: 8px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.captcha-row .secondary {
+  padding: 7px 10px;
+  font-size: 0.9rem;
+}
+
 .auth-actions {
   margin-top: 8px;
   display: flex;
   gap: 10px;
   align-items: center;
   flex-wrap: wrap;
+}
+
+.terms-panel {
+  margin-top: 10px;
+  border: 1px solid #d8e7ff;
+  border-radius: 12px;
+  background: #f7fbff;
+  padding: 10px;
+}
+
+.terms-head {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.terms-head h3 {
+  margin: 0;
+  font-family: "Fredoka", sans-serif;
+  font-size: 1.05rem;
+}
+
+.terms-content {
+  margin: 8px 0 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: #ffffff;
+  border: 1px solid #d9e9ff;
+  border-radius: 10px;
+  padding: 10px;
+  max-height: 260px;
+  overflow: auto;
+  font: inherit;
+  line-height: 1.5;
+  color: #2d4777;
 }
 
 .secondary {
@@ -873,6 +937,11 @@ html[lang="bn"] .mini-status {
 
   .analytics-summary {
     grid-template-columns: 1fr;
+  }
+
+  .captcha-row {
+    flex-direction: column;
+    align-items: stretch;
   }
 
   .player-shell {

@@ -3,6 +3,14 @@ const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
 const { URL } = require("url");
+let Pool = null;
+try {
+  ({ Pool } = require("pg"));
+} catch (error) {
+  if ((process.env.DATABASE_URL || "").trim()) {
+    throw error;
+  }
+}
 
 const ROOT_DIR = path.resolve(__dirname, "..");
 loadDotEnv(path.join(ROOT_DIR, ".env"));
@@ -19,8 +27,16 @@ const JWT_TTL_SECONDS = Number(process.env.JWT_TTL_SECONDS || 60 * 60 * 24 * 7);
 
 const APP_BASE_URL = (process.env.APP_BASE_URL || "").trim();
 const PASSWORD_RESET_TTL_MINUTES = Number(process.env.PASSWORD_RESET_TTL_MINUTES || 30);
-const PASSWORD_RESET_DEBUG = String(process.env.PASSWORD_RESET_DEBUG || "true").toLowerCase() !== "false";
+const PASSWORD_RESET_DEBUG = String(process.env.PASSWORD_RESET_DEBUG || "false").toLowerCase() === "true";
 const PASSWORD_RESET_WEBHOOK_URL = (process.env.PASSWORD_RESET_WEBHOOK_URL || "").trim();
+const PASSWORD_RESET_FROM_EMAIL = (process.env.PASSWORD_RESET_FROM_EMAIL || "").trim();
+const RESEND_API_KEY = (process.env.RESEND_API_KEY || "").trim();
+const CAPTCHA_TTL_MINUTES = Number(process.env.CAPTCHA_TTL_MINUTES || 10);
+const DATABASE_URL = (process.env.DATABASE_URL || "").trim();
+const PG_SSL =
+  String(process.env.PG_SSL || (process.env.NODE_ENV === "production" ? "true" : "false")).toLowerCase() ===
+  "true";
+const USE_POSTGRES = Boolean(DATABASE_URL);
 
 const DATA_DIR = path.join(__dirname, "data");
 const VIDEOS_FILE = path.join(DATA_DIR, "videos.json");
@@ -28,10 +44,18 @@ const USERS_FILE = path.join(DATA_DIR, "users.json");
 const FAVORITES_FILE = path.join(DATA_DIR, "favorites.json");
 const CHILDREN_FILE = path.join(DATA_DIR, "children.json");
 const PASSWORD_RESETS_FILE = path.join(DATA_DIR, "password_resets.json");
+const SETTINGS_FILE = path.join(DATA_DIR, "settings.json");
 const SITES_DIR = path.join(ROOT_DIR, "sites");
 
 const ALLOWED_CHILD_AVATARS = new Set(["rocket", "star", "whale", "panda", "owl", "fox"]);
 const ALLOWED_AGE_GROUPS = new Set(["3-5", "4-7", "7+"]);
+const CAPTCHA_STORE = new Map();
+const pool = USE_POSTGRES && Pool
+  ? new Pool({
+      connectionString: DATABASE_URL,
+      ssl: PG_SSL ? { rejectUnauthorized: false } : false
+    })
+  : null;
 
 const JSON_HEADERS = {
   "Content-Type": "application/json; charset=utf-8",
@@ -52,10 +76,6 @@ const CONTENT_TYPES = {
   ".webp": "image/webp",
   ".ico": "image/x-icon"
 };
-
-ensureDataStore();
-ensureDefaultAdminUser();
-ensureDefaultEducatorUser();
 
 const server = http.createServer(async (req, res) => {
   const requestUrl = new URL(req.url || "/", `http://${req.headers.host || "localhost"}`);
@@ -82,18 +102,48 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
-server.listen(PORT, () => {
-  console.log(`XerivoLearn starter running on http://localhost:${PORT}`);
-  console.log("Local routes:");
-  console.log(`- Marketing: http://localhost:${PORT}/`);
-  console.log(`- App:       http://localhost:${PORT}/app/`);
-  console.log(`- Educator:  http://localhost:${PORT}/educator/`);
-  console.log(`- Admin:     http://localhost:${PORT}/admin/`);
-});
+bootstrapServer();
+
+async function bootstrapServer() {
+  try {
+    await initializeStorage();
+    await ensureDefaultSettings();
+    await ensureDefaultAdminUser();
+    await ensureDefaultEducatorUser();
+
+    server.listen(PORT, () => {
+      console.log(`XerivoLearn starter running on http://localhost:${PORT}`);
+      console.log("Local routes:");
+      console.log(`- Marketing: http://localhost:${PORT}/`);
+      console.log(`- App:       http://localhost:${PORT}/app/`);
+      console.log(`- Educator:  http://localhost:${PORT}/educator/`);
+      console.log(`- Admin:     http://localhost:${PORT}/admin/`);
+    });
+  } catch (error) {
+    console.error("Failed to bootstrap server:", error);
+    process.exitCode = 1;
+  }
+}
 
 async function handleApi(req, res, pathname, searchParams) {
   if (req.method === "GET" && pathname === "/api/health") {
     sendJson(res, 200, { ok: true, service: "xerivolearn-api" });
+    return;
+  }
+
+  if (req.method === "GET" && pathname === "/api/public/settings") {
+    const settings = await loadSettings();
+    sendJson(res, 200, {
+      termsAndConditions: settings.termsAndConditions || "",
+      termsUpdatedAt: settings.termsUpdatedAt || null
+    });
+    return;
+  }
+
+  if (req.method === "GET" && pathname === "/api/auth/captcha") {
+    clearExpiredCaptchas();
+    const challenge = createCaptchaChallenge();
+    sendJson(res, 200, challenge);
     return;
   }
 
@@ -103,16 +153,22 @@ async function handleApi(req, res, pathname, searchParams) {
       return;
     }
 
-    const validation = validateRegistrationInput(payload);
+    const settings = await loadSettings();
+    const validation = validateRegistrationInput(payload, settings);
     if (!validation.ok) {
       sendJson(res, 400, { error: validation.error });
       return;
     }
 
     const email = normalizeEmail(payload.email);
-    const users = loadUsers();
+    const users = await loadUsers();
     if (users.some((user) => user.email === email)) {
-      sendJson(res, 409, { error: "Email already exists." });
+      sendJson(res, 409, { error: "Email already registered." });
+      return;
+    }
+
+    if (!consumeCaptcha(payload.captchaId, payload.captchaAnswer)) {
+      sendJson(res, 400, { error: "Captcha verification failed. Please try again." });
       return;
     }
 
@@ -123,6 +179,8 @@ async function handleApi(req, res, pathname, searchParams) {
       name: payload.name.trim(),
       email,
       role: "parent",
+      acceptedTermsAt: now,
+      termsVersionAccepted: settings.termsUpdatedAt || now,
       passwordHash: passwordData.hash,
       passwordSalt: passwordData.salt,
       passwordIterations: passwordData.iterations,
@@ -131,7 +189,7 @@ async function handleApi(req, res, pathname, searchParams) {
     };
 
     users.push(user);
-    saveUsers(users);
+    await saveUsers(users);
 
     const token = createAuthToken(user);
     sendJson(res, 201, { token, user: toPublicUser(user) });
@@ -151,7 +209,7 @@ async function handleApi(req, res, pathname, searchParams) {
       return;
     }
 
-    const users = loadUsers();
+    const users = await loadUsers();
     const user = users.find((item) => item.email === email);
     if (!user || !verifyPassword(password, user)) {
       sendJson(res, 401, { error: "Invalid email or password." });
@@ -178,7 +236,7 @@ async function handleApi(req, res, pathname, searchParams) {
       return;
     }
 
-    const users = loadUsers();
+    const users = await loadUsers();
     const user = users.find((item) => item.email === email);
     let debugResetUrl = "";
 
@@ -188,7 +246,7 @@ async function handleApi(req, res, pathname, searchParams) {
       const now = new Date();
       const expiresAt = new Date(now.getTime() + PASSWORD_RESET_TTL_MINUTES * 60 * 1000).toISOString();
 
-      const resets = loadPasswordResets().filter((item) => {
+      const resets = (await loadPasswordResets()).filter((item) => {
         if (item.usedAt) {
           return true;
         }
@@ -205,7 +263,7 @@ async function handleApi(req, res, pathname, searchParams) {
         usedAt: null
       };
       resets.push(resetRecord);
-      savePasswordResets(resets);
+      await savePasswordResets(resets);
 
       const resetUrl = buildPasswordResetUrl(req, token);
       await dispatchPasswordReset(user, resetUrl);
@@ -242,7 +300,7 @@ async function handleApi(req, res, pathname, searchParams) {
     }
 
     const tokenHash = hashResetToken(token);
-    const resets = loadPasswordResets();
+    const resets = await loadPasswordResets();
     const nowMs = Date.now();
     const resetIndex = resets.findIndex((item) => {
       if (item.tokenHash !== tokenHash || item.usedAt) {
@@ -258,7 +316,7 @@ async function handleApi(req, res, pathname, searchParams) {
     }
 
     const resetRecord = resets[resetIndex];
-    const users = loadUsers();
+    const users = await loadUsers();
     const userIndex = users.findIndex((user) => user.id === resetRecord.userId);
     if (userIndex === -1) {
       sendJson(res, 400, { error: "Invalid reset token." });
@@ -273,20 +331,20 @@ async function handleApi(req, res, pathname, searchParams) {
       passwordIterations: passwordData.iterations,
       updatedAt: new Date().toISOString()
     };
-    saveUsers(users);
+    await saveUsers(users);
 
     resets[resetIndex] = {
       ...resetRecord,
       usedAt: new Date().toISOString()
     };
-    savePasswordResets(resets);
+    await savePasswordResets(resets);
 
     sendJson(res, 200, { success: true, message: "Password updated. You can sign in now." });
     return;
   }
 
   if (req.method === "GET" && pathname === "/api/auth/me") {
-    const authUser = requireAuth(req, res);
+    const authUser = await requireAuth(req, res);
     if (!authUser) {
       return;
     }
@@ -295,12 +353,12 @@ async function handleApi(req, res, pathname, searchParams) {
   }
 
   if (req.method === "GET" && pathname === "/api/videos") {
-    const authUser = requireAuth(req, res, ["parent"]);
+    const authUser = await requireAuth(req, res, ["parent"]);
     if (!authUser) {
       return;
     }
 
-    let videos = loadVideos().filter((video) => video.isPublished);
+    let videos = (await loadVideos()).filter((video) => video.isPublished);
 
     const age = (searchParams.get("age") || "").trim();
     const category = (searchParams.get("category") || "").trim().toLowerCase();
@@ -323,12 +381,12 @@ async function handleApi(req, res, pathname, searchParams) {
   }
 
   if (req.method === "GET" && pathname === "/api/parent/favorites") {
-    const authUser = requireAuth(req, res, ["parent"]);
+    const authUser = await requireAuth(req, res, ["parent"]);
     if (!authUser) {
       return;
     }
 
-    const favorites = loadFavorites();
+    const favorites = await loadFavorites();
     const videoIds = Array.isArray(favorites[authUser.id]) ? favorites[authUser.id] : [];
     sendJson(res, 200, { videoIds });
     return;
@@ -336,19 +394,19 @@ async function handleApi(req, res, pathname, searchParams) {
 
   const parentFavoriteMatch = pathname.match(/^\/api\/parent\/favorites\/([^/]+)$/);
   if (req.method === "POST" && parentFavoriteMatch) {
-    const authUser = requireAuth(req, res, ["parent"]);
+    const authUser = await requireAuth(req, res, ["parent"]);
     if (!authUser) {
       return;
     }
 
     const videoId = parentFavoriteMatch[1];
-    const videos = loadVideos().filter((video) => video.isPublished);
+    const videos = (await loadVideos()).filter((video) => video.isPublished);
     if (!videos.some((video) => video.id === videoId)) {
       sendJson(res, 404, { error: "Video not found." });
       return;
     }
 
-    const favorites = loadFavorites();
+    const favorites = await loadFavorites();
     const current = new Set(Array.isArray(favorites[authUser.id]) ? favorites[authUser.id] : []);
     let isFavorite = false;
 
@@ -361,18 +419,18 @@ async function handleApi(req, res, pathname, searchParams) {
     }
 
     favorites[authUser.id] = Array.from(current);
-    saveFavorites(favorites);
+    await saveFavorites(favorites);
     sendJson(res, 200, { isFavorite, videoIds: favorites[authUser.id] });
     return;
   }
 
   if (req.method === "GET" && pathname === "/api/parent/children") {
-    const authUser = requireAuth(req, res, ["parent"]);
+    const authUser = await requireAuth(req, res, ["parent"]);
     if (!authUser) {
       return;
     }
 
-    const children = loadChildren()
+    const children = (await loadChildren())
       .filter((child) => child.parentUserId === authUser.id)
       .sort(sortByNewest);
     sendJson(res, 200, children);
@@ -380,7 +438,7 @@ async function handleApi(req, res, pathname, searchParams) {
   }
 
   if (req.method === "POST" && pathname === "/api/parent/children") {
-    const authUser = requireAuth(req, res, ["parent"]);
+    const authUser = await requireAuth(req, res, ["parent"]);
     if (!authUser) {
       return;
     }
@@ -407,16 +465,16 @@ async function handleApi(req, res, pathname, searchParams) {
       updatedAt: now
     };
 
-    const children = loadChildren();
+    const children = await loadChildren();
     children.push(child);
-    saveChildren(children);
+    await saveChildren(children);
     sendJson(res, 201, child);
     return;
   }
 
   const parentChildMatch = pathname.match(/^\/api\/parent\/children\/([^/]+)$/);
   if (parentChildMatch && req.method === "PUT") {
-    const authUser = requireAuth(req, res, ["parent"]);
+    const authUser = await requireAuth(req, res, ["parent"]);
     if (!authUser) {
       return;
     }
@@ -433,7 +491,7 @@ async function handleApi(req, res, pathname, searchParams) {
       return;
     }
 
-    const children = loadChildren();
+    const children = await loadChildren();
     const index = children.findIndex(
       (child) => child.id === childId && child.parentUserId === authUser.id
     );
@@ -449,19 +507,19 @@ async function handleApi(req, res, pathname, searchParams) {
       avatar: payload.avatar || "rocket",
       updatedAt: new Date().toISOString()
     };
-    saveChildren(children);
+    await saveChildren(children);
     sendJson(res, 200, children[index]);
     return;
   }
 
   if (parentChildMatch && req.method === "DELETE") {
-    const authUser = requireAuth(req, res, ["parent"]);
+    const authUser = await requireAuth(req, res, ["parent"]);
     if (!authUser) {
       return;
     }
 
     const childId = parentChildMatch[1];
-    const children = loadChildren();
+    const children = await loadChildren();
     const nextChildren = children.filter(
       (child) => !(child.id === childId && child.parentUserId === authUser.id)
     );
@@ -471,13 +529,13 @@ async function handleApi(req, res, pathname, searchParams) {
       return;
     }
 
-    saveChildren(nextChildren);
+    await saveChildren(nextChildren);
     sendJson(res, 200, { success: true });
     return;
   }
 
   if (req.method === "GET" && pathname === "/api/educator/me") {
-    const authUser = requireAuth(req, res, ["educator"]);
+    const authUser = await requireAuth(req, res, ["educator"]);
     if (!authUser) {
       return;
     }
@@ -486,18 +544,18 @@ async function handleApi(req, res, pathname, searchParams) {
   }
 
   if (req.method === "GET" && pathname === "/api/educator/videos") {
-    const authUser = requireAuth(req, res, ["educator"]);
+    const authUser = await requireAuth(req, res, ["educator"]);
     if (!authUser) {
       return;
     }
 
-    const videos = loadVideos().filter((video) => video.isPublished).sort(sortByNewest);
+    const videos = (await loadVideos()).filter((video) => video.isPublished).sort(sortByNewest);
     sendJson(res, 200, videos);
     return;
   }
 
   if (req.method === "GET" && pathname === "/api/admin/me") {
-    const authUser = requireAuth(req, res, ["admin"]);
+    const authUser = await requireAuth(req, res, ["admin"]);
     if (!authUser) {
       return;
     }
@@ -508,14 +566,44 @@ async function handleApi(req, res, pathname, searchParams) {
   const adminVideoMatch = pathname.match(/^\/api\/admin\/videos\/([^/]+)$/);
 
   if (pathname.startsWith("/api/admin/")) {
-    const authUser = requireAuth(req, res, ["admin"]);
+    const authUser = await requireAuth(req, res, ["admin"]);
     if (!authUser) {
       return;
     }
   }
 
+  if (req.method === "GET" && pathname === "/api/admin/settings") {
+    const settings = await loadSettings();
+    sendJson(res, 200, settings);
+    return;
+  }
+
+  if (req.method === "PUT" && pathname === "/api/admin/settings/terms") {
+    const payload = await readBodyJson(req, res);
+    if (!payload) {
+      return;
+    }
+
+    const termsAndConditions =
+      typeof payload.termsAndConditions === "string" ? payload.termsAndConditions.trim() : "";
+    if (!termsAndConditions || termsAndConditions.length < 40) {
+      sendJson(res, 400, { error: "Terms and Conditions must be at least 40 characters." });
+      return;
+    }
+
+    const current = await loadSettings();
+    const next = {
+      ...current,
+      termsAndConditions,
+      termsUpdatedAt: new Date().toISOString()
+    };
+    await saveSettings(next);
+    sendJson(res, 200, next);
+    return;
+  }
+
   if (req.method === "GET" && pathname === "/api/admin/videos") {
-    sendJson(res, 200, loadVideos().sort(sortByNewest));
+    sendJson(res, 200, (await loadVideos()).sort(sortByNewest));
     return;
   }
 
@@ -546,9 +634,9 @@ async function handleApi(req, res, pathname, searchParams) {
       updatedAt: now
     };
 
-    const videos = loadVideos();
+    const videos = await loadVideos();
     videos.push(newVideo);
-    saveVideos(videos);
+    await saveVideos(videos);
     sendJson(res, 201, newVideo);
     return;
   }
@@ -566,7 +654,7 @@ async function handleApi(req, res, pathname, searchParams) {
       return;
     }
 
-    const videos = loadVideos();
+    const videos = await loadVideos();
     const index = videos.findIndex((video) => video.id === videoId);
     if (index === -1) {
       sendJson(res, 404, { error: "Video not found." });
@@ -588,21 +676,21 @@ async function handleApi(req, res, pathname, searchParams) {
     };
 
     videos[index] = updated;
-    saveVideos(videos);
+    await saveVideos(videos);
     sendJson(res, 200, updated);
     return;
   }
 
   if (adminVideoMatch && req.method === "DELETE") {
     const videoId = adminVideoMatch[1];
-    const videos = loadVideos();
+    const videos = await loadVideos();
     const nextVideos = videos.filter((video) => video.id !== videoId);
     if (nextVideos.length === videos.length) {
       sendJson(res, 404, { error: "Video not found." });
       return;
     }
 
-    saveVideos(nextVideos);
+    await saveVideos(nextVideos);
     sendJson(res, 200, { success: true });
     return;
   }
@@ -698,12 +786,177 @@ function ensureDataStore() {
   if (!fs.existsSync(PASSWORD_RESETS_FILE)) {
     fs.writeFileSync(PASSWORD_RESETS_FILE, "[]", "utf8");
   }
+  if (!fs.existsSync(SETTINGS_FILE)) {
+    fs.writeFileSync(SETTINGS_FILE, "{}", "utf8");
+  }
 }
 
-function ensureDefaultAdminUser() {
-  const users = loadUsers();
-  const existingAdmin = users.find((user) => user.role === "admin" && user.email === ADMIN_EMAIL);
-  if (existingAdmin) {
+async function initializeStorage() {
+  ensureDataStore();
+  if (!USE_POSTGRES) {
+    console.log("Storage mode: JSON files");
+    return;
+  }
+
+  await initializePostgresSchema();
+  await seedPostgresFromJsonIfEmpty();
+  console.log("Storage mode: PostgreSQL (Railway compatible)");
+}
+
+async function initializePostgresSchema() {
+  if (!pool) {
+    return;
+  }
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS users (
+      id uuid PRIMARY KEY,
+      name text NOT NULL,
+      email text NOT NULL UNIQUE,
+      role text NOT NULL,
+      accepted_terms_at timestamptz NULL,
+      terms_version_accepted timestamptz NULL,
+      password_hash text NOT NULL,
+      password_salt text NOT NULL,
+      password_iterations integer NOT NULL,
+      created_at timestamptz NOT NULL,
+      updated_at timestamptz NOT NULL
+    )
+  `);
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS videos (
+      id uuid PRIMARY KEY,
+      title text NOT NULL,
+      description text NOT NULL DEFAULT '',
+      category text NOT NULL DEFAULT 'General',
+      age_group text NOT NULL DEFAULT '4-7',
+      duration text NOT NULL DEFAULT '',
+      thumbnail_url text NOT NULL DEFAULT '',
+      video_url text NOT NULL,
+      is_published boolean NOT NULL DEFAULT true,
+      created_at timestamptz NOT NULL,
+      updated_at timestamptz NOT NULL
+    )
+  `);
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS children (
+      id uuid PRIMARY KEY,
+      parent_user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      name text NOT NULL,
+      age_group text NOT NULL,
+      avatar text NOT NULL,
+      created_at timestamptz NOT NULL,
+      updated_at timestamptz NOT NULL
+    )
+  `);
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS favorites (
+      parent_user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      video_id uuid NOT NULL REFERENCES videos(id) ON DELETE CASCADE,
+      created_at timestamptz NOT NULL DEFAULT now(),
+      PRIMARY KEY (parent_user_id, video_id)
+    )
+  `);
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS password_resets (
+      id uuid PRIMARY KEY,
+      user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      token_hash text NOT NULL,
+      created_at timestamptz NOT NULL,
+      expires_at timestamptz NOT NULL,
+      used_at timestamptz NULL
+    )
+  `);
+  await pool.query(`CREATE INDEX IF NOT EXISTS idx_password_resets_token_hash ON password_resets(token_hash)`);
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS settings (
+      id smallint PRIMARY KEY DEFAULT 1 CHECK (id = 1),
+      terms_and_conditions text NOT NULL DEFAULT '',
+      terms_updated_at timestamptz NULL,
+      created_at timestamptz NOT NULL DEFAULT now()
+    )
+  `);
+}
+
+async function seedPostgresFromJsonIfEmpty() {
+  if (!USE_POSTGRES || !pool) {
+    return;
+  }
+
+  const usersCount = await dbCountRows("users");
+  const videosCount = await dbCountRows("videos");
+  const childrenCount = await dbCountRows("children");
+  const favoritesCount = await dbCountRows("favorites");
+  const resetsCount = await dbCountRows("password_resets");
+  const settingsCount = await dbCountRows("settings");
+  const hasAnyData =
+    usersCount > 0 || videosCount > 0 || childrenCount > 0 || favoritesCount > 0 || resetsCount > 0 || settingsCount > 0;
+
+  if (hasAnyData) {
+    return;
+  }
+
+  const users = readJsonArray(USERS_FILE, "users");
+  const videos = readJsonArray(VIDEOS_FILE, "videos");
+  const children = readJsonArray(CHILDREN_FILE, "children");
+  const resets = readJsonArray(PASSWORD_RESETS_FILE, "password resets");
+  const favorites = readJsonObject(FAVORITES_FILE, "favorites");
+  const settings = readJsonObject(SETTINGS_FILE, "settings");
+
+  if (users.length) {
+    await saveUsers(users);
+  }
+  if (videos.length) {
+    await saveVideos(videos);
+  }
+  if (children.length) {
+    await saveChildren(children);
+  }
+  if (resets.length) {
+    await savePasswordResets(resets);
+  }
+  if (Object.keys(favorites).length) {
+    await saveFavorites(favorites);
+  }
+  if (Object.keys(settings).length) {
+    await saveSettings(settings);
+  }
+}
+
+async function dbCountRows(tableName) {
+  const result = await pool.query(`SELECT COUNT(*)::int AS count FROM ${tableName}`);
+  return Number(result.rows[0]?.count || 0);
+}
+
+async function ensureDefaultSettings() {
+  const settings = await loadSettings();
+  if (settings.termsAndConditions && settings.termsUpdatedAt) {
+    return;
+  }
+
+  const now = new Date().toISOString();
+  const next = {
+    termsAndConditions: defaultTermsAndConditions(),
+    termsUpdatedAt: now,
+    createdAt: settings.createdAt || now
+  };
+  await saveSettings(next);
+}
+
+async function ensureDefaultAdminUser() {
+  const users = await loadUsers();
+  const existingEmail = users.find((user) => normalizeEmail(user.email) === ADMIN_EMAIL);
+  if (existingEmail) {
+    if (existingEmail.role !== "admin") {
+      console.warn(
+        `ADMIN_EMAIL (${ADMIN_EMAIL}) already belongs to role '${existingEmail.role}'. Skipping default admin creation to preserve unique emails.`
+      );
+    }
     return;
   }
 
@@ -721,19 +974,22 @@ function ensureDefaultAdminUser() {
     updatedAt: now
   });
 
-  saveUsers(users);
+  await saveUsers(users);
 
   if (ADMIN_PASSWORD === "Admin123!change") {
     console.warn("Default admin password is active. Set ADMIN_PASSWORD in .env or Railway variables.");
   }
 }
 
-function ensureDefaultEducatorUser() {
-  const users = loadUsers();
-  const existingEducator = users.find(
-    (user) => user.role === "educator" && user.email === EDUCATOR_EMAIL
-  );
-  if (existingEducator) {
+async function ensureDefaultEducatorUser() {
+  const users = await loadUsers();
+  const existingEmail = users.find((user) => normalizeEmail(user.email) === EDUCATOR_EMAIL);
+  if (existingEmail) {
+    if (existingEmail.role !== "educator") {
+      console.warn(
+        `EDUCATOR_EMAIL (${EDUCATOR_EMAIL}) already belongs to role '${existingEmail.role}'. Skipping default educator creation to preserve unique emails.`
+      );
+    }
     return;
   }
 
@@ -751,7 +1007,7 @@ function ensureDefaultEducatorUser() {
     updatedAt: now
   });
 
-  saveUsers(users);
+  await saveUsers(users);
 
   if (EDUCATOR_PASSWORD === "Educator123!change") {
     console.warn(
@@ -760,51 +1016,420 @@ function ensureDefaultEducatorUser() {
   }
 }
 
-function loadVideos() {
-  return readJsonArray(VIDEOS_FILE, "videos");
+async function loadVideos() {
+  if (!USE_POSTGRES || !pool) {
+    return readJsonArray(VIDEOS_FILE, "videos");
+  }
+  const result = await pool.query(`
+    SELECT
+      id,
+      title,
+      description,
+      category,
+      age_group AS "ageGroup",
+      duration,
+      thumbnail_url AS "thumbnailUrl",
+      video_url AS "videoUrl",
+      is_published AS "isPublished",
+      created_at AS "createdAt",
+      updated_at AS "updatedAt"
+    FROM videos
+  `);
+  return result.rows;
 }
 
-function saveVideos(videos) {
-  fs.writeFileSync(VIDEOS_FILE, JSON.stringify(videos, null, 2), "utf8");
-}
+async function saveVideos(videos) {
+  if (!USE_POSTGRES || !pool) {
+    fs.writeFileSync(VIDEOS_FILE, JSON.stringify(videos, null, 2), "utf8");
+    return;
+  }
 
-function loadUsers() {
-  return readJsonArray(USERS_FILE, "users");
-}
-
-function saveUsers(users) {
-  fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2), "utf8");
-}
-
-function loadChildren() {
-  return readJsonArray(CHILDREN_FILE, "children");
-}
-
-function saveChildren(children) {
-  fs.writeFileSync(CHILDREN_FILE, JSON.stringify(children, null, 2), "utf8");
-}
-
-function loadPasswordResets() {
-  return readJsonArray(PASSWORD_RESETS_FILE, "password resets");
-}
-
-function savePasswordResets(resets) {
-  fs.writeFileSync(PASSWORD_RESETS_FILE, JSON.stringify(resets, null, 2), "utf8");
-}
-
-function loadFavorites() {
+  const client = await pool.connect();
   try {
-    const raw = fs.readFileSync(FAVORITES_FILE, "utf8");
-    const parsed = JSON.parse(raw);
-    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
+    await client.query("BEGIN");
+
+    for (const video of videos) {
+      await client.query(
+        `
+          INSERT INTO videos
+            (id, title, description, category, age_group, duration, thumbnail_url, video_url, is_published, created_at, updated_at)
+          VALUES
+            ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+          ON CONFLICT (id) DO UPDATE SET
+            title = EXCLUDED.title,
+            description = EXCLUDED.description,
+            category = EXCLUDED.category,
+            age_group = EXCLUDED.age_group,
+            duration = EXCLUDED.duration,
+            thumbnail_url = EXCLUDED.thumbnail_url,
+            video_url = EXCLUDED.video_url,
+            is_published = EXCLUDED.is_published,
+            created_at = EXCLUDED.created_at,
+            updated_at = EXCLUDED.updated_at
+        `,
+        [
+          video.id,
+          video.title || "",
+          video.description || "",
+          video.category || "General",
+          video.ageGroup || "4-7",
+          video.duration || "",
+          video.thumbnailUrl || "",
+          video.videoUrl || "",
+          video.isPublished !== false,
+          video.createdAt || new Date().toISOString(),
+          video.updatedAt || new Date().toISOString()
+        ]
+      );
+    }
+
+    if (videos.length > 0) {
+      await client.query("DELETE FROM videos WHERE id <> ALL($1::uuid[])", [videos.map((video) => video.id)]);
+    } else {
+      await client.query("DELETE FROM videos");
+    }
+
+    await client.query("COMMIT");
   } catch (error) {
-    console.error("Failed to read favorites data, using empty set:", error);
-    return {};
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
   }
 }
 
-function saveFavorites(favorites) {
-  fs.writeFileSync(FAVORITES_FILE, JSON.stringify(favorites, null, 2), "utf8");
+async function loadUsers() {
+  if (!USE_POSTGRES || !pool) {
+    return readJsonArray(USERS_FILE, "users");
+  }
+  const result = await pool.query(`
+    SELECT
+      id,
+      name,
+      email,
+      role,
+      accepted_terms_at AS "acceptedTermsAt",
+      terms_version_accepted AS "termsVersionAccepted",
+      password_hash AS "passwordHash",
+      password_salt AS "passwordSalt",
+      password_iterations AS "passwordIterations",
+      created_at AS "createdAt",
+      updated_at AS "updatedAt"
+    FROM users
+  `);
+  return result.rows;
+}
+
+async function saveUsers(users) {
+  if (!USE_POSTGRES || !pool) {
+    fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2), "utf8");
+    return;
+  }
+
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+
+    for (const user of users) {
+      await client.query(
+        `
+          INSERT INTO users
+            (id, name, email, role, accepted_terms_at, terms_version_accepted, password_hash, password_salt, password_iterations, created_at, updated_at)
+          VALUES
+            ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+          ON CONFLICT (id) DO UPDATE SET
+            name = EXCLUDED.name,
+            email = EXCLUDED.email,
+            role = EXCLUDED.role,
+            accepted_terms_at = EXCLUDED.accepted_terms_at,
+            terms_version_accepted = EXCLUDED.terms_version_accepted,
+            password_hash = EXCLUDED.password_hash,
+            password_salt = EXCLUDED.password_salt,
+            password_iterations = EXCLUDED.password_iterations,
+            created_at = EXCLUDED.created_at,
+            updated_at = EXCLUDED.updated_at
+        `,
+        [
+          user.id,
+          user.name || "",
+          normalizeEmail(user.email),
+          user.role || "parent",
+          user.acceptedTermsAt || null,
+          user.termsVersionAccepted || null,
+          user.passwordHash || "",
+          user.passwordSalt || "",
+          Number(user.passwordIterations || 120000),
+          user.createdAt || new Date().toISOString(),
+          user.updatedAt || new Date().toISOString()
+        ]
+      );
+    }
+
+    if (users.length > 0) {
+      await client.query("DELETE FROM users WHERE id <> ALL($1::uuid[])", [users.map((user) => user.id)]);
+    } else {
+      await client.query("DELETE FROM users");
+    }
+
+    await client.query("COMMIT");
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
+}
+
+async function loadChildren() {
+  if (!USE_POSTGRES || !pool) {
+    return readJsonArray(CHILDREN_FILE, "children");
+  }
+  const result = await pool.query(`
+    SELECT
+      id,
+      parent_user_id AS "parentUserId",
+      name,
+      age_group AS "ageGroup",
+      avatar,
+      created_at AS "createdAt",
+      updated_at AS "updatedAt"
+    FROM children
+  `);
+  return result.rows;
+}
+
+async function saveChildren(children) {
+  if (!USE_POSTGRES || !pool) {
+    fs.writeFileSync(CHILDREN_FILE, JSON.stringify(children, null, 2), "utf8");
+    return;
+  }
+
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+
+    for (const child of children) {
+      await client.query(
+        `
+          INSERT INTO children
+            (id, parent_user_id, name, age_group, avatar, created_at, updated_at)
+          VALUES
+            ($1, $2, $3, $4, $5, $6, $7)
+          ON CONFLICT (id) DO UPDATE SET
+            parent_user_id = EXCLUDED.parent_user_id,
+            name = EXCLUDED.name,
+            age_group = EXCLUDED.age_group,
+            avatar = EXCLUDED.avatar,
+            created_at = EXCLUDED.created_at,
+            updated_at = EXCLUDED.updated_at
+        `,
+        [
+          child.id,
+          child.parentUserId,
+          child.name || "",
+          child.ageGroup || "4-7",
+          child.avatar || "rocket",
+          child.createdAt || new Date().toISOString(),
+          child.updatedAt || new Date().toISOString()
+        ]
+      );
+    }
+
+    if (children.length > 0) {
+      await client.query("DELETE FROM children WHERE id <> ALL($1::uuid[])", [
+        children.map((child) => child.id)
+      ]);
+    } else {
+      await client.query("DELETE FROM children");
+    }
+
+    await client.query("COMMIT");
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
+}
+
+async function loadPasswordResets() {
+  if (!USE_POSTGRES || !pool) {
+    return readJsonArray(PASSWORD_RESETS_FILE, "password resets");
+  }
+  const result = await pool.query(`
+    SELECT
+      id,
+      user_id AS "userId",
+      token_hash AS "tokenHash",
+      created_at AS "createdAt",
+      expires_at AS "expiresAt",
+      used_at AS "usedAt"
+    FROM password_resets
+  `);
+  return result.rows;
+}
+
+async function savePasswordResets(resets) {
+  if (!USE_POSTGRES || !pool) {
+    fs.writeFileSync(PASSWORD_RESETS_FILE, JSON.stringify(resets, null, 2), "utf8");
+    return;
+  }
+
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+
+    for (const reset of resets) {
+      await client.query(
+        `
+          INSERT INTO password_resets
+            (id, user_id, token_hash, created_at, expires_at, used_at)
+          VALUES
+            ($1, $2, $3, $4, $5, $6)
+          ON CONFLICT (id) DO UPDATE SET
+            user_id = EXCLUDED.user_id,
+            token_hash = EXCLUDED.token_hash,
+            created_at = EXCLUDED.created_at,
+            expires_at = EXCLUDED.expires_at,
+            used_at = EXCLUDED.used_at
+        `,
+        [
+          reset.id,
+          reset.userId,
+          reset.tokenHash || "",
+          reset.createdAt || new Date().toISOString(),
+          reset.expiresAt || new Date().toISOString(),
+          reset.usedAt || null
+        ]
+      );
+    }
+
+    if (resets.length > 0) {
+      await client.query("DELETE FROM password_resets WHERE id <> ALL($1::uuid[])", [
+        resets.map((reset) => reset.id)
+      ]);
+    } else {
+      await client.query("DELETE FROM password_resets");
+    }
+
+    await client.query("COMMIT");
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
+}
+
+async function loadSettings() {
+  if (!USE_POSTGRES || !pool) {
+    return readJsonObject(SETTINGS_FILE, "settings");
+  }
+  const result = await pool.query(`
+    SELECT
+      terms_and_conditions AS "termsAndConditions",
+      terms_updated_at AS "termsUpdatedAt",
+      created_at AS "createdAt"
+    FROM settings
+    WHERE id = 1
+  `);
+  return result.rows[0] || {};
+}
+
+async function saveSettings(settings) {
+  if (!USE_POSTGRES || !pool) {
+    fs.writeFileSync(SETTINGS_FILE, JSON.stringify(settings, null, 2), "utf8");
+    return;
+  }
+
+  const termsAndConditions = String(settings.termsAndConditions || "");
+  const termsUpdatedAt = settings.termsUpdatedAt || null;
+  const createdAt = settings.createdAt || new Date().toISOString();
+
+  await pool.query(
+    `
+      INSERT INTO settings (id, terms_and_conditions, terms_updated_at, created_at)
+      VALUES (1, $1, $2, $3)
+      ON CONFLICT (id) DO UPDATE SET
+        terms_and_conditions = EXCLUDED.terms_and_conditions,
+        terms_updated_at = EXCLUDED.terms_updated_at,
+        created_at = COALESCE(settings.created_at, EXCLUDED.created_at)
+    `,
+    [termsAndConditions, termsUpdatedAt, createdAt]
+  );
+}
+
+async function loadFavorites() {
+  if (!USE_POSTGRES || !pool) {
+    return readJsonObject(FAVORITES_FILE, "favorites");
+  }
+
+  const result = await pool.query(`
+    SELECT
+      parent_user_id AS "parentUserId",
+      video_id AS "videoId"
+    FROM favorites
+  `);
+
+  const favorites = {};
+  for (const row of result.rows) {
+    const parentUserId = String(row.parentUserId || "");
+    const videoId = String(row.videoId || "");
+    if (!parentUserId || !videoId) {
+      continue;
+    }
+    if (!Array.isArray(favorites[parentUserId])) {
+      favorites[parentUserId] = [];
+    }
+    favorites[parentUserId].push(videoId);
+  }
+  return favorites;
+}
+
+async function saveFavorites(favorites) {
+  if (!USE_POSTGRES || !pool) {
+    fs.writeFileSync(FAVORITES_FILE, JSON.stringify(favorites, null, 2), "utf8");
+    return;
+  }
+
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    await client.query("DELETE FROM favorites");
+    const userResult = await client.query("SELECT id FROM users");
+    const videoResult = await client.query("SELECT id FROM videos");
+    const validUserIds = new Set(userResult.rows.map((row) => row.id));
+    const validVideoIds = new Set(videoResult.rows.map((row) => row.id));
+
+    for (const [parentUserId, videoIds] of Object.entries(favorites || {})) {
+      if (!Array.isArray(videoIds)) {
+        continue;
+      }
+      if (!validUserIds.has(parentUserId)) {
+        continue;
+      }
+      for (const videoId of videoIds) {
+        if (!validVideoIds.has(videoId)) {
+          continue;
+        }
+        await client.query(
+          `
+            INSERT INTO favorites (parent_user_id, video_id, created_at)
+            VALUES ($1, $2, now())
+            ON CONFLICT (parent_user_id, video_id) DO NOTHING
+          `,
+          [parentUserId, videoId]
+        );
+      }
+    }
+
+    await client.query("COMMIT");
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
 }
 
 function readJsonArray(filePath, label) {
@@ -818,7 +1443,18 @@ function readJsonArray(filePath, label) {
   }
 }
 
-function requireAuth(req, res, roles) {
+function readJsonObject(filePath, label) {
+  try {
+    const raw = fs.readFileSync(filePath, "utf8");
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
+  } catch (error) {
+    console.error(`Failed to read ${label} data, using empty object:`, error);
+    return {};
+  }
+}
+
+async function requireAuth(req, res, roles) {
   if (roles && roles.includes("admin") && isLegacyAdminToken(req)) {
     return {
       id: "legacy-admin-token",
@@ -840,7 +1476,7 @@ function requireAuth(req, res, roles) {
     return null;
   }
 
-  const users = loadUsers();
+  const users = await loadUsers();
   const user = users.find((item) => item.id === payload.sub);
   if (!user) {
     sendJson(res, 401, { error: "Unauthorized. User not found." });
@@ -990,6 +1626,50 @@ async function dispatchPasswordReset(user, resetUrl) {
     resetUrl
   };
 
+  let emailSent = false;
+
+  if (RESEND_API_KEY && PASSWORD_RESET_FROM_EMAIL) {
+    try {
+      if (typeof fetch !== "function") {
+        throw new Error("Global fetch is not available in this Node runtime.");
+      }
+
+      const response = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${RESEND_API_KEY}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          from: PASSWORD_RESET_FROM_EMAIL,
+          to: [user.email],
+          subject: payload.subject,
+          text: payload.message,
+          html: `
+            <div style="font-family:Arial,sans-serif;line-height:1.5;color:#1a2e5f">
+              <h2 style="margin-bottom:8px">Reset your XerivoLearn password</h2>
+              <p style="margin-top:0">Click the button below to reset your password.</p>
+              <p>
+                <a href="${resetUrl}" style="display:inline-block;padding:10px 14px;background:#1f9bdd;color:#fff;text-decoration:none;border-radius:8px">
+                  Reset Password
+                </a>
+              </p>
+              <p style="font-size:13px;color:#4b5f89">If you did not request this, you can ignore this email.</p>
+            </div>
+          `
+        })
+      });
+
+      if (!response.ok) {
+        const body = await response.text();
+        throw new Error(`Resend responded with ${response.status}: ${body}`);
+      }
+      emailSent = true;
+    } catch (error) {
+      console.error("Password reset email via Resend failed:", error);
+    }
+  }
+
   if (PASSWORD_RESET_WEBHOOK_URL) {
     try {
       if (typeof fetch !== "function") {
@@ -1002,17 +1682,107 @@ async function dispatchPasswordReset(user, resetUrl) {
         },
         body: JSON.stringify(payload)
       });
+      emailSent = true;
     } catch (error) {
       console.error("Password reset webhook failed:", error);
     }
   }
 
-  // Default fallback for development.
-  console.log(`[PasswordReset] ${user.email} -> ${resetUrl}`);
+  if (!emailSent) {
+    // Fallback for development and misconfigured environments.
+    console.log(`[PasswordReset] ${user.email} -> ${resetUrl}`);
+    if (!RESEND_API_KEY || !PASSWORD_RESET_FROM_EMAIL) {
+      console.warn(
+        "Password reset email provider not configured. Set RESEND_API_KEY and PASSWORD_RESET_FROM_EMAIL in Railway variables."
+      );
+    }
+  }
 }
 
 function normalizeEmail(value) {
   return String(value || "").trim().toLowerCase();
+}
+
+function defaultTermsAndConditions() {
+  return [
+    "XerivoLearn Terms and Conditions",
+    "",
+    "1. Parent Account Responsibility",
+    "Parent accounts are for adults only. Parents are responsible for supervising children while using the platform.",
+    "",
+    "2. Child Safety and Appropriate Use",
+    "You agree to use XerivoLearn for educational purposes and to avoid uploading or sharing harmful content.",
+    "",
+    "3. Account Security",
+    "You are responsible for keeping your email and password secure. Do not share login credentials.",
+    "",
+    "4. Subscription and Access",
+    "Access to videos and features depends on an active parent subscription and compliance with platform rules.",
+    "",
+    "5. Content Availability",
+    "Video content may be updated, removed, or reorganized over time to improve learning quality.",
+    "",
+    "6. Privacy",
+    "We store only required account and usage data needed to operate the service and improve child learning experience.",
+    "",
+    "7. Policy Updates",
+    "Terms may change from time to time. Continued use after updates means you accept the revised terms."
+  ].join("\n");
+}
+
+function clearExpiredCaptchas() {
+  const now = Date.now();
+  for (const [id, captcha] of CAPTCHA_STORE.entries()) {
+    const expiryMs = new Date(captcha.expiresAt || 0).getTime();
+    if (!Number.isFinite(expiryMs) || expiryMs < now || captcha.used) {
+      CAPTCHA_STORE.delete(id);
+    }
+  }
+}
+
+function createCaptchaChallenge() {
+  const a = 1 + Math.floor(Math.random() * 9);
+  const b = 1 + Math.floor(Math.random() * 9);
+  const id = crypto.randomUUID();
+  const now = Date.now();
+  const expiresAt = new Date(now + CAPTCHA_TTL_MINUTES * 60 * 1000).toISOString();
+
+  CAPTCHA_STORE.set(id, {
+    answer: String(a + b),
+    createdAt: new Date(now).toISOString(),
+    expiresAt,
+    used: false
+  });
+
+  return {
+    captchaId: id,
+    question: `${a} + ${b} = ?`,
+    expiresAt
+  };
+}
+
+function consumeCaptcha(captchaId, captchaAnswer) {
+  clearExpiredCaptchas();
+  const id = String(captchaId || "").trim();
+  const answer = String(captchaAnswer || "").trim();
+  if (!id || !answer) {
+    return false;
+  }
+
+  const captcha = CAPTCHA_STORE.get(id);
+  if (!captcha || captcha.used) {
+    return false;
+  }
+
+  const expiryMs = new Date(captcha.expiresAt || 0).getTime();
+  if (!Number.isFinite(expiryMs) || expiryMs < Date.now()) {
+    CAPTCHA_STORE.delete(id);
+    return false;
+  }
+
+  const ok = answer === captcha.answer;
+  CAPTCHA_STORE.delete(id);
+  return ok;
 }
 
 function toPublicUser(user) {
@@ -1056,7 +1826,7 @@ function readBody(req) {
   });
 }
 
-function validateRegistrationInput(payload) {
+function validateRegistrationInput(payload, settings = {}) {
   if (typeof payload !== "object" || payload === null) {
     return { ok: false, error: "Payload must be an object." };
   }
@@ -1064,6 +1834,12 @@ function validateRegistrationInput(payload) {
   const name = typeof payload.name === "string" ? payload.name.trim() : "";
   const email = normalizeEmail(payload.email || "");
   const password = typeof payload.password === "string" ? payload.password : "";
+  const acceptedTerms = payload.acceptedTerms === true;
+  const captchaId = typeof payload.captchaId === "string" ? payload.captchaId.trim() : "";
+  const captchaAnswer =
+    typeof payload.captchaAnswer === "string" || typeof payload.captchaAnswer === "number"
+      ? String(payload.captchaAnswer).trim()
+      : "";
 
   if (name.length < 2) {
     return { ok: false, error: "Name is required (min 2 chars)." };
@@ -1076,6 +1852,15 @@ function validateRegistrationInput(payload) {
       ok: false,
       error: "Password must be at least 8 chars with letters and numbers."
     };
+  }
+  if (!acceptedTerms) {
+    return { ok: false, error: "You must accept Terms and Conditions." };
+  }
+  if (!settings.termsAndConditions || !settings.termsUpdatedAt) {
+    return { ok: false, error: "Terms and Conditions are unavailable. Please try again shortly." };
+  }
+  if (!captchaId || !captchaAnswer) {
+    return { ok: false, error: "Captcha verification is required." };
   }
 
   return { ok: true };
@@ -1158,3 +1943,4 @@ function loadDotEnv(filePath) {
     }
   }
 }
+

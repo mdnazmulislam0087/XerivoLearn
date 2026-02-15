@@ -3,798 +3,324 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>XerivoLearn | Cartoon Learning Planet</title>
+    <title>XerivoLearn | Cartoon Learning</title>
     <link rel="stylesheet" href="./styles.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&family=Noto+Sans+Bengali:wght@400;600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@500;700;800&family=Noto+Sans+Bengali:wght@500;700;800&display=swap"
       rel="stylesheet"
     />
   </head>
   <body>
-    <div class="bg-stars" aria-hidden="true"></div>
-    <div class="bg-cloud cloud-a" aria-hidden="true"></div>
-    <div class="bg-cloud cloud-b" aria-hidden="true"></div>
-
-    <header class="site-header">
-      <a id="home-link" class="logo" href="/">XerivoLearn</a>
-      <div class="header-actions">
-        <nav class="site-nav" aria-label="Main navigation">
-          <a id="nav-parent-link" href="https://app.xerivolearn.com" data-i18n="nav_parent">Parents</a>
-          <a id="nav-educator-link" href="https://educator.xerivolearn.com" data-i18n="nav_educator">Educators</a>
-          <a id="nav-admin-link" href="https://admin.xerivolearn.com" data-i18n="nav_admin">Admin CMS</a>
-        </nav>
-
-        <div class="lang-switch" aria-label="Language switcher">
-          <button id="lang-en" type="button">EN</button>
-          <button id="lang-bn" type="button">BN</button>
-        </div>
-      </div>
-    </header>
-
-    <main class="page">
-      <section class="hero">
-        <div class="hero-copy">
-          <p class="chip" data-i18n="hero_chip">AI Cartoon Language Adventures</p>
-          <h1 data-i18n="hero_title">
-            A magical cartoon world where kids learn words, songs, and stories.
-          </h1>
-          <p class="hero-text" data-i18n="hero_text">
-            Built for children, trusted by parents. Parents can watch videos at home. Educators
-            have a separate learning portal.
-          </p>
-
-          <div class="hero-actions-row">
-            <a
-              id="hero-parent-link"
-              class="button button-primary"
-              href="https://app.xerivolearn.com"
-              data-i18n="hero_btn_parent"
-              >Enter Parent App</a
-            >
-            <a
-              id="hero-educator-link"
-              class="button button-secondary"
-              href="https://educator.xerivolearn.com"
-              data-i18n="hero_btn_educator"
-              >Educator Portal</a
-            >
+    <main class="shell">
+      <section class="hero-wrap">
+        <header class="hero-topbar">
+          <a id="home-link" class="brand" href="https://xerivolearn.com">XerivoLearn</a>
+          <nav class="hero-nav" aria-label="Primary navigation">
+            <a id="nav-parent-link" href="https://app.xerivolearn.com" data-i18n="nav_parents">Parents</a>
+            <a id="nav-educator-link" href="https://educator.xerivolearn.com" data-i18n="nav_educators">Educators</a>
+            <a id="nav-admin-link" href="https://admin.xerivolearn.com" data-i18n="nav_admin">Admin CMS</a>
+          </nav>
+          <div class="lang-switch">
+            <button id="lang-en" type="button">EN</button>
+            <button id="lang-bn" type="button">BN</button>
           </div>
+        </header>
 
-          <div class="sound-board" aria-label="cartoon learning sounds">
-            <span data-i18n="sound_1">Zoom! ABC Rocket!</span>
-            <span data-i18n="sound_2">Boom! 1-2-3 Jungle!</span>
-            <span data-i18n="sound_3">Splash! Story Time!</span>
+        <section class="hero-banner">
+          <div class="hero-left">
+            <img src="./assets/characters/bunny.svg" alt="Bunny mascot" />
           </div>
-        </div>
+          <div class="hero-right">
+            <h1 data-i18n="hero_title">A Magical Cartoon World</h1>
+            <p class="hero-talk" data-i18n="hero_talk">Boing! Learn with songs, stories, and smiles.</p>
+            <div class="hero-ctas">
+              <a
+                id="hero-parent-link"
+                class="cta primary"
+                href="https://app.xerivolearn.com"
+                data-i18n="cta_parent"
+              >
+                Enter Parent App
+              </a>
+              <a
+                id="hero-educator-link"
+                class="cta secondary"
+                href="https://educator.xerivolearn.com"
+                data-i18n="cta_educator"
+              >
+                Educator Portal
+              </a>
+            </div>
+          </div>
+        </section>
 
-        <div class="hero-scene" aria-hidden="true">
-          <div class="sun"></div>
-          <div class="mini-cloud mini-cloud-a"></div>
-          <div class="mini-cloud mini-cloud-b"></div>
+        <section class="showcase-grid" aria-label="Feature highlights">
+          <article class="show-card card-a">
+            <p class="emoji" aria-hidden="true">🔤</p>
+            <h2 data-i18n="feature_alpha">Alphabet & Numbers</h2>
+          </article>
+          <article class="show-card card-b">
+            <p class="emoji" aria-hidden="true">🌙</p>
+            <h2 data-i18n="feature_story">Bedtime Stories</h2>
+          </article>
+          <article class="show-card card-c">
+            <p class="emoji" aria-hidden="true">🇬🇧</p>
+            <h2 data-i18n="feature_bilingual">Bilingual Mode (Bangla + English)</h2>
+          </article>
+        </section>
 
-          <img class="hero-character char-bunny" src="./assets/characters/bunny.svg" alt="" />
-          <img class="hero-character char-bear" src="./assets/characters/bear.svg" alt="" />
-          <img class="hero-character char-fox" src="./assets/characters/fox.svg" alt="" />
+        <section class="price-bubbles" aria-label="Subscription plans">
+          <article class="bubble left">
+            <p class="bubble-price" data-i18n="parent_price">$1/month</p>
+            <p class="bubble-label" data-i18n="parent_plan">Parent Plan</p>
+          </article>
+          <article class="bubble right">
+            <p class="bubble-price" data-i18n="educator_price">$20/year</p>
+            <p class="bubble-label" data-i18n="educator_plan">Educator Plan</p>
+          </article>
+        </section>
+      </section>
 
-          <p class="speech speech-1" data-i18n="scene_bubble_1">Hello little learners!</p>
-          <p class="speech speech-2" data-i18n="scene_bubble_2">Let's speak and sing!</p>
-          <p class="speech speech-3" data-i18n="scene_bubble_3">Ready, set, learn!</p>
-
-          <div class="hills hill-back"></div>
-          <div class="hills hill-front"></div>
+      <section class="section trust">
+        <h3 data-i18n="trust_title">Parent Trust</h3>
+        <p data-i18n="trust_text">
+          Parent accounts control video watching, age filtering, and child-safe discovery in one clean space.
+        </p>
+        <div class="trust-list">
+          <p data-i18n="trust_1">Parent-only video playback access</p>
+          <p data-i18n="trust_2">Age and category filters for quick content picks</p>
+          <p data-i18n="trust_3">Simple CMS publishing flow for fresh lessons</p>
         </div>
       </section>
 
-      <section class="features">
-        <div class="section-head">
-          <h2 data-i18n="features_title">Feature Highlights</h2>
-          <p data-i18n="features_sub">Everything kids enjoy, in one safe learning space.</p>
-        </div>
-
-        <div class="feature-grid">
-          <article class="feature-card">
-            <span class="feature-icon" aria-hidden="true">🔤</span>
-            <h3 data-i18n="feature_alpha_title">Alphabet & Numbers</h3>
-            <p data-i18n="feature_alpha_text">Phonics, letter sounds, counting songs, and number play.</p>
+      <section class="section carousel">
+        <h3 data-i18n="sample_title">Sample Video Thumbnails</h3>
+        <div class="carousel-row">
+          <article class="thumb t1">
+            <img src="./assets/characters/bunny.svg" alt="" />
+            <p data-i18n="sample_1">ABC Adventure Song</p>
           </article>
-
-          <article class="feature-card">
-            <span class="feature-icon" aria-hidden="true">🌙</span>
-            <h3 data-i18n="feature_story_title">Bedtime Stories</h3>
-            <p data-i18n="feature_story_text">Gentle stories with calm voiceovers for evening learning time.</p>
+          <article class="thumb t2">
+            <img src="./assets/characters/fox.svg" alt="" />
+            <p data-i18n="sample_2">Moonlight Story</p>
           </article>
-
-          <article class="feature-card">
-            <span class="feature-icon" aria-hidden="true">🔬</span>
-            <h3 data-i18n="feature_science_title">Fun Science Cartoons</h3>
-            <p data-i18n="feature_science_text">Tiny experiments and curious facts for young explorers.</p>
+          <article class="thumb t3">
+            <img src="./assets/characters/bear.svg" alt="" />
+            <p data-i18n="sample_3">Fun Science Lab</p>
           </article>
-
-          <article class="feature-card">
-            <span class="feature-icon" aria-hidden="true">🌐</span>
-            <h3 data-i18n="feature_bilingual_title">Bilingual Mode (Bangla + English)</h3>
-            <p data-i18n="feature_bilingual_text">Switch language instantly and keep your preference saved.</p>
+          <article class="thumb t4">
+            <img src="./assets/characters/penguin.svg" alt="" />
+            <p data-i18n="sample_4">Bilingual Word Game</p>
           </article>
         </div>
       </section>
 
-      <section class="parent-trust">
-        <div class="section-head">
-          <h2 data-i18n="parent_trust_title">Why Parents Trust XerivoLearn</h2>
-          <p data-i18n="parent_trust_sub">Built for peace of mind, not just screen time.</p>
-        </div>
-
-        <div class="trust-layout">
-          <article class="trust-main">
-            <h3 data-i18n="trust_main_title">Parent-first controls with kid-friendly joy</h3>
-            <p data-i18n="trust_main_text">
-              You stay in control while your child enjoys cartoons that teach language, values,
-              and curiosity.
-            </p>
-          </article>
-
-          <div class="trust-benefits">
-            <article class="trust-benefit">
-              <h4 data-i18n="trust_benefit_1_title">Parent-Only Watching Access</h4>
-              <p data-i18n="trust_benefit_1_text">Only parent accounts can open video playback.</p>
-            </article>
-            <article class="trust-benefit">
-              <h4 data-i18n="trust_benefit_2_title">Age-Appropriate Discovery</h4>
-              <p data-i18n="trust_benefit_2_text">Quick filters help you choose the right content fast.</p>
-            </article>
-            <article class="trust-benefit">
-              <h4 data-i18n="trust_benefit_3_title">Always Fresh Library</h4>
-              <p data-i18n="trust_benefit_3_text">Admin CMS lets you publish new lessons in minutes.</p>
-            </article>
-          </div>
-        </div>
-      </section>
-
-      <section class="video-carousel">
-        <div class="section-head">
-          <h2 data-i18n="carousel_title">Sample Video Thumbnails</h2>
-          <p data-i18n="carousel_sub">A preview of what children and parents will browse inside the app.</p>
-        </div>
-
-        <div class="carousel-viewport" aria-label="Sample video thumbnail carousel">
-          <div class="carousel-track">
-            <article class="sample-thumb one">
-              <div class="thumb-image">
-                <img src="./assets/characters/bunny.svg" alt="" />
-                <span class="play-dot" aria-hidden="true">▶</span>
-              </div>
-              <div class="sample-meta">
-                <p class="sample-tag" data-i18n="sample_1_tag">Ages 3-5</p>
-                <h3 data-i18n="sample_1_title">ABC Adventure Song</h3>
-              </div>
-            </article>
-
-            <article class="sample-thumb two">
-              <div class="thumb-image">
-                <img src="./assets/characters/fox.svg" alt="" />
-                <span class="play-dot" aria-hidden="true">▶</span>
-              </div>
-              <div class="sample-meta">
-                <p class="sample-tag" data-i18n="sample_2_tag">Bedtime Story</p>
-                <h3 data-i18n="sample_2_title">Moonlight Rabbit Tale</h3>
-              </div>
-            </article>
-
-            <article class="sample-thumb three">
-              <div class="thumb-image">
-                <img src="./assets/characters/bear.svg" alt="" />
-                <span class="play-dot" aria-hidden="true">▶</span>
-              </div>
-              <div class="sample-meta">
-                <p class="sample-tag" data-i18n="sample_3_tag">Fun Science</p>
-                <h3 data-i18n="sample_3_title">Color Volcano Lab</h3>
-              </div>
-            </article>
-
-            <article class="sample-thumb four">
-              <div class="thumb-image">
-                <img src="./assets/characters/penguin.svg" alt="" />
-                <span class="play-dot" aria-hidden="true">▶</span>
-              </div>
-              <div class="sample-meta">
-                <p class="sample-tag" data-i18n="sample_4_tag">Bangla + English</p>
-                <h3 data-i18n="sample_4_title">Bilingual Word Safari</h3>
-              </div>
-            </article>
-
-            <article class="sample-thumb one">
-              <div class="thumb-image">
-                <img src="./assets/characters/bunny.svg" alt="" />
-                <span class="play-dot" aria-hidden="true">▶</span>
-              </div>
-              <div class="sample-meta">
-                <p class="sample-tag" data-i18n="sample_1_tag">Ages 3-5</p>
-                <h3 data-i18n="sample_1_title">ABC Adventure Song</h3>
-              </div>
-            </article>
-
-            <article class="sample-thumb two">
-              <div class="thumb-image">
-                <img src="./assets/characters/fox.svg" alt="" />
-                <span class="play-dot" aria-hidden="true">▶</span>
-              </div>
-              <div class="sample-meta">
-                <p class="sample-tag" data-i18n="sample_2_tag">Bedtime Story</p>
-                <h3 data-i18n="sample_2_title">Moonlight Rabbit Tale</h3>
-              </div>
-            </article>
-
-            <article class="sample-thumb three">
-              <div class="thumb-image">
-                <img src="./assets/characters/bear.svg" alt="" />
-                <span class="play-dot" aria-hidden="true">▶</span>
-              </div>
-              <div class="sample-meta">
-                <p class="sample-tag" data-i18n="sample_3_tag">Fun Science</p>
-                <h3 data-i18n="sample_3_title">Color Volcano Lab</h3>
-              </div>
-            </article>
-
-            <article class="sample-thumb four">
-              <div class="thumb-image">
-                <img src="./assets/characters/penguin.svg" alt="" />
-                <span class="play-dot" aria-hidden="true">▶</span>
-              </div>
-              <div class="sample-meta">
-                <p class="sample-tag" data-i18n="sample_4_tag">Bangla + English</p>
-                <h3 data-i18n="sample_4_title">Bilingual Word Safari</h3>
-              </div>
-            </article>
-          </div>
-        </div>
-      </section>
-
-      <section class="testimonials">
-        <div class="section-head">
-          <h2 data-i18n="testimonials_title">What Families Say</h2>
-          <p data-i18n="testimonials_sub">Loved by children, trusted by parents and educators.</p>
-        </div>
-
+      <section class="section testimonials">
+        <h3 data-i18n="testimonials_title">Testimonials</h3>
         <div class="testimonial-grid">
-          <article class="testimonial-card">
-            <p class="quote" data-i18n="testimonial_1_quote">
-              "My daughter now asks for the alphabet song every evening. It feels fun, not forced."
+          <article>
+            <p data-i18n="review_1">
+              "My child now asks for learning videos every evening. Super easy for parents."
             </p>
-            <p class="author" data-i18n="testimonial_1_author">Nusrat Jahan - Parent, Dhaka</p>
           </article>
-          <article class="testimonial-card">
-            <p class="quote" data-i18n="testimonial_2_quote">
-              "The bilingual mode helped my son practice Bangla and English words side by side."
+          <article>
+            <p data-i18n="review_2">
+              "Bangla + English mode helped us at home and school both."
             </p>
-            <p class="author" data-i18n="testimonial_2_author">Arif Hasan - Parent, Chattogram</p>
           </article>
-          <article class="testimonial-card">
-            <p class="quote" data-i18n="testimonial_3_quote">
-              "As a teacher, I can quickly prepare a weekly cartoon lesson playlist for class."
+          <article>
+            <p data-i18n="review_3">
+              "CMS is simple, I can upload and publish quickly."
             </p>
-            <p class="author" data-i18n="testimonial_3_author">Farzana Rahman - Educator, Sylhet</p>
           </article>
-        </div>
-      </section>
-
-      <section class="friends">
-        <div class="section-head">
-          <h2 data-i18n="friends_title">Meet The Cartoon Teachers</h2>
-          <p data-i18n="friends_sub">Each character brings a different learning style for kids.</p>
-        </div>
-
-        <div class="friend-grid">
-          <article class="friend-card bunny">
-            <img src="./assets/characters/bunny.svg" alt="Mimi Bunny" />
-            <h3 data-i18n="friend_bunny_name">Mimi Bunny</h3>
-            <p data-i18n="friend_bunny_role">Alphabet and pronunciation fun</p>
-          </article>
-
-          <article class="friend-card bear">
-            <img src="./assets/characters/bear.svg" alt="Bobo Bear" />
-            <h3 data-i18n="friend_bear_name">Bobo Bear</h3>
-            <p data-i18n="friend_bear_role">Numbers, counting, and logic games</p>
-          </article>
-
-          <article class="friend-card fox">
-            <img src="./assets/characters/fox.svg" alt="Luna Fox" />
-            <h3 data-i18n="friend_fox_name">Luna Fox</h3>
-            <p data-i18n="friend_fox_role">Stories, emotions, and life values</p>
-          </article>
-
-          <article class="friend-card penguin">
-            <img src="./assets/characters/penguin.svg" alt="Pico Penguin" />
-            <h3 data-i18n="friend_penguin_name">Pico Penguin</h3>
-            <p data-i18n="friend_penguin_role">Songs, rhythm, and memory boosts</p>
-          </article>
-        </div>
-      </section>
-
-      <section class="plans">
-        <div class="section-head">
-          <h2 data-i18n="plans_title">Simple Plans</h2>
-          <p data-i18n="plans_sub">Home plan for parents, yearly plan for educators.</p>
-        </div>
-
-        <div class="plan-grid">
-          <article class="plan-card parent-plan">
-            <p class="plan-tag" data-i18n="parent_plan_tag">PARENTS PLAN</p>
-            <h3 data-i18n="parent_plan_price">$1 / month</h3>
-            <p class="plan-note" data-i18n="parent_plan_note">Parents-only video watching access</p>
-            <ul>
-              <li data-i18n="parent_plan_f1">Child profiles + favorites</li>
-              <li data-i18n="parent_plan_f2">Safe watch flow designed for families</li>
-            </ul>
-            <a
-              id="plan-parent-link"
-              class="button button-primary"
-              href="https://app.xerivolearn.com"
-              data-i18n="parent_plan_cta"
-              >Go Parent Login</a
-            >
-          </article>
-
-          <article class="plan-card educator-plan">
-            <p class="plan-tag" data-i18n="educator_plan_tag">EDUCATORS PLAN</p>
-            <h3 data-i18n="educator_plan_price">$20 / year</h3>
-            <p class="plan-note" data-i18n="educator_plan_note">Separate educator portal</p>
-            <ul>
-              <li data-i18n="educator_plan_f1">Great for schools and coaching centers</li>
-              <li data-i18n="educator_plan_f2">Organize content for classroom sessions</li>
-            </ul>
-            <a
-              id="plan-educator-link"
-              class="button button-secondary"
-              href="https://educator.xerivolearn.com"
-              data-i18n="educator_plan_cta"
-              >Go Educator Login</a
-            >
-          </article>
-        </div>
-
-        <p class="plans-hint" data-i18n="plans_hint">
-          Switch language to see BDT pricing in Bangla.
-        </p>
-      </section>
-
-      <section class="journey">
-        <div class="section-head">
-          <h2 data-i18n="journey_title">Three Clear Spaces</h2>
-        </div>
-
-        <div class="journey-grid">
-          <article class="journey-card parents">
-            <h3 data-i18n="journey_parent_title">Parents Space</h3>
-            <p data-i18n="journey_parent_text">
-              Parents sign in and children watch through parent account only.
-            </p>
-            <a
-              id="journey-parent-link"
-              class="button button-secondary"
-              href="https://app.xerivolearn.com"
-              data-i18n="journey_parent_btn"
-              >Open Parent Space</a
-            >
-          </article>
-
-          <article class="journey-card educators">
-            <h3 data-i18n="journey_educator_title">Educators Space</h3>
-            <p data-i18n="journey_educator_text">
-              Educators use their own login and access teaching library.
-            </p>
-            <a
-              id="journey-educator-link"
-              class="button button-secondary"
-              href="https://educator.xerivolearn.com"
-              data-i18n="journey_educator_btn"
-              >Open Educators Space</a
-            >
-          </article>
-
-          <article class="journey-card admin">
-            <h3 data-i18n="journey_admin_title">Admin CMS</h3>
-            <p data-i18n="journey_admin_text">
-              Upload cartoon videos, edit metadata, publish in minutes.
-            </p>
-            <a
-              id="journey-admin-link"
-              class="button button-secondary"
-              href="https://admin.xerivolearn.com"
-              data-i18n="journey_admin_btn"
-              >Open Admin CMS</a
-            >
-          </article>
-        </div>
-      </section>
-
-      <section class="cta">
-        <h2 data-i18n="cta_title">Start on Railway now, connect custom domain later.</h2>
-        <p data-i18n="cta_text">
-          Use free Railway URL first. Later attach xerivolearn.com, app, educator, and admin
-          subdomains.
-        </p>
-        <div class="hero-actions-row cta-actions">
-          <a id="cta-parent-link" class="button button-primary" href="https://app.xerivolearn.com" data-i18n="cta_parent"
-            >Parent App</a
-          >
-          <a
-            id="cta-educator-link"
-            class="button button-secondary"
-            href="https://educator.xerivolearn.com"
-            data-i18n="cta_educator"
-            >Educator Portal</a
-          >
-          <a id="cta-admin-link" class="button button-secondary" href="https://admin.xerivolearn.com" data-i18n="cta_admin"
-            >Admin CMS</a
-          >
         </div>
       </section>
     </main>
 
-    <footer class="footer">
-      <p data-i18n="footer_text">2026 XerivoLearn • Cartoon joy for kids, control for grown-ups.</p>
-    </footer>
-
     <script>
       (function () {
         const STORAGE_KEY = "xerivo_lang";
+        const LEGACY_STORAGE_KEY = "xerivo_app_lang";
         const LANGUAGE_QUERY_KEY = "lang";
         const supportedLanguages = new Set(["en", "bn"]);
 
         const translations = {
           en: {
-            page_title: "XerivoLearn | Cartoon Learning Planet",
-            nav_parent: "Parents",
-            nav_educator: "Educators",
+            nav_parents: "Parents",
+            nav_educators: "Educators",
             nav_admin: "Admin CMS",
-            hero_chip: "AI Cartoon Language Adventures",
-            hero_title: "A magical cartoon world where kids learn words, songs, and stories.",
-            hero_text:
-              "Built for children, trusted by parents. Parents can watch videos at home. Educators have a separate learning portal.",
-            hero_btn_parent: "Enter Parent App",
-            hero_btn_educator: "Educator Portal",
-            sound_1: "Zoom! ABC Rocket!",
-            sound_2: "Boom! 1-2-3 Jungle!",
-            sound_3: "Splash! Story Time!",
-            scene_bubble_1: "Hello little learners!",
-            scene_bubble_2: "Let's speak and sing!",
-            scene_bubble_3: "Ready, set, learn!",
-            features_title: "Feature Highlights",
-            features_sub: "Everything kids enjoy, in one safe learning space.",
-            feature_alpha_title: "Alphabet & Numbers",
-            feature_alpha_text: "Phonics, letter sounds, counting songs, and number play.",
-            feature_story_title: "Bedtime Stories",
-            feature_story_text: "Gentle stories with calm voiceovers for evening learning time.",
-            feature_science_title: "Fun Science Cartoons",
-            feature_science_text: "Tiny experiments and curious facts for young explorers.",
-            feature_bilingual_title: "Bilingual Mode (Bangla + English)",
-            feature_bilingual_text: "Switch language instantly and keep your preference saved.",
-            parent_trust_title: "Why Parents Trust XerivoLearn",
-            parent_trust_sub: "Built for peace of mind, not just screen time.",
-            trust_main_title: "Parent-first controls with kid-friendly joy",
-            trust_main_text:
-              "You stay in control while your child enjoys cartoons that teach language, values, and curiosity.",
-            trust_benefit_1_title: "Parent-Only Watching Access",
-            trust_benefit_1_text: "Only parent accounts can open video playback.",
-            trust_benefit_2_title: "Age-Appropriate Discovery",
-            trust_benefit_2_text: "Quick filters help you choose the right content fast.",
-            trust_benefit_3_title: "Always Fresh Library",
-            trust_benefit_3_text: "Admin CMS lets you publish new lessons in minutes.",
-            carousel_title: "Sample Video Thumbnails",
-            carousel_sub: "A preview of what children and parents will browse inside the app.",
-            sample_1_tag: "Ages 3-5",
-            sample_1_title: "ABC Adventure Song",
-            sample_2_tag: "Bedtime Story",
-            sample_2_title: "Moonlight Rabbit Tale",
-            sample_3_tag: "Fun Science",
-            sample_3_title: "Color Volcano Lab",
-            sample_4_tag: "Bangla + English",
-            sample_4_title: "Bilingual Word Safari",
-            testimonials_title: "What Families Say",
-            testimonials_sub: "Loved by children, trusted by parents and educators.",
-            testimonial_1_quote:
-              "\"My daughter now asks for the alphabet song every evening. It feels fun, not forced.\"",
-            testimonial_1_author: "Nusrat Jahan - Parent, Dhaka",
-            testimonial_2_quote:
-              "\"The bilingual mode helped my son practice Bangla and English words side by side.\"",
-            testimonial_2_author: "Arif Hasan - Parent, Chattogram",
-            testimonial_3_quote:
-              "\"As a teacher, I can quickly prepare a weekly cartoon lesson playlist for class.\"",
-            testimonial_3_author: "Farzana Rahman - Educator, Sylhet",
-            friends_title: "Meet The Cartoon Teachers",
-            friends_sub: "Each character brings a different learning style for kids.",
-            friend_bunny_name: "Mimi Bunny",
-            friend_bunny_role: "Alphabet and pronunciation fun",
-            friend_bear_name: "Bobo Bear",
-            friend_bear_role: "Numbers, counting, and logic games",
-            friend_fox_name: "Luna Fox",
-            friend_fox_role: "Stories, emotions, and life values",
-            friend_penguin_name: "Pico Penguin",
-            friend_penguin_role: "Songs, rhythm, and memory boosts",
-            plans_title: "Simple Plans",
-            plans_sub: "Home plan for parents, yearly plan for educators.",
-            parent_plan_tag: "PARENTS PLAN",
-            parent_plan_price: "$1 / month",
-            parent_plan_note: "Parents-only video watching access",
-            parent_plan_f1: "Child profiles + favorites",
-            parent_plan_f2: "Safe watch flow designed for families",
-            parent_plan_cta: "Go Parent Login",
-            educator_plan_tag: "EDUCATORS PLAN",
-            educator_plan_price: "$20 / year",
-            educator_plan_note: "Separate educator portal",
-            educator_plan_f1: "Great for schools and coaching centers",
-            educator_plan_f2: "Organize content for classroom sessions",
-            educator_plan_cta: "Go Educator Login",
-            plans_hint: "Switch language to see BDT pricing in Bangla.",
-            journey_title: "Three Clear Spaces",
-            journey_parent_title: "Parents Space",
-            journey_parent_text:
-              "Parents sign in and children watch through parent account only.",
-            journey_parent_btn: "Open Parent Space",
-            journey_educator_title: "Educators Space",
-            journey_educator_text:
-              "Educators use their own login and access teaching library.",
-            journey_educator_btn: "Open Educators Space",
-            journey_admin_title: "Admin CMS",
-            journey_admin_text:
-              "Upload cartoon videos, edit metadata, publish in minutes.",
-            journey_admin_btn: "Open Admin CMS",
-            cta_title: "Start on Railway now, connect custom domain later.",
-            cta_text:
-              "Use free Railway URL first. Later attach xerivolearn.com, app, educator, and admin subdomains.",
-            cta_parent: "Parent App",
+            hero_title: "A Magical Cartoon World",
+            hero_talk: "Boing! Learn with songs, stories, and smiles.",
+            cta_parent: "Enter Parent App",
             cta_educator: "Educator Portal",
-            cta_admin: "Admin CMS",
-            footer_text: "2026 XerivoLearn • Cartoon joy for kids, control for grown-ups."
+            feature_alpha: "Alphabet & Numbers",
+            feature_story: "Bedtime Stories",
+            feature_bilingual: "Bilingual Mode (Bangla + English)",
+            parent_price: "$1/month",
+            parent_plan: "Parent Plan",
+            educator_price: "$20/year",
+            educator_plan: "Educator Plan",
+            trust_title: "Parent Trust",
+            trust_text:
+              "Parent accounts control video watching, age filtering, and child-safe discovery in one clean space.",
+            trust_1: "Parent-only video playback access",
+            trust_2: "Age and category filters for quick content picks",
+            trust_3: "Simple CMS publishing flow for fresh lessons",
+            sample_title: "Sample Video Thumbnails",
+            sample_1: "ABC Adventure Song",
+            sample_2: "Moonlight Story",
+            sample_3: "Fun Science Lab",
+            sample_4: "Bilingual Word Game",
+            testimonials_title: "Testimonials",
+            review_1: '"My child now asks for learning videos every evening. Super easy for parents."',
+            review_2: '"Bangla + English mode helped us at home and school both."',
+            review_3: '"CMS is simple, I can upload and publish quickly."'
           },
           bn: {
-            page_title: "XerivoLearn | শিশুদের কার্টুন লার্নিং প্ল্যানেট",
-            nav_parent: "অভিভাবক",
-            nav_educator: "এডুকেটর",
-            nav_admin: "অ্যাডমিন সিএমএস",
-            hero_chip: "এআই কার্টুন ভাষা অ্যাডভেঞ্চার",
-            hero_title: "একটি ম্যাজিকাল কার্টুন দুনিয়া, যেখানে শিশুরা শব্দ, গান আর গল্প শিখে।",
-            hero_text:
-              "শিশুদের জন্য তৈরি, অভিভাবকদের জন্য বিশ্বাসযোগ্য। বাসায় ভিডিও দেখার জন্য প্যারেন্ট অ্যাপ, আর এডুকেটরদের জন্য আলাদা পোর্টাল।",
-            hero_btn_parent: "প্যারেন্ট অ্যাপে যান",
-            hero_btn_educator: "এডুকেটর পোর্টাল",
-            sound_1: "জুম! এবিসি রকেট!",
-            sound_2: "বুম! ১-২-৩ জঙ্গল!",
-            sound_3: "স্প্ল্যাশ! গল্পের সময়!",
-            scene_bubble_1: "হ্যালো ছোট্ট লার্নার!",
-            scene_bubble_2: "চলো কথা বলি, গান গাই!",
-            scene_bubble_3: "রেডি, সেট, লার্ন!",
-            features_title: "ফিচার হাইলাইটস",
-            features_sub: "শিশুরা যা পছন্দ করে, সব এক নিরাপদ শেখার জায়গায়।",
-            feature_alpha_title: "বর্ণমালা ও সংখ্যা",
-            feature_alpha_text: "ফনিক্স, অক্ষরের উচ্চারণ, গণনার গান এবং নাম্বার খেলা।",
-            feature_story_title: "ঘুমপাড়ানি গল্প",
-            feature_story_text: "সন্ধ্যার শেখার সময়ের জন্য শান্ত কণ্ঠে কোমল গল্প।",
-            feature_science_title: "মজার বিজ্ঞান কার্টুন",
-            feature_science_text: "ছোট ছোট পরীক্ষায় কৌতূহলী শিশুদের জন্য বিজ্ঞান মজা।",
-            feature_bilingual_title: "দ্বিভাষিক মোড (বাংলা + ইংরেজি)",
-            feature_bilingual_text: "এক ক্লিকে ভাষা বদলান, পছন্দ স্বয়ংক্রিয়ভাবে সেভ থাকবে।",
-            parent_trust_title: "কেন অভিভাবকরা XerivoLearn-এ ভরসা করেন",
-            parent_trust_sub: "শুধু স্ক্রিন টাইম নয়, অভিভাবকের নিশ্চিন্তির জন্য তৈরি।",
-            trust_main_title: "শিশুর আনন্দের সাথে অভিভাবকের পূর্ণ নিয়ন্ত্রণ",
-            trust_main_text:
-              "আপনি নিয়ন্ত্রণে থাকবেন, আর আপনার শিশু ভাষা, মূল্যবোধ ও কৌতূহল শেখা কার্টুন উপভোগ করবে।",
-            trust_benefit_1_title: "শুধু প্যারেন্ট অ্যাকাউন্টে ভিডিও দেখা",
-            trust_benefit_1_text: "ভিডিও প্লেব্যাক কেবল প্যারেন্ট অ্যাকাউন্ট থেকেই চালু হবে।",
-            trust_benefit_2_title: "বয়সভিত্তিক কনটেন্ট নির্বাচন",
-            trust_benefit_2_text: "দ্রুত ফিল্টার দিয়ে সহজেই উপযুক্ত কনটেন্ট বেছে নিন।",
-            trust_benefit_3_title: "সবসময় নতুন লাইব্রেরি",
-            trust_benefit_3_text: "অ্যাডমিন CMS থেকে মিনিটেই নতুন পাঠ প্রকাশ করা যায়।",
-            carousel_title: "স্যাম্পল ভিডিও থাম্বনেইল",
-            carousel_sub: "অ্যাপে ঢুকে শিশু ও অভিভাবকরা যা ব্রাউজ করবে তার একটি প্রিভিউ।",
-            sample_1_tag: "বয়স ৩-৫",
-            sample_1_title: "এবিসি অ্যাডভেঞ্চার গান",
-            sample_2_tag: "ঘুমপাড়ানি গল্প",
-            sample_2_title: "চাঁদের আলোয় খরগোশের গল্প",
-            sample_3_tag: "মজার বিজ্ঞান",
-            sample_3_title: "রঙিন আগ্নেয়গিরি ল্যাব",
-            sample_4_tag: "বাংলা + ইংরেজি",
-            sample_4_title: "দ্বিভাষিক শব্দ সাফারি",
-            testimonials_title: "পরিবারগুলো যা বলছে",
-            testimonials_sub: "শিশুদের প্রিয়, অভিভাবক ও শিক্ষকদের ভরসার প্ল্যাটফর্ম।",
-            testimonial_1_quote:
-              "\"আমার মেয়ে এখন প্রতিদিন সন্ধ্যায় অ্যালফাবেট গান শুনতে চায়। শেখাটা মজার লাগে।\"",
-            testimonial_1_author: "নুসরাত জাহান - অভিভাবক, ঢাকা",
-            testimonial_2_quote:
-              "\"দ্বিভাষিক মোডে আমার ছেলে বাংলা আর ইংরেজি একসাথে চর্চা করতে পারছে।\"",
-            testimonial_2_author: "আরিফ হাসান - অভিভাবক, চট্টগ্রাম",
-            testimonial_3_quote:
-              "\"শিক্ষক হিসেবে আমি খুব দ্রুত সাপ্তাহিক কার্টুন লেসন প্লেলিস্ট তৈরি করতে পারি।\"",
-            testimonial_3_author: "ফারজানা রহমান - শিক্ষিকা, সিলেট",
-            friends_title: "কার্টুন টিচারদের সাথে পরিচিত হও",
-            friends_sub: "প্রতিটি চরিত্র শিশুদের আলাদা শেখার স্টাইলে সাহায্য করে।",
-            friend_bunny_name: "মিমি বানি",
-            friend_bunny_role: "বর্ণমালা ও উচ্চারণ শেখা",
-            friend_bear_name: "বোবো বিয়ার",
-            friend_bear_role: "সংখ্যা, গণনা ও লজিক গেম",
-            friend_fox_name: "লুনা ফক্স",
-            friend_fox_role: "গল্প, আবেগ ও জীবনমূল্য",
-            friend_penguin_name: "পিকো পেঙ্গুইন",
-            friend_penguin_role: "গান, ছন্দ ও মেমরি বুস্ট",
-            plans_title: "সহজ সাবস্ক্রিপশন প্ল্যান",
-            plans_sub: "অভিভাবকদের জন্য মাসিক, এডুকেটরদের জন্য বাৎসরিক প্ল্যান।",
-            parent_plan_tag: "প্যারেন্টস প্ল্যান",
-            parent_plan_price: "৳৯৯ / মাস",
-            parent_plan_note: "শুধু প্যারেন্ট অ্যাকাউন্ট থেকে ভিডিও দেখা যাবে",
-            parent_plan_f1: "চাইল্ড প্রোফাইল + ফেভারিটস",
-            parent_plan_f2: "পরিবারের জন্য নিরাপদ ওয়াচ ফ্লো",
-            parent_plan_cta: "প্যারেন্ট লগইনে যান",
-            educator_plan_tag: "এডুকেটরস প্ল্যান",
-            educator_plan_price: "৳২০০০ / বছর",
-            educator_plan_note: "আলাদা এডুকেটর পোর্টাল",
-            educator_plan_f1: "স্কুল, কোচিং ও টিউটরদের জন্য উপযুক্ত",
-            educator_plan_f2: "ক্লাসরুম সেশনের জন্য কনটেন্ট সাজান",
-            educator_plan_cta: "এডুকেটর লগইনে যান",
-            plans_hint: "ল্যাঙ্গুয়েজ বদলালে ইংরেজিতে $ আর বাংলায় ৳ দেখাবে।",
-            journey_title: "তিনটি পরিষ্কার স্পেস",
-            journey_parent_title: "প্যারেন্টস স্পেস",
-            journey_parent_text: "প্যারেন্ট লগইনের মাধ্যমেই শিশুদের ভিডিও দেখা যাবে।",
-            journey_parent_btn: "প্যারেন্ট স্পেস খুলুন",
-            journey_educator_title: "এডুকেটরস স্পেস",
-            journey_educator_text: "এডুকেটররা নিজস্ব লগইনে টিচিং লাইব্রেরি ব্যবহার করবেন।",
-            journey_educator_btn: "এডুকেটর স্পেস খুলুন",
-            journey_admin_title: "অ্যাডমিন সিএমএস",
-            journey_admin_text: "কার্টুন ভিডিও আপলোড, এডিট, পাবলিশ সব এক জায়গা থেকে।",
-            journey_admin_btn: "অ্যাডমিন সিএমএস খুলুন",
-            cta_title: "এখন Railway-এ শুরু করুন, পরে কাস্টম ডোমেইন যুক্ত করুন।",
-            cta_text:
-              "প্রথমে ফ্রি Railway URL ব্যবহার করুন। পরে xerivolearn.com, app, educator ও admin ডোমেইন যুক্ত করুন।",
-            cta_parent: "প্যারেন্ট অ্যাপ",
+            nav_parents: "প্যারেন্টস",
+            nav_educators: "এডুকেটরস",
+            nav_admin: "অ্যাডমিন CMS",
+            hero_title: "এক জাদুকরী কার্টুন দুনিয়া",
+            hero_talk: "বইং! গান, গল্প আর মজায় শেখা হোক।",
+            cta_parent: "প্যারেন্ট অ্যাপে যান",
             cta_educator: "এডুকেটর পোর্টাল",
-            cta_admin: "অ্যাডমিন সিএমএস",
-            footer_text: "২০২৬ XerivoLearn • শিশুদের কার্টুন আনন্দ, বড়দের নিয়ন্ত্রণ।"
+            feature_alpha: "বর্ণমালা ও সংখ্যা",
+            feature_story: "ঘুমপাড়ানি গল্প",
+            feature_bilingual: "দ্বিভাষিক মোড (বাংলা + ইংরেজি)",
+            parent_price: "৳৯৯/মাস",
+            parent_plan: "প্যারেন্ট প্ল্যান",
+            educator_price: "৳২০০০/বছর",
+            educator_plan: "এডুকেটর প্ল্যান",
+            trust_title: "অভিভাবকের আস্থা",
+            trust_text:
+              "প্যারেন্ট অ্যাকাউন্টের মাধ্যমে নিরাপদ ভিডিও দেখা, বয়সভিত্তিক ফিল্টার আর সহজ কনটেন্ট খোঁজা একসাথে।",
+            trust_1: "শুধু প্যারেন্ট অ্যাকাউন্টে ভিডিও প্লেব্যাক",
+            trust_2: "বয়স ও ক্যাটাগরি ফিল্টারে দ্রুত কনটেন্ট নির্বাচন",
+            trust_3: "CMS থেকে সহজে নতুন লেসন পাবলিশ",
+            sample_title: "স্যাম্পল ভিডিও থাম্বনেইল",
+            sample_1: "এবিসি অ্যাডভেঞ্চার গান",
+            sample_2: "চাঁদের আলো গল্প",
+            sample_3: "মজার বিজ্ঞান ল্যাব",
+            sample_4: "দ্বিভাষিক শব্দ খেলা",
+            testimonials_title: "প্রশংসাপত্র",
+            review_1: '"আমার বাচ্চা এখন প্রতিদিন শেখার ভিডিও দেখতে চায়। প্যারেন্টদের জন্য খুব সহজ।"',
+            review_2: '"বাংলা + ইংরেজি মোড বাসা আর স্কুল দুজায়গাতেই সাহায্য করেছে।"',
+            review_3: '"CMS খুবই সহজ, দ্রুত ভিডিও আপলোড ও পাবলিশ করা যায়।"'
           }
         };
 
-        const mapText = (lang) => {
-          const dict = translations[lang] || translations.en;
-          document.title = dict.page_title;
-          document.documentElement.lang = lang;
-          document.querySelectorAll("[data-i18n]").forEach((node) => {
-            const key = node.getAttribute("data-i18n");
-            if (key && dict[key]) {
-              node.textContent = dict[key];
-            }
-          });
-        };
+        const links = [
+          "home-link",
+          "nav-parent-link",
+          "nav-educator-link",
+          "nav-admin-link",
+          "hero-parent-link",
+          "hero-educator-link"
+        ];
 
-        const setActiveButton = (lang) => {
-          const enButton = document.getElementById("lang-en");
-          const bnButton = document.getElementById("lang-bn");
-          enButton.classList.toggle("active", lang === "en");
-          bnButton.classList.toggle("active", lang === "bn");
-        };
+        function t(lang, key) {
+          return (translations[lang] && translations[lang][key]) || translations.en[key] || key;
+        }
 
-        const saveLanguage = (lang) => {
+        function setLangButtons(lang) {
+          const en = document.getElementById("lang-en");
+          const bn = document.getElementById("lang-bn");
+          en.classList.toggle("active", lang === "en");
+          bn.classList.toggle("active", lang === "bn");
+        }
+
+        function withLang(url, lang) {
           try {
-            localStorage.setItem(STORAGE_KEY, lang);
-          } catch {}
-        };
-
-        const getLanguageFromQuery = () => {
-          const value = (new URLSearchParams(location.search).get(LANGUAGE_QUERY_KEY) || "").toLowerCase();
-          return supportedLanguages.has(value) ? value : "";
-        };
-
-        const loadLanguage = () => {
-          const queryLang = getLanguageFromQuery();
-          if (queryLang) {
-            return queryLang;
-          }
-          try {
-            const lang = localStorage.getItem(STORAGE_KEY) || "en";
-            return supportedLanguages.has(lang) ? lang : "en";
-          } catch {
-            return "en";
-          }
-        };
-
-        const withLanguageParam = (url, lang) => {
-          try {
-            const resolved = new URL(url, location.origin);
-            resolved.searchParams.set(LANGUAGE_QUERY_KEY, lang);
-            return resolved.toString();
+            const parsed = new URL(url, window.location.origin);
+            parsed.searchParams.set(LANGUAGE_QUERY_KEY, lang);
+            return parsed.toString();
           } catch {
             return url;
           }
-        };
+        }
 
-        const setLanguageInUrl = (lang) => {
-          const url = new URL(location.href);
-          url.searchParams.set(LANGUAGE_QUERY_KEY, lang);
-          const next = `${url.pathname}${url.search}${url.hash}`;
-          const current = `${location.pathname}${location.search}${location.hash}`;
-          if (next !== current) {
-            history.replaceState({}, "", next);
-          }
-        };
-
-        const updateLanguageAwareLinks = (lang) => {
-          const linkIds = [
-            "home-link",
-            "nav-parent-link",
-            "hero-parent-link",
-            "plan-parent-link",
-            "journey-parent-link",
-            "cta-parent-link",
-            "nav-educator-link",
-            "hero-educator-link",
-            "plan-educator-link",
-            "journey-educator-link",
-            "cta-educator-link",
-            "nav-admin-link",
-            "journey-admin-link",
-            "cta-admin-link"
-          ];
-
-          linkIds.forEach((id) => {
-            const node = document.getElementById(id);
-            if (!node || !node.href) {
-              return;
+        function applyLanguage(lang, options = {}) {
+          const target = supportedLanguages.has(lang) ? lang : "en";
+          document.documentElement.lang = target;
+          document.querySelectorAll("[data-i18n]").forEach((node) => {
+            const key = node.getAttribute("data-i18n");
+            if (key) {
+              node.textContent = t(target, key);
             }
-            node.href = withLanguageParam(node.href, lang);
           });
-        };
+          setLangButtons(target);
 
-        const applyLanguage = (lang) => {
-          const targetLang = supportedLanguages.has(lang) ? lang : "en";
-          mapText(targetLang);
-          setActiveButton(targetLang);
-          saveLanguage(targetLang);
-          setLanguageInUrl(targetLang);
-          updateLanguageAwareLinks(targetLang);
-        };
+          links.forEach((id) => {
+            const node = document.getElementById(id);
+            if (node && node.href) {
+              node.href = withLang(node.href, target);
+            }
+          });
 
-        document.getElementById("lang-en").addEventListener("click", () => applyLanguage("en"));
-        document.getElementById("lang-bn").addEventListener("click", () => applyLanguage("bn"));
+          if (options.persist !== false) {
+            try {
+              localStorage.setItem(STORAGE_KEY, target);
+              localStorage.setItem(LEGACY_STORAGE_KEY, target);
+            } catch {}
+          }
 
-        const host = location.hostname.toLowerCase();
-        const isPrimaryDomain = host === "xerivolearn.com" || host === "www.xerivolearn.com";
-        if (!isPrimaryDomain) {
-          document.getElementById("home-link").href = "/";
+          if (options.syncUrl !== false) {
+            const url = new URL(window.location.href);
+            url.searchParams.set(LANGUAGE_QUERY_KEY, target);
+            window.history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}`);
+          }
+        }
 
-          [
-            "nav-parent-link",
-            "hero-parent-link",
-            "plan-parent-link",
-            "journey-parent-link",
-            "cta-parent-link"
-          ].forEach((id) => {
+        function initialLanguage() {
+          const fromQuery = (new URLSearchParams(window.location.search).get(LANGUAGE_QUERY_KEY) || "").toLowerCase();
+          if (supportedLanguages.has(fromQuery)) {
+            return fromQuery;
+          }
+          try {
+            const saved = localStorage.getItem(STORAGE_KEY) || localStorage.getItem(LEGACY_STORAGE_KEY) || "en";
+            return supportedLanguages.has(saved) ? saved : "en";
+          } catch {
+            return "en";
+          }
+        }
+
+        function applySingleHostFallback() {
+          const host = window.location.hostname.toLowerCase();
+          const isMain = host === "xerivolearn.com" || host === "www.xerivolearn.com";
+          if (isMain) {
+            return;
+          }
+          const home = document.getElementById("home-link");
+          if (home) {
+            home.href = "/";
+          }
+          const parentTargets = ["nav-parent-link", "hero-parent-link"];
+          const educatorTargets = ["nav-educator-link", "hero-educator-link"];
+          parentTargets.forEach((id) => {
             const node = document.getElementById(id);
             if (node) {
               node.href = "/app/";
             }
           });
-
-          [
-            "nav-educator-link",
-            "hero-educator-link",
-            "plan-educator-link",
-            "journey-educator-link",
-            "cta-educator-link"
-          ].forEach((id) => {
+          educatorTargets.forEach((id) => {
             const node = document.getElementById(id);
             if (node) {
               node.href = "/educator/";
             }
           });
-
-          ["nav-admin-link", "journey-admin-link", "cta-admin-link"].forEach((id) => {
-            const node = document.getElementById(id);
-            if (node) {
-              node.href = "/admin/";
-            }
-          });
+          const admin = document.getElementById("nav-admin-link");
+          if (admin) {
+            admin.href = "/admin/";
+          }
         }
 
-        applyLanguage(loadLanguage());
+        applySingleHostFallback();
+        applyLanguage(initialLanguage(), { persist: false });
+
+        document.getElementById("lang-en").addEventListener("click", () => applyLanguage("en"));
+        document.getElementById("lang-bn").addEventListener("click", () => applyLanguage("bn"));
       })();
     </script>
   </body>

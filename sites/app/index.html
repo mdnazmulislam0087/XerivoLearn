@@ -93,17 +93,34 @@
               placeholder="Password (min 8 chars)"
               required
             />
+            <label class="terms-check">
+              <input id="register-terms" type="checkbox" required />
+              <span data-i18n="terms_accept_label">I agree to Terms and Conditions</span>
+            </label>
+            <button id="view-terms-btn" type="button" class="link-btn" data-i18n="btn_view_terms">
+              View Terms and Conditions
+            </button>
+            <div class="captcha-row">
+              <p id="captcha-question" class="mini-status" data-i18n="captcha_loading">Loading captcha...</p>
+              <button id="refresh-captcha-btn" type="button" class="secondary" data-i18n="btn_refresh_captcha">
+                Refresh
+              </button>
+            </div>
+            <input
+              id="captcha-answer"
+              type="text"
+              inputmode="numeric"
+              data-i18n-placeholder="ph_captcha_answer"
+              placeholder="Type captcha answer"
+              required
+            />
             <button type="submit" data-i18n="btn_create_account">Create Account</button>
           </form>
           <form id="reset-form" class="auth-form">
-            <h3 data-i18n="reset_title">Reset Password</h3>
-            <input
-              id="reset-token"
-              type="text"
-              data-i18n-placeholder="ph_reset_token"
-              placeholder="Reset token"
-              required
-            />
+            <h3 id="reset-title" data-i18n="reset_title">Reset Password</h3>
+            <p id="reset-help" class="mini-status" data-i18n="reset_from_email_help">
+              Open your reset link from email to set a new password.
+            </p>
             <input
               id="reset-new-password"
               type="password"
@@ -115,6 +132,13 @@
             <p id="reset-status" class="mini-status"></p>
           </form>
         </div>
+        <section id="terms-panel" class="terms-panel hidden" aria-live="polite">
+          <div class="terms-head">
+            <h3 data-i18n="terms_title">Terms and Conditions</h3>
+            <button id="close-terms-btn" type="button" class="secondary" data-i18n="btn_close">Close</button>
+          </div>
+          <pre id="terms-content" class="terms-content"></pre>
+        </section>
         <div class="auth-actions"><p id="forgot-status" class="mini-status"></p></div>
       </section>
 

@@ -6,19 +6,25 @@
 
 1. Push this project to GitHub.
 2. Create a Railway project from the repo.
-3. Set environment variables:
+3. Add a `PostgreSQL` service in Railway and copy its `DATABASE_URL`.
+4. Set environment variables:
+   - `DATABASE_URL` (from Railway Postgres service)
    - `JWT_SECRET=your-long-random-secret`
    - `ADMIN_EMAIL=admin@yourdomain.com`
    - `ADMIN_PASSWORD=your-strong-admin-password`
    - `EDUCATOR_EMAIL=educator@yourdomain.com`
    - `EDUCATOR_PASSWORD=your-strong-educator-password`
    - Optional: `EDUCATOR_NAME=Xerivo Educator`
+   - Optional: `PG_SSL=true`
    - Optional: `JWT_TTL_SECONDS=604800`
    - Optional: `APP_BASE_URL=https://xerivolearn.com`
    - Optional: `PASSWORD_RESET_TTL_MINUTES=30`
    - Optional: `PASSWORD_RESET_DEBUG=false`
+   - Optional: `PASSWORD_RESET_FROM_EMAIL=noreply@yourdomain.com`
+   - Optional: `RESEND_API_KEY=re_xxx`
    - Optional: `PASSWORD_RESET_WEBHOOK_URL=https://your-email-worker.example/send`
-4. Deploy. Railway uses `railway.json` and starts with `npm start`.
+   - Optional: `CAPTCHA_TTL_MINUTES=10`
+5. Deploy. Railway uses `railway.json` and starts with `npm start`.
 
 ## 2) Attach Domains in Railway
 
@@ -81,6 +87,7 @@ Single-host fallback paths still work:
 - Rotate admin/educator passwords periodically.
 - If you use optional `ADMIN_TOKEN` fallback, keep it private.
 - Disable `PASSWORD_RESET_DEBUG` in production.
+- For automatic reset emails, configure `RESEND_API_KEY` and `PASSWORD_RESET_FROM_EMAIL`.
 
 ## 6) Optional: Keep subdomains for later
 

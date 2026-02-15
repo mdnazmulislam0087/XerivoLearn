@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700&family=Noto+Sans+Bengali:wght@400;600;700&display=swap"
       rel="stylesheet"
     />
   </head>
@@ -20,77 +20,114 @@
       <a id="brand-link" class="brand" href="https://xerivolearn.com">XerivoLearn</a>
       <div class="topbar-actions">
         <span id="parent-pill" class="parent-pill hidden"></span>
-        <a id="educator-link" class="admin-link alt" href="https://educator.xerivolearn.com">Educator</a>
-        <a id="admin-link" class="admin-link" href="https://admin.xerivolearn.com">Admin CMS</a>
+        <div class="lang-switch" aria-label="Language switch">
+          <button id="lang-en" type="button">EN</button>
+          <button id="lang-bn" type="button">BN</button>
+        </div>
       </div>
     </header>
 
     <main class="page">
       <section class="hero-panel">
         <div class="hero-copy">
-          <p class="eyebrow">Kids Video Library</p>
-          <h1>Find your child's next favorite learning adventure.</h1>
-          <p>
+          <p class="eyebrow" data-i18n="hero_eyebrow">Kids Video Library</p>
+          <h1 data-i18n="hero_title">Find your child's next favorite learning adventure.</h1>
+          <p data-i18n="hero_text">
             Play stories, songs, and skill-building cartoons in one clean library designed
             for children and easy for parents to supervise.
           </p>
         </div>
         <aside class="trust-panel">
-          <h2>Parent Friendly</h2>
+          <h2 data-i18n="trust_title">Parent Friendly</h2>
           <ul>
-            <li>Age-focused filtering</li>
-            <li>Simple category browsing</li>
-            <li>Fast access to safe learning content</li>
+            <li data-i18n="trust_1">Age-focused filtering</li>
+            <li data-i18n="trust_2">Simple category browsing</li>
+            <li data-i18n="trust_3">Fast access to safe learning content</li>
           </ul>
         </aside>
       </section>
 
       <section class="parent-auth">
         <div class="auth-heading">
-          <h2>Parent Account</h2>
-          <p id="auth-status-line">Parents plan: BDT 99/month. Sign in to watch videos and save favorites.</p>
+          <h2 data-i18n="parent_account_title">Parent Account</h2>
+          <p id="auth-status-line" data-i18n="auth_status_default">
+            Parents plan: BDT 99/month. Sign in to watch videos and save favorites.
+          </p>
         </div>
         <div class="auth-grid">
           <form id="login-form" class="auth-form">
-            <h3>Sign In</h3>
-            <input id="login-email" type="email" placeholder="Email" required />
-            <input id="login-password" type="password" placeholder="Password" required />
-            <button type="submit">Sign In</button>
-            <button id="forgot-password-btn" type="button" class="link-btn">Forgot password?</button>
+            <h3 data-i18n="login_title">Sign In</h3>
+            <input id="login-email" type="email" data-i18n-placeholder="ph_email" placeholder="Email" required />
+            <input
+              id="login-password"
+              type="password"
+              data-i18n-placeholder="ph_password"
+              placeholder="Password"
+              required
+            />
+            <button type="submit" data-i18n="btn_sign_in">Sign In</button>
+            <button id="forgot-password-btn" type="button" class="link-btn" data-i18n="btn_forgot_password">
+              Forgot password?
+            </button>
           </form>
           <form id="register-form" class="auth-form">
-            <h3>Create Parent Account</h3>
-            <input id="register-name" type="text" placeholder="Full name" required />
-            <input id="register-email" type="email" placeholder="Email" required />
-            <input id="register-password" type="password" placeholder="Password (min 8 chars)" required />
-            <button type="submit">Create Account</button>
+            <h3 data-i18n="register_title">Create Parent Account</h3>
+            <input
+              id="register-name"
+              type="text"
+              data-i18n-placeholder="ph_full_name"
+              placeholder="Full name"
+              required
+            />
+            <input id="register-email" type="email" data-i18n-placeholder="ph_email" placeholder="Email" required />
+            <input
+              id="register-password"
+              type="password"
+              data-i18n-placeholder="ph_password_min8"
+              placeholder="Password (min 8 chars)"
+              required
+            />
+            <button type="submit" data-i18n="btn_create_account">Create Account</button>
           </form>
           <form id="reset-form" class="auth-form">
-            <h3>Reset Password</h3>
-            <input id="reset-token" type="text" placeholder="Reset token" required />
+            <h3 data-i18n="reset_title">Reset Password</h3>
+            <input
+              id="reset-token"
+              type="text"
+              data-i18n-placeholder="ph_reset_token"
+              placeholder="Reset token"
+              required
+            />
             <input
               id="reset-new-password"
               type="password"
+              data-i18n-placeholder="ph_new_password_min8"
               placeholder="New password (min 8 chars)"
               required
             />
-            <button type="submit">Update Password</button>
+            <button type="submit" data-i18n="btn_update_password">Update Password</button>
             <p id="reset-status" class="mini-status"></p>
           </form>
         </div>
         <div class="auth-actions">
-          <button id="logout-btn" type="button" class="secondary hidden">Logout</button>
+          <button id="logout-btn" type="button" class="secondary hidden" data-i18n="btn_logout">Logout</button>
           <p id="forgot-status" class="mini-status"></p>
         </div>
       </section>
 
       <section class="child-profiles">
         <div class="child-head">
-          <h2>Child Profiles</h2>
-          <p id="child-status">Sign in to create child profiles.</p>
+          <h2 data-i18n="child_profiles_title">Child Profiles</h2>
+          <p id="child-status" data-i18n="child_status_signed_out">Sign in to create child profiles.</p>
         </div>
         <form id="child-form" class="child-form">
-          <input id="child-name" type="text" placeholder="Child name" required />
+          <input
+            id="child-name"
+            type="text"
+            data-i18n-placeholder="ph_child_name"
+            placeholder="Child name"
+            required
+          />
           <select id="child-age-group" required>
             <option value="3-5">3-5</option>
             <option value="4-7" selected>4-7</option>
@@ -98,8 +135,10 @@
           </select>
           <div id="avatar-options" class="avatar-options"></div>
           <div class="child-form-actions">
-            <button id="child-save-btn" type="submit">Save Child</button>
-            <button id="child-cancel-btn" type="button" class="secondary hidden">Cancel Edit</button>
+            <button id="child-save-btn" type="submit" data-i18n="btn_save_child">Save Child</button>
+            <button id="child-cancel-btn" type="button" class="secondary hidden" data-i18n="btn_cancel_edit">
+              Cancel Edit
+            </button>
           </div>
         </form>
         <div id="child-list" class="child-list"></div>
@@ -108,22 +147,29 @@
       <section class="library-controls">
         <div class="control-row">
           <div class="filters">
-            <input id="search-input" type="search" placeholder="Search title or topic..." />
+            <input
+              id="search-input"
+              type="search"
+              data-i18n-placeholder="ph_search"
+              placeholder="Search title or topic..."
+            />
             <select id="age-filter">
-              <option value="">All ages</option>
+              <option value="" data-i18n="age_all">All ages</option>
               <option value="3-5">3-5</option>
               <option value="4-7">4-7</option>
               <option value="7+">7+</option>
             </select>
           </div>
-          <button id="favorites-only-btn" type="button" class="secondary">Favorites only</button>
+          <button id="favorites-only-btn" type="button" class="secondary" data-i18n="favorites_only">
+            Favorites only
+          </button>
         </div>
         <div id="category-chips" class="category-chips"></div>
         <p id="result-count" class="result-count"></p>
       </section>
 
       <section id="videos-grid" class="videos-grid" aria-live="polite"></section>
-      <p id="empty-state" class="empty-state hidden">No videos match your filters yet.</p>
+      <p id="empty-state" class="empty-state hidden" data-i18n="empty_no_match">No videos match your filters yet.</p>
     </main>
 
     <script src="./app.js"></script>

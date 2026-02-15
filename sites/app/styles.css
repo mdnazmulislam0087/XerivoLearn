@@ -23,6 +23,15 @@ body {
   overflow-x: hidden;
 }
 
+html[lang="bn"] body,
+html[lang="bn"] input,
+html[lang="bn"] select,
+html[lang="bn"] button,
+html[lang="bn"] .pill,
+html[lang="bn"] .mini-status {
+  font-family: "Noto Sans Bengali", "Nunito", sans-serif;
+}
+
 .page-glow {
   position: fixed;
   border-radius: 50%;
@@ -74,6 +83,31 @@ body {
   gap: 10px;
 }
 
+.lang-switch {
+  display: inline-flex;
+  gap: 6px;
+  background: #ffffff;
+  border: 1px solid #d0e4ff;
+  border-radius: 12px;
+  padding: 4px;
+}
+
+.lang-switch button {
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #294172;
+  font: inherit;
+  font-weight: 800;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.lang-switch button.active {
+  color: #fff;
+  background: linear-gradient(120deg, #18a0df, #3bc576);
+}
+
 .parent-pill {
   padding: 6px 10px;
   border-radius: 999px;
@@ -81,19 +115,6 @@ body {
   color: #0d678e;
   font-weight: 700;
   font-size: 0.85rem;
-}
-
-.admin-link {
-  text-decoration: none;
-  color: white;
-  background: linear-gradient(90deg, var(--accent), #ffad3c);
-  padding: 8px 14px;
-  border-radius: 12px;
-  font-weight: 700;
-}
-
-.admin-link.alt {
-  background: linear-gradient(90deg, #198fd6, #3acb7f);
 }
 
 .page {
@@ -622,6 +643,17 @@ body {
 }
 
 @media (max-width: 680px) {
+  .topbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .topbar-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
   .control-row {
     flex-direction: column;
     align-items: stretch;

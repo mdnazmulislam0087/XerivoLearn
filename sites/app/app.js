@@ -7,6 +7,202 @@ const AVATARS = [
   { key: "fox", label: "Fox", src: "./assets/avatars/fox.svg" }
 ];
 
+const LANGUAGE_STORAGE_KEY = "xerivo_app_lang";
+const SUPPORTED_LANGUAGES = new Set(["en", "bn"]);
+
+const TRANSLATIONS = {
+  en: {
+    page_title: "XerivoLearn App | Kids Video Library",
+    hero_eyebrow: "Kids Video Library",
+    hero_title: "Find your child's next favorite learning adventure.",
+    hero_text:
+      "Play stories, songs, and skill-building cartoons in one clean library designed for children and easy for parents to supervise.",
+    trust_title: "Parent Friendly",
+    trust_1: "Age-focused filtering",
+    trust_2: "Simple category browsing",
+    trust_3: "Fast access to safe learning content",
+    parent_account_title: "Parent Account",
+    auth_status_default: "Parents plan: BDT 99/month. Sign in to watch videos and save favorites.",
+    login_title: "Sign In",
+    register_title: "Create Parent Account",
+    reset_title: "Reset Password",
+    btn_sign_in: "Sign In",
+    btn_forgot_password: "Forgot password?",
+    btn_create_account: "Create Account",
+    btn_update_password: "Update Password",
+    btn_logout: "Logout",
+    child_profiles_title: "Child Profiles",
+    child_status_signed_out: "Sign in to create child profiles.",
+    btn_save_child: "Save Child",
+    btn_update_child: "Update Child",
+    btn_cancel_edit: "Cancel Edit",
+    ph_email: "Email",
+    ph_password: "Password",
+    ph_full_name: "Full name",
+    ph_password_min8: "Password (min 8 chars)",
+    ph_reset_token: "Reset token",
+    ph_new_password_min8: "New password (min 8 chars)",
+    ph_child_name: "Child name",
+    ph_search: "Search title or topic...",
+    age_all: "All ages",
+    favorites_only: "Favorites only",
+    favorites_showing: "Showing favorites",
+    status_signin_parent_favorites: "Sign in as a parent to save favorites.",
+    error_email_password_required: "Email and password are required.",
+    error_login_failed: "Login failed.",
+    error_portal_parent_only:
+      "This portal is for parent accounts only. Educators should use the Educator portal.",
+    error_name_email_password_required: "Name, email, and password are required.",
+    error_registration_failed: "Registration failed.",
+    error_parent_only_create: "Only parent accounts can be created from this app.",
+    error_enter_email_first: "Enter your email in Sign In first.",
+    error_request_reset_failed: "Could not request password reset.",
+    reset_sent: "Reset instructions sent.",
+    reset_debug_token_filled: "Debug token auto-filled in Reset Password form.",
+    error_token_new_password_required: "Token and new password are required.",
+    error_reset_failed: "Password reset failed.",
+    reset_success: "Password updated.",
+    error_session_validation_failed: "Session validation failed.",
+    error_parent_account_required: "Parent account required for this app.",
+    error_load_videos: "Could not load videos.",
+    error_load_favorites: "Could not load favorites.",
+    error_update_favorite: "Could not update favorite.",
+    error_load_children: "Could not load child profiles.",
+    error_signin_manage_children: "Sign in to manage child profiles.",
+    error_child_name_required: "Child name is required.",
+    error_save_child: "Could not save child profile.",
+    child_updated: "Child profile updated.",
+    child_created: "Child profile created.",
+    confirm_delete_child: "Delete this child profile?",
+    error_delete_child: "Could not delete child profile.",
+    child_deleted: "Child profile deleted.",
+    child_status_focus_age: "Create profiles and select one to focus age filtering.",
+    child_list_signin: "Sign in to create child profiles.",
+    child_list_empty: "No child profiles yet. Create your first profile.",
+    age_label: "Age {age}",
+    active_label: "Active",
+    btn_select: "Select",
+    btn_edit: "Edit",
+    btn_delete: "Delete",
+    loading_videos: "Loading videos...",
+    empty_parent_login_required: "Parent login required to watch videos.",
+    empty_signin_favorites_only: "Sign in to use favorites-only filter.",
+    empty_no_favorites: "No favorite videos yet. Save some videos first.",
+    empty_no_match: "No videos match your filters yet.",
+    result_found: "{count} {label} found{suffix}",
+    result_suffix_child: " for {name}",
+    video_single: "video",
+    video_plural: "videos",
+    all_label: "All",
+    watch_video: "Watch Video",
+    save_video: "Save",
+    saved_video: "Saved",
+    all_topics: "All topics",
+    general_category: "General",
+    short_duration: "Short",
+    parent_pill: "Parent: {name}",
+    signed_in_as: "Signed in as {email}",
+    error_signin_first: "Please sign in first.",
+    error_parent_required_signin: "Parent account required. Please sign in with a parent account.",
+    error_session_expired: "Session expired. Please sign in again."
+  },
+  bn: {
+    page_title: "XerivoLearn অ্যাপ | শিশুদের ভিডিও লাইব্রেরি",
+    hero_eyebrow: "শিশুদের ভিডিও লাইব্রেরি",
+    hero_title: "আপনার সন্তানের পরের প্রিয় শেখার অ্যাডভেঞ্চার খুঁজে নিন।",
+    hero_text:
+      "গল্প, গান ও স্কিল-বিল্ডিং কার্টুন ভিডিও এক জায়গায় দেখুন। শিশুদের জন্য সহজ এবং অভিভাবকদের জন্য নিরাপদ অভিজ্ঞতা।",
+    trust_title: "অভিভাবক-বান্ধব",
+    trust_1: "বয়সভিত্তিক ফিল্টারিং",
+    trust_2: "সহজ ক্যাটাগরি ব্রাউজিং",
+    trust_3: "নিরাপদ লার্নিং কনটেন্টে দ্রুত অ্যাক্সেস",
+    parent_account_title: "প্যারেন্ট অ্যাকাউন্ট",
+    auth_status_default: "প্যারেন্টস প্ল্যান: ৳৯৯/মাস। ভিডিও দেখতে ও ফেভারিটস রাখতে সাইন ইন করুন।",
+    login_title: "সাইন ইন",
+    register_title: "প্যারেন্ট অ্যাকাউন্ট তৈরি করুন",
+    reset_title: "পাসওয়ার্ড রিসেট",
+    btn_sign_in: "সাইন ইন",
+    btn_forgot_password: "পাসওয়ার্ড ভুলে গেছেন?",
+    btn_create_account: "অ্যাকাউন্ট তৈরি করুন",
+    btn_update_password: "পাসওয়ার্ড আপডেট করুন",
+    btn_logout: "লগআউট",
+    child_profiles_title: "চাইল্ড প্রোফাইল",
+    child_status_signed_out: "চাইল্ড প্রোফাইল তৈরি করতে সাইন ইন করুন।",
+    btn_save_child: "চাইল্ড সেভ করুন",
+    btn_update_child: "চাইল্ড আপডেট করুন",
+    btn_cancel_edit: "এডিট বাতিল",
+    ph_email: "ইমেইল",
+    ph_password: "পাসওয়ার্ড",
+    ph_full_name: "পূর্ণ নাম",
+    ph_password_min8: "পাসওয়ার্ড (কমপক্ষে ৮ অক্ষর)",
+    ph_reset_token: "রিসেট টোকেন",
+    ph_new_password_min8: "নতুন পাসওয়ার্ড (কমপক্ষে ৮ অক্ষর)",
+    ph_child_name: "শিশুর নাম",
+    ph_search: "শিরোনাম বা টপিক খুঁজুন...",
+    age_all: "সব বয়স",
+    favorites_only: "শুধু ফেভারিটস",
+    favorites_showing: "ফেভারিটস দেখানো হচ্ছে",
+    status_signin_parent_favorites: "ফেভারিটস সেভ করতে প্যারেন্ট হিসেবে সাইন ইন করুন।",
+    error_email_password_required: "ইমেইল এবং পাসওয়ার্ড প্রয়োজন।",
+    error_login_failed: "লগইন ব্যর্থ হয়েছে।",
+    error_portal_parent_only:
+      "এই পোর্টাল শুধু প্যারেন্ট অ্যাকাউন্টের জন্য। এডুকেটররা Educator পোর্টাল ব্যবহার করুন।",
+    error_name_email_password_required: "নাম, ইমেইল এবং পাসওয়ার্ড প্রয়োজন।",
+    error_registration_failed: "রেজিস্ট্রেশন ব্যর্থ হয়েছে।",
+    error_parent_only_create: "এই অ্যাপ থেকে শুধু প্যারেন্ট অ্যাকাউন্ট তৈরি করা যাবে।",
+    error_enter_email_first: "আগে Sign In অংশে আপনার ইমেইল দিন।",
+    error_request_reset_failed: "পাসওয়ার্ড রিসেট অনুরোধ করা যায়নি।",
+    reset_sent: "রিসেট নির্দেশনা পাঠানো হয়েছে।",
+    reset_debug_token_filled: "ডিবাগ টোকেন Reset Password ফর্মে বসানো হয়েছে।",
+    error_token_new_password_required: "টোকেন এবং নতুন পাসওয়ার্ড প্রয়োজন।",
+    error_reset_failed: "পাসওয়ার্ড রিসেট ব্যর্থ হয়েছে।",
+    reset_success: "পাসওয়ার্ড আপডেট হয়েছে।",
+    error_session_validation_failed: "সেশন যাচাই ব্যর্থ হয়েছে।",
+    error_parent_account_required: "এই অ্যাপে প্যারেন্ট অ্যাকাউন্ট প্রয়োজন।",
+    error_load_videos: "ভিডিও লোড করা যায়নি।",
+    error_load_favorites: "ফেভারিটস লোড করা যায়নি।",
+    error_update_favorite: "ফেভারিট আপডেট করা যায়নি।",
+    error_load_children: "চাইল্ড প্রোফাইল লোড করা যায়নি।",
+    error_signin_manage_children: "চাইল্ড প্রোফাইল ম্যানেজ করতে সাইন ইন করুন।",
+    error_child_name_required: "শিশুর নাম প্রয়োজন।",
+    error_save_child: "চাইল্ড প্রোফাইল সেভ করা যায়নি।",
+    child_updated: "চাইল্ড প্রোফাইল আপডেট হয়েছে।",
+    child_created: "চাইল্ড প্রোফাইল তৈরি হয়েছে।",
+    confirm_delete_child: "এই চাইল্ড প্রোফাইল ডিলিট করবেন?",
+    error_delete_child: "চাইল্ড প্রোফাইল ডিলিট করা যায়নি।",
+    child_deleted: "চাইল্ড প্রোফাইল ডিলিট হয়েছে।",
+    child_status_focus_age: "প্রোফাইল তৈরি করে একটি নির্বাচন করুন, তাহলে বয়স ফিল্টার দ্রুত কাজ করবে।",
+    child_list_signin: "চাইল্ড প্রোফাইল তৈরি করতে সাইন ইন করুন।",
+    child_list_empty: "এখনও কোনো চাইল্ড প্রোফাইল নেই। প্রথম প্রোফাইল তৈরি করুন।",
+    age_label: "বয়স {age}",
+    active_label: "সক্রিয়",
+    btn_select: "নির্বাচন",
+    btn_edit: "এডিট",
+    btn_delete: "ডিলিট",
+    loading_videos: "ভিডিও লোড হচ্ছে...",
+    empty_parent_login_required: "ভিডিও দেখতে প্যারেন্ট লগইন প্রয়োজন।",
+    empty_signin_favorites_only: "শুধু ফেভারিটস ফিল্টার ব্যবহার করতে সাইন ইন করুন।",
+    empty_no_favorites: "এখনও কোনো ফেভারিট ভিডিও নেই। আগে কিছু ভিডিও সেভ করুন।",
+    empty_no_match: "আপনার ফিল্টারের সাথে মিলে এমন ভিডিও নেই।",
+    result_found: "{count}টি {label} পাওয়া গেছে{suffix}",
+    result_suffix_child: " ({name} এর জন্য)",
+    video_single: "ভিডিও",
+    video_plural: "ভিডিও",
+    all_label: "সব",
+    watch_video: "ভিডিও দেখুন",
+    save_video: "সেভ",
+    saved_video: "সেভড",
+    all_topics: "সব টপিক",
+    general_category: "সাধারণ",
+    short_duration: "ছোট",
+    parent_pill: "প্যারেন্ট: {name}",
+    signed_in_as: "{email} হিসাবে সাইন ইন করা আছে",
+    error_signin_first: "আগে সাইন ইন করুন।",
+    error_parent_required_signin: "প্যারেন্ট অ্যাকাউন্ট প্রয়োজন। প্যারেন্ট হিসেবে সাইন ইন করুন।",
+    error_session_expired: "সেশন শেষ হয়েছে। আবার সাইন ইন করুন।"
+  }
+};
+
 const state = {
   videos: [],
   isLoadingVideos: false,
@@ -20,7 +216,8 @@ const state = {
   children: [],
   selectedChildId: "",
   editingChildId: "",
-  selectedAvatar: "rocket"
+  selectedAvatar: "rocket",
+  lang: "en"
 };
 
 const grid = document.getElementById("videos-grid");
@@ -30,11 +227,11 @@ const ageFilter = document.getElementById("age-filter");
 const categoryChips = document.getElementById("category-chips");
 const resultCount = document.getElementById("result-count");
 const brandLink = document.getElementById("brand-link");
-const adminLink = document.getElementById("admin-link");
-const educatorLink = document.getElementById("educator-link");
 const favoritesOnlyBtn = document.getElementById("favorites-only-btn");
 const parentPill = document.getElementById("parent-pill");
 const authStatusLine = document.getElementById("auth-status-line");
+const langEnButton = document.getElementById("lang-en");
+const langBnButton = document.getElementById("lang-bn");
 
 const loginForm = document.getElementById("login-form");
 const registerForm = document.getElementById("register-form");
@@ -72,14 +269,89 @@ if (resetTokenFromQuery) {
 const host = window.location.hostname.toLowerCase();
 const isProdAppDomain = host === "app.xerivolearn.com";
 if (!isProdAppDomain) {
-  adminLink.href = "/admin/";
-  if (educatorLink) {
-    educatorLink.href = "/educator/";
-  }
   if (brandLink) {
     brandLink.href = "/";
   }
 }
+
+function loadLanguagePreference() {
+  try {
+    const value = localStorage.getItem(LANGUAGE_STORAGE_KEY) || "en";
+    return SUPPORTED_LANGUAGES.has(value) ? value : "en";
+  } catch {
+    return "en";
+  }
+}
+
+function saveLanguagePreference(lang) {
+  try {
+    localStorage.setItem(LANGUAGE_STORAGE_KEY, lang);
+  } catch {}
+}
+
+function interpolate(template, values) {
+  return Object.entries(values || {}).reduce(
+    (output, [key, value]) => output.replaceAll(`{${key}}`, String(value)),
+    template
+  );
+}
+
+function t(key, values = {}) {
+  const current = TRANSLATIONS[state.lang] || TRANSLATIONS.en;
+  const source = current[key] || TRANSLATIONS.en[key] || key;
+  return interpolate(source, values);
+}
+
+function setActiveLanguageButton(lang) {
+  if (langEnButton) {
+    langEnButton.classList.toggle("active", lang === "en");
+  }
+  if (langBnButton) {
+    langBnButton.classList.toggle("active", lang === "bn");
+  }
+}
+
+function applyLanguage(lang, options = {}) {
+  const targetLang = SUPPORTED_LANGUAGES.has(lang) ? lang : "en";
+  state.lang = targetLang;
+  document.documentElement.lang = targetLang;
+  document.title = t("page_title");
+
+  document.querySelectorAll("[data-i18n]").forEach((node) => {
+    const key = node.getAttribute("data-i18n");
+    if (!key) {
+      return;
+    }
+    node.textContent = t(key);
+  });
+
+  document.querySelectorAll("[data-i18n-placeholder]").forEach((node) => {
+    const key = node.getAttribute("data-i18n-placeholder");
+    if (!key) {
+      return;
+    }
+    node.setAttribute("placeholder", t(key));
+  });
+
+  setActiveLanguageButton(targetLang);
+
+  if (options.persist !== false) {
+    saveLanguagePreference(targetLang);
+  }
+
+  updateFavoritesToggle();
+  updateAuthUi();
+  renderCategoryChips();
+  render();
+}
+
+if (langEnButton) {
+  langEnButton.addEventListener("click", () => applyLanguage("en"));
+}
+if (langBnButton) {
+  langBnButton.addEventListener("click", () => applyLanguage("bn"));
+}
+applyLanguage(loadLanguagePreference(), { persist: false });
 
 searchInput.addEventListener("input", (event) => {
   state.search = event.target.value.trim().toLowerCase();
@@ -120,7 +392,7 @@ grid.addEventListener("click", async (event) => {
   }
 
   if (!state.token || !state.user || state.user.role !== "parent") {
-    authStatusLine.textContent = "Sign in as a parent to save favorites.";
+    authStatusLine.textContent = t("status_signin_parent_favorites");
     return;
   }
 
@@ -235,14 +507,14 @@ async function loadVideos() {
     const response = await authenticatedFetch("/api/videos", { method: "GET" });
     const data = await response.json();
     if (!response.ok) {
-      throw new Error(data.error || "Failed to load videos.");
+      throw new Error(data.error || t("error_load_videos"));
     }
     state.videos = Array.isArray(data) ? data : [];
     renderCategoryChips();
   } catch (error) {
     state.videos = [];
     renderCategoryChips();
-    authStatusLine.textContent = error.message || "Could not load videos.";
+    authStatusLine.textContent = error.message || t("error_load_videos");
   } finally {
     state.isLoadingVideos = false;
     render();
@@ -255,7 +527,7 @@ async function handleLogin() {
   const email = loginEmail.value.trim().toLowerCase();
   const password = loginPassword.value;
   if (!email || !password) {
-    authStatusLine.textContent = "Email and password are required.";
+    authStatusLine.textContent = t("error_email_password_required");
     return;
   }
 
@@ -269,13 +541,11 @@ async function handleLogin() {
     });
     const data = await response.json();
     if (!response.ok) {
-      throw new Error(data.error || "Login failed.");
+      throw new Error(data.error || t("error_login_failed"));
     }
 
     if (!data.user || data.user.role !== "parent") {
-      throw new Error(
-        "This portal is for parent accounts only. Educators should use the Educator portal."
-      );
+      throw new Error(t("error_portal_parent_only"));
     }
 
     state.token = data.token;
@@ -301,7 +571,7 @@ async function handleRegister() {
   };
 
   if (!payload.name || !payload.email || !payload.password) {
-    authStatusLine.textContent = "Name, email, and password are required.";
+    authStatusLine.textContent = t("error_name_email_password_required");
     return;
   }
 
@@ -315,10 +585,10 @@ async function handleRegister() {
     });
     const data = await response.json();
     if (!response.ok) {
-      throw new Error(data.error || "Registration failed.");
+      throw new Error(data.error || t("error_registration_failed"));
     }
     if (!data.user || data.user.role !== "parent") {
-      throw new Error("Only parent accounts can be created from this app.");
+      throw new Error(t("error_parent_only_create"));
     }
 
     state.token = data.token;
@@ -339,7 +609,7 @@ async function handleForgotPassword() {
   resetStatus.textContent = "";
   const email = loginEmail.value.trim().toLowerCase();
   if (!email) {
-    forgotStatus.textContent = "Enter your email in Sign In first.";
+    forgotStatus.textContent = t("error_enter_email_first");
     return;
   }
 
@@ -353,16 +623,16 @@ async function handleForgotPassword() {
     });
     const data = await response.json();
     if (!response.ok) {
-      throw new Error(data.error || "Could not request password reset.");
+      throw new Error(data.error || t("error_request_reset_failed"));
     }
 
-    forgotStatus.textContent = data.message || "Reset instructions sent.";
+    forgotStatus.textContent = data.message || t("reset_sent");
     if (data.debugResetUrl) {
       const url = new URL(data.debugResetUrl);
       const token = url.searchParams.get("reset");
       if (token) {
         resetTokenInput.value = token;
-        resetStatus.textContent = "Debug token auto-filled in Reset Password form.";
+        resetStatus.textContent = t("reset_debug_token_filled");
       }
     }
   } catch (error) {
@@ -375,7 +645,7 @@ async function handleResetPassword() {
   const token = resetTokenInput.value.trim();
   const newPassword = resetNewPasswordInput.value;
   if (!token || !newPassword) {
-    resetStatus.textContent = "Token and new password are required.";
+    resetStatus.textContent = t("error_token_new_password_required");
     return;
   }
 
@@ -389,10 +659,10 @@ async function handleResetPassword() {
     });
     const data = await response.json();
     if (!response.ok) {
-      throw new Error(data.error || "Password reset failed.");
+      throw new Error(data.error || t("error_reset_failed"));
     }
 
-    resetStatus.textContent = data.message || "Password updated.";
+    resetStatus.textContent = data.message || t("reset_success");
     resetNewPasswordInput.value = "";
     clearResetTokenFromQuery();
   } catch (error) {
@@ -414,12 +684,12 @@ async function refreshSession() {
   const response = await authenticatedFetch("/api/auth/me", { method: "GET" });
   const data = await response.json();
   if (!response.ok) {
-    throw new Error(data.error || "Session validation failed.");
+    throw new Error(data.error || t("error_session_validation_failed"));
   }
 
   state.user = data.user;
   if (!state.user || state.user.role !== "parent") {
-    throw new Error("Parent account required for this app.");
+    throw new Error(t("error_parent_account_required"));
   }
 }
 
@@ -432,7 +702,7 @@ async function loadFavorites() {
   const response = await authenticatedFetch("/api/parent/favorites", { method: "GET" });
   const data = await response.json();
   if (!response.ok) {
-    throw new Error(data.error || "Could not load favorites.");
+    throw new Error(data.error || t("error_load_favorites"));
   }
 
   state.favoriteIds = new Set(Array.isArray(data.videoIds) ? data.videoIds : []);
@@ -445,7 +715,7 @@ async function toggleFavorite(videoId) {
     });
     const data = await response.json();
     if (!response.ok) {
-      throw new Error(data.error || "Could not update favorite.");
+      throw new Error(data.error || t("error_update_favorite"));
     }
 
     state.favoriteIds = new Set(Array.isArray(data.videoIds) ? data.videoIds : []);
@@ -466,7 +736,7 @@ async function loadChildren() {
   const response = await authenticatedFetch("/api/parent/children", { method: "GET" });
   const data = await response.json();
   if (!response.ok) {
-    throw new Error(data.error || "Could not load child profiles.");
+    throw new Error(data.error || t("error_load_children"));
   }
 
   state.children = Array.isArray(data) ? data : [];
@@ -479,7 +749,7 @@ async function loadChildren() {
 async function saveChildProfile() {
   childStatus.textContent = "";
   if (!state.token) {
-    childStatus.textContent = "Sign in to manage child profiles.";
+    childStatus.textContent = t("error_signin_manage_children");
     return;
   }
 
@@ -490,7 +760,7 @@ async function saveChildProfile() {
   };
 
   if (!payload.name) {
-    childStatus.textContent = "Child name is required.";
+    childStatus.textContent = t("error_child_name_required");
     return;
   }
 
@@ -510,10 +780,10 @@ async function saveChildProfile() {
     });
     const data = await response.json();
     if (!response.ok) {
-      throw new Error(data.error || "Could not save child profile.");
+      throw new Error(data.error || t("error_save_child"));
     }
 
-    childStatus.textContent = isEditing ? "Child profile updated." : "Child profile created.";
+    childStatus.textContent = isEditing ? t("child_updated") : t("child_created");
     resetChildForm();
     await loadChildren();
     if (!state.selectedChildId) {
@@ -527,10 +797,10 @@ async function saveChildProfile() {
 
 async function deleteChildProfile(childId) {
   if (!state.token) {
-    childStatus.textContent = "Sign in to manage child profiles.";
+    childStatus.textContent = t("error_signin_manage_children");
     return;
   }
-  if (!window.confirm("Delete this child profile?")) {
+  if (!window.confirm(t("confirm_delete_child"))) {
     return;
   }
 
@@ -540,10 +810,10 @@ async function deleteChildProfile(childId) {
     });
     const data = await response.json();
     if (!response.ok) {
-      throw new Error(data.error || "Could not delete child profile.");
+      throw new Error(data.error || t("error_delete_child"));
     }
 
-    childStatus.textContent = "Child profile deleted.";
+    childStatus.textContent = t("child_deleted");
     if (state.selectedChildId === childId) {
       state.selectedChildId = "";
     }
@@ -559,7 +829,7 @@ function beginChildEdit(child) {
   state.selectedAvatar = child.avatar || "rocket";
   childNameInput.value = child.name || "";
   childAgeGroupInput.value = child.ageGroup || "4-7";
-  childSaveBtn.textContent = "Update Child";
+  childSaveBtn.textContent = t("btn_update_child");
   childCancelBtn.classList.remove("hidden");
   renderAvatarOptions();
 }
@@ -569,7 +839,7 @@ function resetChildForm() {
   state.selectedAvatar = "rocket";
   childForm.reset();
   childAgeGroupInput.value = "4-7";
-  childSaveBtn.textContent = "Save Child";
+  childSaveBtn.textContent = t("btn_save_child");
   childCancelBtn.classList.add("hidden");
   renderAvatarOptions();
 }
@@ -591,11 +861,11 @@ function getSelectedChild() {
 
 function renderChildList() {
   if (!state.user) {
-    childList.innerHTML = "<p class=\"mini-status\">Sign in to create child profiles.</p>";
+    childList.innerHTML = `<p class="mini-status">${escapeHtml(t("child_list_signin"))}</p>`;
     return;
   }
   if (state.children.length === 0) {
-    childList.innerHTML = "<p class=\"mini-status\">No child profiles yet. Create your first profile.</p>";
+    childList.innerHTML = `<p class="mini-status">${escapeHtml(t("child_list_empty"))}</p>`;
     return;
   }
 
@@ -608,18 +878,18 @@ function renderChildList() {
           <img class="child-avatar" src="${escapeHtml(avatarSrc)}" alt="${escapeHtml(child.name)} avatar" />
           <div>
             <p class="child-name">${escapeHtml(child.name)}</p>
-            <p class="child-meta">Age ${escapeHtml(child.ageGroup || "4-7")}${active ? " | Active" : ""}</p>
+            <p class="child-meta">${escapeHtml(t("age_label", { age: child.ageGroup || "4-7" }))}${active ? ` | ${escapeHtml(t("active_label"))}` : ""}</p>
           </div>
           <div class="child-actions">
             <button type="button" class="tiny-btn select" data-action="select" data-child-id="${escapeHtml(
               child.id
-            )}">Select</button>
+            )}">${escapeHtml(t("btn_select"))}</button>
             <button type="button" class="tiny-btn edit" data-action="edit" data-child-id="${escapeHtml(
               child.id
-            )}">Edit</button>
+            )}">${escapeHtml(t("btn_edit"))}</button>
             <button type="button" class="tiny-btn delete" data-action="delete" data-child-id="${escapeHtml(
               child.id
-            )}">Delete</button>
+            )}">${escapeHtml(t("btn_delete"))}</button>
           </div>
         </article>
       `;
@@ -640,7 +910,7 @@ function renderAvatarOptions() {
 
 function render() {
   if (state.isLoadingVideos && state.user && state.user.role === "parent") {
-    grid.innerHTML = "<p>Loading videos...</p>";
+    grid.innerHTML = `<p>${escapeHtml(t("loading_videos"))}</p>`;
     emptyState.classList.add("hidden");
     resultCount.textContent = "";
     return;
@@ -651,7 +921,7 @@ function render() {
     categoryChips.innerHTML = "";
     resultCount.textContent = "";
     emptyState.classList.remove("hidden");
-    emptyState.textContent = "Parent login required to watch videos.";
+    emptyState.textContent = t("empty_parent_login_required");
     return;
   }
 
@@ -665,21 +935,24 @@ function render() {
     return ageMatch && categoryMatch && searchMatch && favoriteMatch;
   });
 
-  const label = filtered.length === 1 ? "video" : "videos";
+  const label = filtered.length === 1 ? t("video_single") : t("video_plural");
   const selectedChild = getSelectedChild();
-  resultCount.textContent = `${filtered.length} ${label} found${
-    selectedChild ? ` for ${selectedChild.name}` : ""
-  }`;
+  const suffix = selectedChild ? t("result_suffix_child", { name: selectedChild.name }) : "";
+  resultCount.textContent = t("result_found", {
+    count: filtered.length,
+    label,
+    suffix
+  });
 
   if (filtered.length === 0) {
     grid.innerHTML = "";
     emptyState.classList.remove("hidden");
     if (state.favoritesOnly && !state.token) {
-      emptyState.textContent = "Sign in to use favorites-only filter.";
+      emptyState.textContent = t("empty_signin_favorites_only");
     } else if (state.favoritesOnly) {
-      emptyState.textContent = "No favorite videos yet. Save some videos first.";
+      emptyState.textContent = t("empty_no_favorites");
     } else {
-      emptyState.textContent = "No videos match your filters yet.";
+      emptyState.textContent = t("empty_no_match");
     }
     return;
   }
@@ -694,19 +967,19 @@ function render() {
         <div class="video-body">
           <h2 class="video-title">${escapeHtml(video.title)}</h2>
           <div class="video-meta">
-            <span class="pill">${escapeHtml(video.category || "General")}</span>
-            <span class="pill">Age ${escapeHtml(video.ageGroup || "All")}</span>
-            <span class="pill">${escapeHtml(video.duration || "Short")}</span>
+            <span class="pill">${escapeHtml(video.category || t("general_category"))}</span>
+            <span class="pill">${escapeHtml(t("age_label", { age: video.ageGroup || t("all_label") }))}</span>
+            <span class="pill">${escapeHtml(video.duration || t("short_duration"))}</span>
           </div>
           <p class="video-desc">${escapeHtml(video.description || "")}</p>
           <div class="card-actions">
             <a class="watch-btn" href="${escapeHtml(video.videoUrl)}" target="_blank" rel="noreferrer">
-              Watch Video
+              ${escapeHtml(t("watch_video"))}
             </a>
             <button type="button" class="favorite-btn ${isFavorite ? "active" : ""}" data-fav-id="${escapeHtml(
         video.id
       )}">
-              ${isFavorite ? "Saved" : "Save"}
+              ${isFavorite ? escapeHtml(t("saved_video")) : escapeHtml(t("save_video"))}
             </button>
           </div>
         </div>
@@ -722,11 +995,13 @@ function renderCategoryChips() {
     return;
   }
 
-  const categories = [...new Set(state.videos.map((video) => (video.category || "General").trim()))]
+  const categories = [
+    ...new Set(state.videos.map((video) => (video.category || t("general_category")).trim()))
+  ]
     .filter(Boolean)
     .sort((a, b) => a.localeCompare(b));
 
-  const items = [{ label: "All topics", value: "" }].concat(
+  const items = [{ label: t("all_topics"), value: "" }].concat(
     categories.map((category) => ({ label: category, value: category }))
   );
 
@@ -743,16 +1018,16 @@ function renderCategoryChips() {
 function updateAuthUi() {
   const loggedIn = Boolean(state.user && state.user.role === "parent");
   if (loggedIn) {
-    parentPill.textContent = `Parent: ${state.user.name}`;
+    parentPill.textContent = t("parent_pill", { name: state.user.name });
     parentPill.classList.remove("hidden");
     logoutBtn.classList.remove("hidden");
     loginForm.classList.add("hidden");
     registerForm.classList.add("hidden");
     resetForm.classList.add("hidden");
-    authStatusLine.textContent = `Signed in as ${state.user.email}`;
+    authStatusLine.textContent = t("signed_in_as", { email: state.user.email });
     loginEmail.value = state.user.email || "";
     registerEmail.value = state.user.email || "";
-    childStatus.textContent = "Create profiles and select one to focus age filtering.";
+    childStatus.textContent = t("child_status_focus_age");
   } else {
     parentPill.textContent = "";
     parentPill.classList.add("hidden");
@@ -760,8 +1035,7 @@ function updateAuthUi() {
     loginForm.classList.remove("hidden");
     registerForm.classList.remove("hidden");
     resetForm.classList.remove("hidden");
-    authStatusLine.textContent =
-      "Parents plan: BDT 99/month. Sign in to watch videos and save favorites.";
+    authStatusLine.textContent = t("auth_status_default");
     state.favoriteIds = new Set();
     state.favoritesOnly = false;
     state.videos = [];
@@ -775,7 +1049,7 @@ function updateAuthUi() {
     state.selectedChildId = "";
     state.editingChildId = "";
     resetChildForm();
-    childStatus.textContent = "Sign in to create child profiles.";
+    childStatus.textContent = t("child_status_signed_out");
     renderChildList();
   }
 
@@ -796,7 +1070,7 @@ function setChildSectionEnabled(enabled) {
 
 function updateFavoritesToggle() {
   favoritesOnlyBtn.classList.toggle("active", state.favoritesOnly);
-  favoritesOnlyBtn.textContent = state.favoritesOnly ? "Showing favorites" : "Favorites only";
+  favoritesOnlyBtn.textContent = state.favoritesOnly ? t("favorites_showing") : t("favorites_only");
 }
 
 function setLibraryControlsEnabled(enabled) {
@@ -818,7 +1092,7 @@ function clearSession() {
 
 async function authenticatedFetch(url, options = {}) {
   if (!state.token) {
-    throw new Error("Please sign in first.");
+    throw new Error(t("error_signin_first"));
   }
 
   const headers = Object.assign({}, options.headers || {}, {
@@ -829,8 +1103,8 @@ async function authenticatedFetch(url, options = {}) {
   if (response.status === 401 || response.status === 403) {
     let message =
       response.status === 403
-        ? "Parent account required. Please sign in with a parent account."
-        : "Session expired. Please sign in again.";
+        ? t("error_parent_required_signin")
+        : t("error_session_expired");
     try {
       const body = await response.clone().json();
       if (body && typeof body.error === "string" && body.error.trim()) {

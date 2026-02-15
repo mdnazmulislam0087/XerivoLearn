@@ -1,36 +1,36 @@
 <svg width="320" height="320" viewBox="0 0 320 320" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="mouseBg" x1="30" y1="26" x2="286" y2="300" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#E7F1FF"/>
-      <stop offset="1" stop-color="#CFE3FF"/>
+    <linearGradient id="mouseBg" x1="30" y1="24" x2="286" y2="300" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFE8C9"/>
+      <stop offset="1" stop-color="#FFD8A8"/>
     </linearGradient>
-    <linearGradient id="mouseFace" x1="90" y1="68" x2="230" y2="240" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#B9C7DD"/>
-      <stop offset="1" stop-color="#8EA0BE"/>
+    <linearGradient id="mouseFur" x1="90" y1="66" x2="232" y2="242" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F7B25D"/>
+      <stop offset="1" stop-color="#D98835"/>
     </linearGradient>
     <linearGradient id="mouseBelly" x1="120" y1="174" x2="200" y2="256" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#F6F8FD"/>
-      <stop offset="1" stop-color="#E7ECF6"/>
+      <stop stop-color="#FFF2DF"/>
+      <stop offset="1" stop-color="#FFE5C4"/>
     </linearGradient>
   </defs>
   <circle cx="160" cy="160" r="150" fill="url(#mouseBg)"/>
-  <circle cx="108" cy="86" r="38" fill="#97AACE" stroke="#6C80A5" stroke-width="6"/>
-  <circle cx="212" cy="86" r="38" fill="#97AACE" stroke="#6C80A5" stroke-width="6"/>
-  <circle cx="108" cy="86" r="18" fill="#F3B8C8"/>
-  <circle cx="212" cy="86" r="18" fill="#F3B8C8"/>
-  <circle cx="160" cy="142" r="78" fill="url(#mouseFace)" stroke="#6C80A5" stroke-width="6"/>
-  <ellipse cx="160" cy="222" rx="50" ry="40" fill="url(#mouseBelly)" stroke="#B6C2D7" stroke-width="5"/>
-  <ellipse cx="129" cy="137" rx="9.5" ry="11" fill="#293B5C"/>
-  <ellipse cx="191" cy="137" rx="9.5" ry="11" fill="#293B5C"/>
+  <circle cx="108" cy="86" r="38" fill="#E49A4D" stroke="#B86D2A" stroke-width="6"/>
+  <circle cx="212" cy="86" r="38" fill="#E49A4D" stroke="#B86D2A" stroke-width="6"/>
+  <circle cx="108" cy="86" r="18" fill="#F6B8C4"/>
+  <circle cx="212" cy="86" r="18" fill="#F6B8C4"/>
+  <circle cx="160" cy="142" r="78" fill="url(#mouseFur)" stroke="#B86D2A" stroke-width="6"/>
+  <ellipse cx="160" cy="222" rx="50" ry="40" fill="url(#mouseBelly)" stroke="#D9A56D" stroke-width="5"/>
+  <ellipse cx="129" cy="137" rx="9.5" ry="11" fill="#3D2A1D"/>
+  <ellipse cx="191" cy="137" rx="9.5" ry="11" fill="#3D2A1D"/>
   <circle cx="126" cy="133" r="3.5" fill="#FFFFFF"/>
   <circle cx="188" cy="133" r="3.5" fill="#FFFFFF"/>
-  <ellipse cx="160" cy="160" rx="13" ry="11" fill="#F0788F"/>
-  <path d="M138 182C146 193 174 193 182 182" stroke="#2E4163" stroke-width="7" stroke-linecap="round"/>
-  <path d="M114 164L84 156" stroke="#7B8FB3" stroke-width="5" stroke-linecap="round"/>
-  <path d="M116 176L80 174" stroke="#7B8FB3" stroke-width="5" stroke-linecap="round"/>
-  <path d="M206 164L236 156" stroke="#7B8FB3" stroke-width="5" stroke-linecap="round"/>
-  <path d="M204 176L240 174" stroke="#7B8FB3" stroke-width="5" stroke-linecap="round"/>
-  <path d="M226 224C266 236 276 262 248 286" stroke="#7B8FB3" stroke-width="10" stroke-linecap="round"/>
-  <circle cx="118" cy="157" r="9" fill="#E7BECA"/>
-  <circle cx="202" cy="157" r="9" fill="#E7BECA"/>
+  <ellipse cx="160" cy="160" rx="13" ry="11" fill="#F18BA0"/>
+  <path d="M138 182C146 193 174 193 182 182" stroke="#3D2A1D" stroke-width="7" stroke-linecap="round"/>
+  <path d="M114 164L84 156" stroke="#B86D2A" stroke-width="5" stroke-linecap="round"/>
+  <path d="M116 176L80 174" stroke="#B86D2A" stroke-width="5" stroke-linecap="round"/>
+  <path d="M206 164L236 156" stroke="#B86D2A" stroke-width="5" stroke-linecap="round"/>
+  <path d="M204 176L240 174" stroke="#B86D2A" stroke-width="5" stroke-linecap="round"/>
+  <path d="M226 224C266 236 276 262 248 286" stroke="#B86D2A" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="118" cy="157" r="9" fill="#F4C1A9"/>
+  <circle cx="202" cy="157" r="9" fill="#F4C1A9"/>
 </svg>

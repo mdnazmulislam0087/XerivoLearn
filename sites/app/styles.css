@@ -92,6 +92,10 @@ body {
   font-weight: 700;
 }
 
+.admin-link.alt {
+  background: linear-gradient(90deg, #198fd6, #3acb7f);
+}
+
 .page {
   max-width: 1140px;
   margin: 20px auto 40px;

@@ -9,6 +9,7 @@ const AVATARS = [
 
 const state = {
   videos: [],
+  isLoadingVideos: false,
   search: "",
   age: "",
   category: "",
@@ -30,6 +31,7 @@ const categoryChips = document.getElementById("category-chips");
 const resultCount = document.getElementById("result-count");
 const brandLink = document.getElementById("brand-link");
 const adminLink = document.getElementById("admin-link");
+const educatorLink = document.getElementById("educator-link");
 const favoritesOnlyBtn = document.getElementById("favorites-only-btn");
 const parentPill = document.getElementById("parent-pill");
 const authStatusLine = document.getElementById("auth-status-line");
@@ -71,6 +73,9 @@ const host = window.location.hostname.toLowerCase();
 const isProdAppDomain = host === "app.xerivolearn.com";
 if (!isProdAppDomain) {
   adminLink.href = "/admin/";
+  if (educatorLink) {
+    educatorLink.href = "/educator/";
+  }
   if (brandLink) {
     brandLink.href = "/";
   }
@@ -114,7 +119,7 @@ grid.addEventListener("click", async (event) => {
     return;
   }
 
-  if (!state.token) {
+  if (!state.token || !state.user || state.user.role !== "parent") {
     authStatusLine.textContent = "Sign in as a parent to save favorites.";
     return;
   }
@@ -196,7 +201,7 @@ async function bootstrap() {
   renderAvatarOptions();
   updateFavoritesToggle();
   updateAuthUi();
-  await loadVideos();
+  render();
 
   if (!state.token) {
     return;
@@ -204,30 +209,43 @@ async function bootstrap() {
 
   try {
     await refreshSession();
-    await loadFavorites();
-    await loadChildren();
+    await Promise.all([loadVideos(), loadFavorites(), loadChildren()]);
     updateAuthUi();
     render();
   } catch {
     clearSession();
     updateAuthUi();
+    render();
   }
 }
 
 async function loadVideos() {
-  try {
-    const response = await fetch("/api/videos");
-    if (!response.ok) {
-      throw new Error("Failed to load videos.");
-    }
-    state.videos = await response.json();
+  if (!state.token || !state.user || state.user.role !== "parent") {
+    state.videos = [];
+    state.isLoadingVideos = false;
     renderCategoryChips();
     render();
+    return;
+  }
+
+  state.isLoadingVideos = true;
+  render();
+
+  try {
+    const response = await authenticatedFetch("/api/videos", { method: "GET" });
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.error || "Failed to load videos.");
+    }
+    state.videos = Array.isArray(data) ? data : [];
+    renderCategoryChips();
   } catch (error) {
-    grid.innerHTML = `<p>Could not load videos. ${escapeHtml(error.message)}</p>`;
-    emptyState.classList.add("hidden");
-    categoryChips.innerHTML = "";
-    resultCount.textContent = "";
+    state.videos = [];
+    renderCategoryChips();
+    authStatusLine.textContent = error.message || "Could not load videos.";
+  } finally {
+    state.isLoadingVideos = false;
+    render();
   }
 }
 
@@ -254,8 +272,10 @@ async function handleLogin() {
       throw new Error(data.error || "Login failed.");
     }
 
-    if (!data.user || (data.user.role !== "parent" && data.user.role !== "admin")) {
-      throw new Error("Account role is not allowed for this app.");
+    if (!data.user || data.user.role !== "parent") {
+      throw new Error(
+        "This portal is for parent accounts only. Educators should use the Educator portal."
+      );
     }
 
     state.token = data.token;
@@ -263,8 +283,7 @@ async function handleLogin() {
     localStorage.setItem("xerivo_parent_token", state.token);
     localStorage.setItem("xerivo_parent_email", data.user.email || "");
     loginPassword.value = "";
-    await loadFavorites();
-    await loadChildren();
+    await Promise.all([loadVideos(), loadFavorites(), loadChildren()]);
     updateAuthUi();
     render();
   } catch (error) {
@@ -298,14 +317,16 @@ async function handleRegister() {
     if (!response.ok) {
       throw new Error(data.error || "Registration failed.");
     }
+    if (!data.user || data.user.role !== "parent") {
+      throw new Error("Only parent accounts can be created from this app.");
+    }
 
     state.token = data.token;
     state.user = data.user;
     localStorage.setItem("xerivo_parent_token", state.token);
     localStorage.setItem("xerivo_parent_email", data.user.email || "");
     registerPassword.value = "";
-    await loadFavorites();
-    await loadChildren();
+    await Promise.all([loadVideos(), loadFavorites(), loadChildren()]);
     updateAuthUi();
     render();
   } catch (error) {
@@ -397,8 +418,8 @@ async function refreshSession() {
   }
 
   state.user = data.user;
-  if (!state.user || (state.user.role !== "parent" && state.user.role !== "admin")) {
-    throw new Error("Account role is not allowed for this app.");
+  if (!state.user || state.user.role !== "parent") {
+    throw new Error("Parent account required for this app.");
   }
 }
 
@@ -618,6 +639,22 @@ function renderAvatarOptions() {
 }
 
 function render() {
+  if (state.isLoadingVideos && state.user && state.user.role === "parent") {
+    grid.innerHTML = "<p>Loading videos...</p>";
+    emptyState.classList.add("hidden");
+    resultCount.textContent = "";
+    return;
+  }
+
+  if (!state.user || state.user.role !== "parent") {
+    grid.innerHTML = "";
+    categoryChips.innerHTML = "";
+    resultCount.textContent = "";
+    emptyState.classList.remove("hidden");
+    emptyState.textContent = "Parent login required to watch videos.";
+    return;
+  }
+
   const filtered = state.videos.filter((video) => {
     const ageMatch = !state.age || video.ageGroup === state.age;
     const categoryMatch =
@@ -680,6 +717,11 @@ function render() {
 }
 
 function renderCategoryChips() {
+  if (!state.user || state.user.role !== "parent") {
+    categoryChips.innerHTML = "";
+    return;
+  }
+
   const categories = [...new Set(state.videos.map((video) => (video.category || "General").trim()))]
     .filter(Boolean)
     .sort((a, b) => a.localeCompare(b));
@@ -699,7 +741,7 @@ function renderCategoryChips() {
 }
 
 function updateAuthUi() {
-  const loggedIn = Boolean(state.user);
+  const loggedIn = Boolean(state.user && state.user.role === "parent");
   if (loggedIn) {
     parentPill.textContent = `Parent: ${state.user.name}`;
     parentPill.classList.remove("hidden");
@@ -712,9 +754,17 @@ function updateAuthUi() {
     parentPill.textContent = "";
     parentPill.classList.add("hidden");
     logoutBtn.classList.add("hidden");
-    authStatusLine.textContent = "Sign in to save favorite videos for your child.";
+    authStatusLine.textContent =
+      "Parents plan: BDT 99/month. Sign in to watch videos and save favorites.";
     state.favoriteIds = new Set();
     state.favoritesOnly = false;
+    state.videos = [];
+    state.isLoadingVideos = false;
+    state.search = "";
+    state.age = "";
+    state.category = "";
+    searchInput.value = "";
+    ageFilter.value = "";
     state.children = [];
     state.selectedChildId = "";
     state.editingChildId = "";
@@ -724,6 +774,7 @@ function updateAuthUi() {
   }
 
   setChildSectionEnabled(loggedIn);
+  setLibraryControlsEnabled(loggedIn);
   updateFavoritesToggle();
 }
 
@@ -742,9 +793,20 @@ function updateFavoritesToggle() {
   favoritesOnlyBtn.textContent = state.favoritesOnly ? "Showing favorites" : "Favorites only";
 }
 
+function setLibraryControlsEnabled(enabled) {
+  searchInput.disabled = !enabled;
+  ageFilter.disabled = !enabled;
+  favoritesOnlyBtn.disabled = !enabled;
+  categoryChips.querySelectorAll("button").forEach((button) => {
+    button.disabled = !enabled;
+  });
+}
+
 function clearSession() {
   state.token = "";
   state.user = null;
+  state.videos = [];
+  state.isLoadingVideos = false;
   localStorage.removeItem("xerivo_parent_token");
 }
 
@@ -759,9 +821,19 @@ async function authenticatedFetch(url, options = {}) {
 
   const response = await fetch(url, { ...options, headers });
   if (response.status === 401 || response.status === 403) {
+    let message =
+      response.status === 403
+        ? "Parent account required. Please sign in with a parent account."
+        : "Session expired. Please sign in again.";
+    try {
+      const body = await response.clone().json();
+      if (body && typeof body.error === "string" && body.error.trim()) {
+        message = body.error;
+      }
+    } catch {}
     clearSession();
     updateAuthUi();
-    throw new Error("Session expired. Please sign in again.");
+    throw new Error(message);
   }
   return response;
 }

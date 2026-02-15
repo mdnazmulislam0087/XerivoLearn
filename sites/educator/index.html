@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>XerivoLearn Educator | Classroom Portal</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;800&family=Nunito:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="bg-shape shape-a"></div>
+    <div class="bg-shape shape-b"></div>
+
+    <header class="topbar">
+      <a id="home-link" class="brand" href="https://xerivolearn.com">XerivoLearn Educator</a>
+      <a id="admin-link" class="admin-link" href="https://admin.xerivolearn.com">Admin</a>
+    </header>
+
+    <main class="page">
+      <section class="hero">
+        <h1>Educator Portal</h1>
+        <p>
+          Annual plan for schools and instructors. Build classroom-friendly sessions with a
+          dedicated login.
+        </p>
+      </section>
+
+      <section class="panel auth-panel">
+        <h2>Educator Login</h2>
+        <form id="login-form">
+          <input id="email" type="email" placeholder="Educator email" required />
+          <input id="password" type="password" placeholder="Password" required />
+          <div class="actions">
+            <button type="submit">Sign In</button>
+            <button id="logout-btn" type="button" class="muted hidden">Logout</button>
+          </div>
+          <p id="auth-status" class="status"></p>
+        </form>
+      </section>
+
+      <section class="panel plan-panel">
+        <h2>Educator Subscription</h2>
+        <p class="plan-price">$20 / year</p>
+        <p class="plan-sub">BDT 2000 / year</p>
+        <p>Best for teachers, coaching centers, and small schools.</p>
+      </section>
+
+      <section class="panel">
+        <h2>Published Video Library</h2>
+        <div id="video-list" class="video-list"></div>
+      </section>
+    </main>
+
+    <script src="./educator.js"></script>
+  </body>
+</html>

@@ -1,15 +1,18 @@
 # Deployment Guide for xerivolearn.com
 
-## Railway (Recommended for your setup)
+## Railway (Recommended)
 
 ## 1) Create Railway Service
 
 1. Push this project to GitHub.
-2. Create a new Railway project from the repo.
+2. Create a Railway project from the repo.
 3. Set environment variables:
    - `JWT_SECRET=your-long-random-secret`
    - `ADMIN_EMAIL=admin@yourdomain.com`
    - `ADMIN_PASSWORD=your-strong-admin-password`
+   - `EDUCATOR_EMAIL=educator@yourdomain.com`
+   - `EDUCATOR_PASSWORD=your-strong-educator-password`
+   - Optional: `EDUCATOR_NAME=Xerivo Educator`
    - Optional: `JWT_TTL_SECONDS=604800`
    - Optional: `APP_BASE_URL=https://xerivolearn.com`
    - Optional: `PASSWORD_RESET_TTL_MINUTES=30`
@@ -23,6 +26,7 @@ Attach these custom domains to the same service:
 
 - `xerivolearn.com`
 - `app.xerivolearn.com`
+- `educator.xerivolearn.com`
 - `admin.xerivolearn.com`
 
 Railway will show DNS targets for each domain.
@@ -31,20 +35,21 @@ Railway will show DNS targets for each domain.
 
 Create records:
 
-- `@` -> your server IP (A record)
-- `app` -> same server IP (A record)
-- `admin` -> same server IP (A record)
+- `@` -> your server target (A/ALIAS/CNAME based on provider)
+- `app` -> same Railway target
+- `educator` -> same Railway target
+- `admin` -> same Railway target
 
 ## 4) If You Self-Host Instead (Nginx reverse proxy example)
 
-Run the Node app with PM2/systemd on port `8080`.
+Run the Node app on port `8080` (PM2/systemd).
 
-Then point all 3 domains to the same app:
+Point all domains to the same app:
 
 ```nginx
 server {
   listen 80;
-  server_name xerivolearn.com www.xerivolearn.com app.xerivolearn.com admin.xerivolearn.com;
+  server_name xerivolearn.com www.xerivolearn.com app.xerivolearn.com educator.xerivolearn.com admin.xerivolearn.com;
 
   location / {
     proxy_pass http://127.0.0.1:8080;
@@ -56,25 +61,34 @@ server {
 }
 ```
 
-The app reads the `Host` header and serves:
+Routing behavior:
 
-- marketing site for `xerivolearn.com`
-- app site for `app.xerivolearn.com`
-- admin site for `admin.xerivolearn.com`
-- admin site for `app.xerivolearn.com/admin` (optional mode)
+- `xerivolearn.com` -> marketing site
+- `app.xerivolearn.com` -> parent app
+- `educator.xerivolearn.com` -> educator portal
+- `admin.xerivolearn.com` -> admin CMS
 
-## 5) Secure Admin
+Single-host fallback paths still work:
 
-- Set strong `JWT_SECRET` and `ADMIN_PASSWORD`.
-- Serve HTTPS with Let's Encrypt.
-- Rotate admin password periodically.
-- If you use the optional `ADMIN_TOKEN` fallback, keep it strong and private.
+- `/app/`
+- `/educator/`
+- `/admin/`
+
+## 5) Secure Admin and Educator Access
+
+- Set strong `JWT_SECRET`, `ADMIN_PASSWORD`, and `EDUCATOR_PASSWORD`.
+- Serve HTTPS with Let's Encrypt (or Railway managed TLS).
+- Rotate admin/educator passwords periodically.
+- If you use optional `ADMIN_TOKEN` fallback, keep it private.
 - Disable `PASSWORD_RESET_DEBUG` in production.
 
-## 6) Optional: Keep admin inside app only
+## 6) Optional: Keep subdomains for later
 
-If you decide to skip `admin.xerivolearn.com`, you can use:
+If you start with Railway free URL only, everything still works via paths:
 
-- `app.xerivolearn.com/admin`
+- `https://<railway-domain>/`
+- `https://<railway-domain>/app/`
+- `https://<railway-domain>/educator/`
+- `https://<railway-domain>/admin/`
 
-No code change is needed in this starter.
+You can attach custom domains later without code changes.

@@ -11,6 +11,9 @@ const PORT = Number(process.env.PORT || 8080);
 const ADMIN_TOKEN = process.env.ADMIN_TOKEN || "";
 const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || "admin@xerivolearn.com").toLowerCase();
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "Admin123!change";
+const EDUCATOR_EMAIL = (process.env.EDUCATOR_EMAIL || "educator@xerivolearn.com").toLowerCase();
+const EDUCATOR_PASSWORD = process.env.EDUCATOR_PASSWORD || "Educator123!change";
+const EDUCATOR_NAME = process.env.EDUCATOR_NAME || "Xerivo Educator";
 const JWT_SECRET = process.env.JWT_SECRET || ADMIN_TOKEN || "change-this-jwt-secret";
 const JWT_TTL_SECONDS = Number(process.env.JWT_TTL_SECONDS || 60 * 60 * 24 * 7);
 
@@ -52,6 +55,7 @@ const CONTENT_TYPES = {
 
 ensureDataStore();
 ensureDefaultAdminUser();
+ensureDefaultEducatorUser();
 
 const server = http.createServer(async (req, res) => {
   const requestUrl = new URL(req.url || "/", `http://${req.headers.host || "localhost"}`);
@@ -83,6 +87,7 @@ server.listen(PORT, () => {
   console.log("Local routes:");
   console.log(`- Marketing: http://localhost:${PORT}/`);
   console.log(`- App:       http://localhost:${PORT}/app/`);
+  console.log(`- Educator:  http://localhost:${PORT}/educator/`);
   console.log(`- Admin:     http://localhost:${PORT}/admin/`);
 });
 
@@ -290,6 +295,11 @@ async function handleApi(req, res, pathname, searchParams) {
   }
 
   if (req.method === "GET" && pathname === "/api/videos") {
+    const authUser = requireAuth(req, res, ["parent"]);
+    if (!authUser) {
+      return;
+    }
+
     let videos = loadVideos().filter((video) => video.isPublished);
 
     const age = (searchParams.get("age") || "").trim();
@@ -313,7 +323,7 @@ async function handleApi(req, res, pathname, searchParams) {
   }
 
   if (req.method === "GET" && pathname === "/api/parent/favorites") {
-    const authUser = requireAuth(req, res, ["parent", "admin"]);
+    const authUser = requireAuth(req, res, ["parent"]);
     if (!authUser) {
       return;
     }
@@ -326,7 +336,7 @@ async function handleApi(req, res, pathname, searchParams) {
 
   const parentFavoriteMatch = pathname.match(/^\/api\/parent\/favorites\/([^/]+)$/);
   if (req.method === "POST" && parentFavoriteMatch) {
-    const authUser = requireAuth(req, res, ["parent", "admin"]);
+    const authUser = requireAuth(req, res, ["parent"]);
     if (!authUser) {
       return;
     }
@@ -357,7 +367,7 @@ async function handleApi(req, res, pathname, searchParams) {
   }
 
   if (req.method === "GET" && pathname === "/api/parent/children") {
-    const authUser = requireAuth(req, res, ["parent", "admin"]);
+    const authUser = requireAuth(req, res, ["parent"]);
     if (!authUser) {
       return;
     }
@@ -370,7 +380,7 @@ async function handleApi(req, res, pathname, searchParams) {
   }
 
   if (req.method === "POST" && pathname === "/api/parent/children") {
-    const authUser = requireAuth(req, res, ["parent", "admin"]);
+    const authUser = requireAuth(req, res, ["parent"]);
     if (!authUser) {
       return;
     }
@@ -406,7 +416,7 @@ async function handleApi(req, res, pathname, searchParams) {
 
   const parentChildMatch = pathname.match(/^\/api\/parent\/children\/([^/]+)$/);
   if (parentChildMatch && req.method === "PUT") {
-    const authUser = requireAuth(req, res, ["parent", "admin"]);
+    const authUser = requireAuth(req, res, ["parent"]);
     if (!authUser) {
       return;
     }
@@ -445,7 +455,7 @@ async function handleApi(req, res, pathname, searchParams) {
   }
 
   if (parentChildMatch && req.method === "DELETE") {
-    const authUser = requireAuth(req, res, ["parent", "admin"]);
+    const authUser = requireAuth(req, res, ["parent"]);
     if (!authUser) {
       return;
     }
@@ -463,6 +473,26 @@ async function handleApi(req, res, pathname, searchParams) {
 
     saveChildren(nextChildren);
     sendJson(res, 200, { success: true });
+    return;
+  }
+
+  if (req.method === "GET" && pathname === "/api/educator/me") {
+    const authUser = requireAuth(req, res, ["educator"]);
+    if (!authUser) {
+      return;
+    }
+    sendJson(res, 200, { user: toPublicUser(authUser) });
+    return;
+  }
+
+  if (req.method === "GET" && pathname === "/api/educator/videos") {
+    const authUser = requireAuth(req, res, ["educator"]);
+    if (!authUser) {
+      return;
+    }
+
+    const videos = loadVideos().filter((video) => video.isPublished).sort(sortByNewest);
+    sendJson(res, 200, videos);
     return;
   }
 
@@ -583,15 +613,23 @@ async function handleApi(req, res, pathname, searchParams) {
 function resolveSite(hostHeader, pathname) {
   const host = (hostHeader || "").split(":")[0].toLowerCase();
   const isAppPath = pathname === "/app" || pathname.startsWith("/app/");
+  const isEducatorPath = pathname === "/educator" || pathname.startsWith("/educator/");
   const isAdminPath = pathname === "/admin" || pathname.startsWith("/admin/");
 
   if (host.startsWith("admin.")) {
     return { site: "admin", path: pathname };
   }
 
+  if (host.startsWith("educator.")) {
+    return { site: "educator", path: pathname };
+  }
+
   if (host.startsWith("app.")) {
     if (isAdminPath) {
       return { site: "admin", path: pathname.replace(/^\/admin/, "") || "/" };
+    }
+    if (isEducatorPath) {
+      return { site: "educator", path: pathname.replace(/^\/educator/, "") || "/" };
     }
     return { site: "app", path: pathname };
   }
@@ -599,6 +637,9 @@ function resolveSite(hostHeader, pathname) {
   // Path-based fallback for single-host deployments like Railway free domains.
   if (isAppPath) {
     return { site: "app", path: pathname.replace(/^\/app/, "") || "/" };
+  }
+  if (isEducatorPath) {
+    return { site: "educator", path: pathname.replace(/^\/educator/, "") || "/" };
   }
   if (isAdminPath) {
     return { site: "admin", path: pathname.replace(/^\/admin/, "") || "/" };
@@ -684,6 +725,38 @@ function ensureDefaultAdminUser() {
 
   if (ADMIN_PASSWORD === "Admin123!change") {
     console.warn("Default admin password is active. Set ADMIN_PASSWORD in .env or Railway variables.");
+  }
+}
+
+function ensureDefaultEducatorUser() {
+  const users = loadUsers();
+  const existingEducator = users.find(
+    (user) => user.role === "educator" && user.email === EDUCATOR_EMAIL
+  );
+  if (existingEducator) {
+    return;
+  }
+
+  const now = new Date().toISOString();
+  const passwordData = hashPassword(EDUCATOR_PASSWORD);
+  users.push({
+    id: crypto.randomUUID(),
+    name: EDUCATOR_NAME,
+    email: EDUCATOR_EMAIL,
+    role: "educator",
+    passwordHash: passwordData.hash,
+    passwordSalt: passwordData.salt,
+    passwordIterations: passwordData.iterations,
+    createdAt: now,
+    updatedAt: now
+  });
+
+  saveUsers(users);
+
+  if (EDUCATOR_PASSWORD === "Educator123!change") {
+    console.warn(
+      "Default educator password is active. Set EDUCATOR_PASSWORD in .env or Railway variables."
+    );
   }
 }
 

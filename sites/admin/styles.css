@@ -16,7 +16,7 @@
 
 body {
   margin: 0;
-  font-family: "Nunito", sans-serif;
+  font-family: "Nunito", "Noto Sans Bengali", sans-serif;
   color: var(--ink);
   background: radial-gradient(circle at -6% 0%, #dff2ff 0%, transparent 35%),
     radial-gradient(circle at 105% 14%, #e6ffea 0%, transparent 33%), var(--bg);
@@ -44,17 +44,84 @@ body {
 
 .topbar h1 {
   margin: 0;
-  font-family: "Space Grotesk", sans-serif;
+  font-family: "Space Grotesk", "Noto Sans Bengali", sans-serif;
   font-size: 1.35rem;
 }
 
-.open-app {
+.topbar-controls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.portal-nav {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.portal-link {
   text-decoration: none;
   font-weight: 800;
+  color: #2b4f88;
+  background: #f7fbff;
+  border: 1px solid #cde0ff;
+  padding: 9px 16px;
+  border-radius: 999px;
+  line-height: 1;
+  transition: transform 140ms ease, filter 140ms ease;
+}
+
+.portal-link:hover,
+.portal-link:focus-visible {
+  transform: translateY(-1px);
+  filter: brightness(1.04);
+}
+
+.portal-link.educators {
   color: white;
-  background: linear-gradient(90deg, var(--accent-2), var(--accent-3));
-  padding: 9px 13px;
-  border-radius: 12px;
+  border-color: transparent;
+  background: linear-gradient(90deg, #ffb13d, #ff9026);
+}
+
+.portal-link.admin {
+  color: white;
+  border-color: transparent;
+  background: linear-gradient(90deg, #30c288, #24ac77);
+}
+
+.portal-link.active {
+  box-shadow: 0 8px 20px rgba(43, 111, 181, 0.18);
+}
+
+.lang-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 999px;
+  border: 1px solid #cde0ff;
+  background: #f7fbff;
+}
+
+.lang-switch button {
+  border: 0;
+  border-radius: 999px;
+  padding: 7px 12px;
+  background: transparent;
+  color: #2a4a80;
+  font-weight: 800;
+  line-height: 1;
+  min-width: 44px;
+}
+
+.lang-switch button.active {
+  color: #fff;
+  background: linear-gradient(90deg, #2c8fe8, #32bf8a);
 }
 
 .dashboard {
@@ -83,7 +150,7 @@ body {
 
 .panel h2 {
   margin-top: 0;
-  font-family: "Space Grotesk", sans-serif;
+  font-family: "Space Grotesk", "Noto Sans Bengali", sans-serif;
 }
 
 .auth-panel input {
@@ -183,7 +250,7 @@ button.muted {
   display: block;
   margin-top: 4px;
   font-size: 1.55rem;
-  font-family: "Space Grotesk", sans-serif;
+  font-family: "Space Grotesk", "Noto Sans Bengali", sans-serif;
 }
 
 .tips-panel ul {
@@ -335,9 +402,14 @@ button.muted {
     gap: 10px;
   }
 
-  .open-app {
+  .topbar-controls {
     width: 100%;
-    text-align: center;
+    justify-content: space-between;
+  }
+
+  .portal-nav {
+    flex: 1;
+    justify-content: flex-start;
   }
 
   .library-head {

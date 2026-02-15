@@ -1,0 +1,28 @@
+<svg width="320" height="320" viewBox="0 0 320 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="robotBody" x1="70" y1="72" x2="250" y2="262" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#A5E1FF"/>
+      <stop offset="1" stop-color="#65B6FF"/>
+    </linearGradient>
+    <linearGradient id="robotHead" x1="96" y1="46" x2="226" y2="146" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#D7F3FF"/>
+      <stop offset="1" stop-color="#9AD8FF"/>
+    </linearGradient>
+  </defs>
+  <circle cx="160" cy="160" r="150" fill="#ECF9FF"/>
+  <rect x="98" y="48" width="124" height="96" rx="28" fill="url(#robotHead)" stroke="#5A9DD8" stroke-width="6"/>
+  <rect x="118" y="79" width="30" height="30" rx="12" fill="#2C4F7A"/>
+  <rect x="172" y="79" width="30" height="30" rx="12" fill="#2C4F7A"/>
+  <circle cx="132" cy="94" r="6" fill="#E9F8FF"/>
+  <circle cx="186" cy="94" r="6" fill="#E9F8FF"/>
+  <path d="M129 118C138 130 182 130 191 118" stroke="#2C4F7A" stroke-width="7" stroke-linecap="round"/>
+  <rect x="78" y="148" width="164" height="122" rx="42" fill="url(#robotBody)" stroke="#4D96D7" stroke-width="6"/>
+  <rect x="132" y="172" width="56" height="42" rx="16" fill="#E9F7FF" stroke="#4D96D7" stroke-width="5"/>
+  <circle cx="160" cy="193" r="10" fill="#3C7FBE"/>
+  <rect x="44" y="166" width="48" height="92" rx="24" fill="#8CCBFF" stroke="#4D96D7" stroke-width="6"/>
+  <rect x="228" y="166" width="48" height="92" rx="24" fill="#8CCBFF" stroke="#4D96D7" stroke-width="6"/>
+  <rect x="96" y="259" width="52" height="28" rx="14" fill="#5FAFEB"/>
+  <rect x="172" y="259" width="52" height="28" rx="14" fill="#5FAFEB"/>
+  <rect x="150" y="18" width="20" height="28" rx="10" fill="#5A9DD8"/>
+  <circle cx="160" cy="14" r="12" fill="#FFB355"/>
+</svg>

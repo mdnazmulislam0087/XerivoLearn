@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>XerivoLearn | Cartoon Learning</title>
+    <title>XerivoLearn | Playful Learning for Kids</title>
     <link rel="stylesheet" href="./styles.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -13,127 +13,206 @@
     />
   </head>
   <body>
+    <div class="page-bubbles" aria-hidden="true">
+      <span class="bubble b1"></span>
+      <span class="bubble b2"></span>
+      <span class="bubble b3"></span>
+      <span class="bubble b4"></span>
+    </div>
+
     <main class="shell">
-      <section class="hero-wrap">
-        <header class="hero-topbar">
-          <a id="home-link" class="brand" href="https://xerivolearn.com">XerivoLearn</a>
-          <nav class="hero-nav" aria-label="Primary navigation">
-            <a id="nav-parent-link" href="https://app.xerivolearn.com" data-i18n="nav_parents">Parents</a>
-            <a id="nav-educator-link" href="https://educator.xerivolearn.com" data-i18n="nav_educators">Educators</a>
-            <a id="nav-admin-link" href="https://admin.xerivolearn.com" data-i18n="nav_admin">Admin CMS</a>
-          </nav>
-          <div class="lang-switch">
-            <button id="lang-en" type="button">EN</button>
-            <button id="lang-bn" type="button">BN</button>
-          </div>
-        </header>
+      <header class="topbar">
+        <a id="home-link" class="brand" href="https://xerivolearn.com">XerivoLearn</a>
+        <nav class="topbar-nav" aria-label="Primary navigation">
+          <a id="nav-parent-link" href="https://app.xerivolearn.com" data-i18n="nav_parents">Parents</a>
+          <a id="nav-educator-link" href="https://educator.xerivolearn.com" data-i18n="nav_educators">Educators</a>
+          <a id="nav-admin-link" href="https://admin.xerivolearn.com" data-i18n="nav_admin">Admin CMS</a>
+        </nav>
+        <div class="lang-switch" aria-label="Language switch">
+          <button id="lang-en" type="button">EN</button>
+          <button id="lang-bn" type="button">BN</button>
+        </div>
+      </header>
 
-        <section class="hero-banner">
-          <div class="hero-left">
-            <img src="./assets/characters/bunny.svg" alt="Bunny mascot" />
+      <section class="hero card">
+        <div class="hero-copy">
+          <p class="hero-chip" data-i18n="hero_chip">Ages 3-10</p>
+          <h1 data-i18n="hero_title">A magical cartoon classroom for curious kids</h1>
+          <p class="hero-text" data-i18n="hero_text">
+            Short animated lessons, bedtime stories, and playful science videos that children love and parents trust.
+          </p>
+          <div class="hero-actions">
+            <a id="hero-parent-link" class="btn btn-primary" href="https://app.xerivolearn.com" data-i18n="cta_parent">
+              Enter Parent App
+            </a>
+            <a
+              id="hero-educator-link"
+              class="btn btn-secondary"
+              href="https://educator.xerivolearn.com"
+              data-i18n="cta_educator"
+            >
+              Educator Portal
+            </a>
           </div>
-          <div class="hero-right">
-            <h1 data-i18n="hero_title">A Magical Cartoon World</h1>
-            <p class="hero-talk" data-i18n="hero_talk">Boing! Learn with songs, stories, and smiles.</p>
-            <div class="hero-ctas">
-              <a
-                id="hero-parent-link"
-                class="cta primary"
-                href="https://app.xerivolearn.com"
-                data-i18n="cta_parent"
-              >
-                Enter Parent App
-              </a>
-              <a
-                id="hero-educator-link"
-                class="cta secondary"
-                href="https://educator.xerivolearn.com"
-                data-i18n="cta_educator"
-              >
-                Educator Portal
-              </a>
+          <div class="hero-pills">
+            <span data-i18n="pill_1">Bilingual learning</span>
+            <span data-i18n="pill_2">Safe for children</span>
+            <span data-i18n="pill_3">Mobile friendly</span>
+          </div>
+        </div>
+
+        <div class="hero-art" aria-label="Animated mascots">
+          <figure class="mascot mascot-bunny">
+            <img src="./assets/characters/bunny.svg" alt="Friendly bunny mascot" />
+          </figure>
+          <figure class="mascot mascot-robot">
+            <img src="./assets/characters/robot.svg" alt="Friendly robot mascot" />
+          </figure>
+          <figure class="mascot mascot-book">
+            <img src="./assets/characters/book.svg" alt="Smiling book mascot" />
+          </figure>
+          <p class="speech speech-1" data-i18n="speech_1">Let's learn ABC!</p>
+          <p class="speech speech-2" data-i18n="speech_2">Science can be fun!</p>
+        </div>
+      </section>
+
+      <section class="topics card">
+        <div class="section-head">
+          <h2 data-i18n="topics_title">Learning zones made for kids</h2>
+          <p data-i18n="topics_text">Colorful, bite-sized videos organized by age and topic.</p>
+        </div>
+        <div class="topic-grid">
+          <article class="topic-card tone-blue">
+            <div class="topic-icon" aria-hidden="true">&#128292;</div>
+            <h3 data-i18n="topic_alpha">Alphabet</h3>
+            <p data-i18n="topic_alpha_text">Letter songs and phonics adventures.</p>
+          </article>
+          <article class="topic-card tone-orange">
+            <div class="topic-icon" aria-hidden="true">&#128290;</div>
+            <h3 data-i18n="topic_numbers">Numbers</h3>
+            <p data-i18n="topic_numbers_text">Counting games and number cartoons.</p>
+          </article>
+          <article class="topic-card tone-green">
+            <div class="topic-icon" aria-hidden="true">&#127769;</div>
+            <h3 data-i18n="topic_story">Bedtime Stories</h3>
+            <p data-i18n="topic_story_text">Calm story videos for bedtime routines.</p>
+          </article>
+          <article class="topic-card tone-lime">
+            <div class="topic-icon" aria-hidden="true">&#128300;</div>
+            <h3 data-i18n="topic_science">Fun Science</h3>
+            <p data-i18n="topic_science_text">Simple experiments with cartoon explainers.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="previews card">
+        <div class="section-head">
+          <h2 data-i18n="preview_title">Sample video carousel</h2>
+          <p data-i18n="preview_text">Swipeable preview cards to show what children will watch.</p>
+        </div>
+        <div class="preview-track">
+          <article class="preview-card">
+            <div class="preview-image tone-blue">
+              <img src="./assets/characters/fox.svg" alt="Video preview placeholder" />
             </div>
-          </div>
-        </section>
-
-        <section class="showcase-grid" aria-label="Feature highlights">
-          <article class="show-card card-a">
-            <p class="emoji" aria-hidden="true">🔤</p>
-            <h2 data-i18n="feature_alpha">Alphabet & Numbers</h2>
+            <h3 data-i18n="preview_1_title">ABC Rocket Song</h3>
+            <p data-i18n="preview_1_meta">Age 3-5 | 3:12</p>
           </article>
-          <article class="show-card card-b">
-            <p class="emoji" aria-hidden="true">🌙</p>
-            <h2 data-i18n="feature_story">Bedtime Stories</h2>
+          <article class="preview-card">
+            <div class="preview-image tone-orange">
+              <img src="./assets/characters/penguin.svg" alt="Video preview placeholder" />
+            </div>
+            <h3 data-i18n="preview_2_title">Count the Stars</h3>
+            <p data-i18n="preview_2_meta">Age 4-7 | 4:01</p>
           </article>
-          <article class="show-card card-c">
-            <p class="emoji" aria-hidden="true">🇬🇧</p>
-            <h2 data-i18n="feature_bilingual">Bilingual Mode (Bangla + English)</h2>
+          <article class="preview-card">
+            <div class="preview-image tone-green">
+              <img src="./assets/characters/bear.svg" alt="Video preview placeholder" />
+            </div>
+            <h3 data-i18n="preview_3_title">Moonlight Story Time</h3>
+            <p data-i18n="preview_3_meta">Age 3-8 | 5:18</p>
           </article>
-        </section>
-
-        <section class="price-bubbles" aria-label="Subscription plans">
-          <article class="bubble left">
-            <p class="bubble-price" data-i18n="parent_price">$1/month</p>
-            <p class="bubble-label" data-i18n="parent_plan">Parent Plan</p>
-          </article>
-          <article class="bubble right">
-            <p class="bubble-price" data-i18n="educator_price">$20/year</p>
-            <p class="bubble-label" data-i18n="educator_plan">Educator Plan</p>
-          </article>
-        </section>
-      </section>
-
-      <section class="section trust">
-        <h3 data-i18n="trust_title">Parent Trust</h3>
-        <p data-i18n="trust_text">
-          Parent accounts control video watching, age filtering, and child-safe discovery in one clean space.
-        </p>
-        <div class="trust-list">
-          <p data-i18n="trust_1">Parent-only video playback access</p>
-          <p data-i18n="trust_2">Age and category filters for quick content picks</p>
-          <p data-i18n="trust_3">Simple CMS publishing flow for fresh lessons</p>
-        </div>
-      </section>
-
-      <section class="section carousel">
-        <h3 data-i18n="sample_title">Sample Video Thumbnails</h3>
-        <div class="carousel-row">
-          <article class="thumb t1">
-            <img src="./assets/characters/bunny.svg" alt="" />
-            <p data-i18n="sample_1">ABC Adventure Song</p>
-          </article>
-          <article class="thumb t2">
-            <img src="./assets/characters/fox.svg" alt="" />
-            <p data-i18n="sample_2">Moonlight Story</p>
-          </article>
-          <article class="thumb t3">
-            <img src="./assets/characters/bear.svg" alt="" />
-            <p data-i18n="sample_3">Fun Science Lab</p>
-          </article>
-          <article class="thumb t4">
-            <img src="./assets/characters/penguin.svg" alt="" />
-            <p data-i18n="sample_4">Bilingual Word Game</p>
+          <article class="preview-card">
+            <div class="preview-image tone-lime">
+              <img src="./assets/characters/bunny.svg" alt="Video preview placeholder" />
+            </div>
+            <h3 data-i18n="preview_4_title">Tiny Science Lab</h3>
+            <p data-i18n="preview_4_meta">Age 6-10 | 6:20</p>
           </article>
         </div>
       </section>
 
-      <section class="section testimonials">
-        <h3 data-i18n="testimonials_title">Testimonials</h3>
+      <section class="trust card">
+        <div class="section-head">
+          <h2 data-i18n="trust_title">Why parents trust XerivoLearn</h2>
+          <p data-i18n="trust_text">Built for happy kids and low-stress parenting.</p>
+        </div>
+        <div class="trust-grid">
+          <article class="trust-card">
+            <div class="trust-icon" aria-hidden="true">&#128737;</div>
+            <h3 data-i18n="trust_item_1_title">Child-safe content</h3>
+            <p data-i18n="trust_item_1_text">Curated videos designed for young learners.</p>
+          </article>
+          <article class="trust-card">
+            <div class="trust-icon" aria-hidden="true">&#9200;</div>
+            <h3 data-i18n="trust_item_2_title">Quick, focused lessons</h3>
+            <p data-i18n="trust_item_2_text">Short formats match real family routines.</p>
+          </article>
+          <article class="trust-card">
+            <div class="trust-icon" aria-hidden="true">&#127760;</div>
+            <h3 data-i18n="trust_item_3_title">Bangla + English mode</h3>
+            <p data-i18n="trust_item_3_text">Switch language anytime and keep it saved.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="testimonials card">
+        <div class="section-head">
+          <h2 data-i18n="testimonials_title">What families are saying</h2>
+          <p data-i18n="testimonials_text">Parent feedback from early XerivoLearn users.</p>
+        </div>
         <div class="testimonial-grid">
-          <article>
-            <p data-i18n="review_1">
-              "My child now asks for learning videos every evening. Super easy for parents."
-            </p>
+          <article class="testimonial-card">
+            <p data-i18n="quote_1">"My daughter now asks for learning cartoons before bedtime."</p>
+            <span data-i18n="quote_1_by">Rima, Parent of a 5-year-old</span>
           </article>
-          <article>
-            <p data-i18n="review_2">
-              "Bangla + English mode helped us at home and school both."
-            </p>
+          <article class="testimonial-card">
+            <p data-i18n="quote_2">"The bilingual option helps us practice Bangla and English together."</p>
+            <span data-i18n="quote_2_by">Tanvir, Parent</span>
           </article>
-          <article>
-            <p data-i18n="review_3">
-              "CMS is simple, I can upload and publish quickly."
-            </p>
+          <article class="testimonial-card">
+            <p data-i18n="quote_3">"Very easy for families. The videos are bright, short, and educational."</p>
+            <span data-i18n="quote_3_by">Nusrat, Guardian</span>
+          </article>
+        </div>
+      </section>
+
+      <section class="pricing card">
+        <div class="section-head">
+          <h2 data-i18n="pricing_title">Simple plans</h2>
+          <p data-i18n="pricing_text">Choose a plan for home or classroom.</p>
+        </div>
+        <div class="pricing-grid">
+          <article class="price-card parent">
+            <p class="price" data-i18n="parent_price">$1 / month</p>
+            <h3 data-i18n="parent_plan">Parent Plan</h3>
+            <p data-i18n="parent_plan_text">Watch cartoons, stories, and learning videos at home.</p>
+            <a id="price-parent-link" class="btn btn-primary" href="https://app.xerivolearn.com" data-i18n="start_parent">
+              Start Parent Plan
+            </a>
+          </article>
+          <article class="price-card educator">
+            <p class="price" data-i18n="educator_price">$20 / year</p>
+            <h3 data-i18n="educator_plan">Educator Plan</h3>
+            <p data-i18n="educator_plan_text">Designed for teachers with annual classroom access.</p>
+            <a
+              id="price-educator-link"
+              class="btn btn-secondary"
+              href="https://educator.xerivolearn.com"
+              data-i18n="start_educator"
+            >
+              Start Educator Plan
+            </a>
           </article>
         </div>
       </section>
@@ -151,63 +230,125 @@
             nav_parents: "Parents",
             nav_educators: "Educators",
             nav_admin: "Admin CMS",
-            hero_title: "A Magical Cartoon World",
-            hero_talk: "Boing! Learn with songs, stories, and smiles.",
+            hero_chip: "Ages 3-10",
+            hero_title: "A magical cartoon classroom for curious kids",
+            hero_text:
+              "Short animated lessons, bedtime stories, and playful science videos that children love and parents trust.",
             cta_parent: "Enter Parent App",
             cta_educator: "Educator Portal",
-            feature_alpha: "Alphabet & Numbers",
-            feature_story: "Bedtime Stories",
-            feature_bilingual: "Bilingual Mode (Bangla + English)",
-            parent_price: "$1/month",
+            pill_1: "Bilingual learning",
+            pill_2: "Safe for children",
+            pill_3: "Mobile friendly",
+            speech_1: "Let's learn ABC!",
+            speech_2: "Science can be fun!",
+            topics_title: "Learning zones made for kids",
+            topics_text: "Colorful, bite-sized videos organized by age and topic.",
+            topic_alpha: "Alphabet",
+            topic_alpha_text: "Letter songs and phonics adventures.",
+            topic_numbers: "Numbers",
+            topic_numbers_text: "Counting games and number cartoons.",
+            topic_story: "Bedtime Stories",
+            topic_story_text: "Calm story videos for bedtime routines.",
+            topic_science: "Fun Science",
+            topic_science_text: "Simple experiments with cartoon explainers.",
+            preview_title: "Sample video carousel",
+            preview_text: "Swipeable preview cards to show what children will watch.",
+            preview_1_title: "ABC Rocket Song",
+            preview_1_meta: "Age 3-5 | 3:12",
+            preview_2_title: "Count the Stars",
+            preview_2_meta: "Age 4-7 | 4:01",
+            preview_3_title: "Moonlight Story Time",
+            preview_3_meta: "Age 3-8 | 5:18",
+            preview_4_title: "Tiny Science Lab",
+            preview_4_meta: "Age 6-10 | 6:20",
+            trust_title: "Why parents trust XerivoLearn",
+            trust_text: "Built for happy kids and low-stress parenting.",
+            trust_item_1_title: "Child-safe content",
+            trust_item_1_text: "Curated videos designed for young learners.",
+            trust_item_2_title: "Quick, focused lessons",
+            trust_item_2_text: "Short formats match real family routines.",
+            trust_item_3_title: "Bangla + English mode",
+            trust_item_3_text: "Switch language anytime and keep it saved.",
+            testimonials_title: "What families are saying",
+            testimonials_text: "Parent feedback from early XerivoLearn users.",
+            quote_1: '"My daughter now asks for learning cartoons before bedtime."',
+            quote_1_by: "Rima, Parent of a 5-year-old",
+            quote_2: '"The bilingual option helps us practice Bangla and English together."',
+            quote_2_by: "Tanvir, Parent",
+            quote_3: '"Very easy for families. The videos are bright, short, and educational."',
+            quote_3_by: "Nusrat, Guardian",
+            pricing_title: "Simple plans",
+            pricing_text: "Choose a plan for home or classroom.",
+            parent_price: "$1 / month",
             parent_plan: "Parent Plan",
-            educator_price: "$20/year",
+            parent_plan_text: "Watch cartoons, stories, and learning videos at home.",
+            start_parent: "Start Parent Plan",
+            educator_price: "$20 / year",
             educator_plan: "Educator Plan",
-            trust_title: "Parent Trust",
-            trust_text:
-              "Parent accounts control video watching, age filtering, and child-safe discovery in one clean space.",
-            trust_1: "Parent-only video playback access",
-            trust_2: "Age and category filters for quick content picks",
-            trust_3: "Simple CMS publishing flow for fresh lessons",
-            sample_title: "Sample Video Thumbnails",
-            sample_1: "ABC Adventure Song",
-            sample_2: "Moonlight Story",
-            sample_3: "Fun Science Lab",
-            sample_4: "Bilingual Word Game",
-            testimonials_title: "Testimonials",
-            review_1: '"My child now asks for learning videos every evening. Super easy for parents."',
-            review_2: '"Bangla + English mode helped us at home and school both."',
-            review_3: '"CMS is simple, I can upload and publish quickly."'
+            educator_plan_text: "Designed for teachers with annual classroom access.",
+            start_educator: "Start Educator Plan"
           },
           bn: {
             nav_parents: "প্যারেন্টস",
             nav_educators: "এডুকেটরস",
             nav_admin: "অ্যাডমিন CMS",
-            hero_title: "এক জাদুকরী কার্টুন দুনিয়া",
-            hero_talk: "বইং! গান, গল্প আর মজায় শেখা হোক।",
-            cta_parent: "প্যারেন্ট অ্যাপে যান",
+            hero_chip: "বয়স ৩-১০",
+            hero_title: "কৌতূহলী শিশুদের জন্য জাদুকরী কার্টুন ক্লাসরুম",
+            hero_text:
+              "ছোট ছোট অ্যানিমেটেড লেসন, ঘুমপাড়ানি গল্প আর মজার বিজ্ঞান ভিডিও, যা বাচ্চারা পছন্দ করে এবং অভিভাবকরা বিশ্বাস করেন।",
+            cta_parent: "প্যারেন্ট অ্যাপে প্রবেশ করুন",
             cta_educator: "এডুকেটর পোর্টাল",
-            feature_alpha: "বর্ণমালা ও সংখ্যা",
-            feature_story: "ঘুমপাড়ানি গল্প",
-            feature_bilingual: "দ্বিভাষিক মোড (বাংলা + ইংরেজি)",
-            parent_price: "৳৯৯/মাস",
+            pill_1: "দ্বিভাষিক শেখা",
+            pill_2: "শিশুদের জন্য নিরাপদ",
+            pill_3: "মোবাইল ফ্রেন্ডলি",
+            speech_1: "চলো ABC শিখি!",
+            speech_2: "বিজ্ঞানও মজার হতে পারে!",
+            topics_title: "শিশুদের জন্য শেখার জোন",
+            topics_text: "রঙিন, ছোট ছোট ভিডিও বয়স ও বিষয়ের ভিত্তিতে সাজানো।",
+            topic_alpha: "বর্ণমালা",
+            topic_alpha_text: "অক্ষর শেখার গান ও ফনিক্স অ্যাডভেঞ্চার।",
+            topic_numbers: "সংখ্যা",
+            topic_numbers_text: "গণনা শেখার গেম ও নাম্বার কার্টুন।",
+            topic_story: "ঘুমপাড়ানি গল্প",
+            topic_story_text: "ঘুমের আগে শান্ত গল্পের ভিডিও।",
+            topic_science: "মজার বিজ্ঞান",
+            topic_science_text: "কার্টুন ব্যাখ্যায় সহজ এক্সপেরিমেন্ট।",
+            preview_title: "স্যাম্পল ভিডিও ক্যারাউসেল",
+            preview_text: "শিশুরা কী দেখবে তা দেখাতে সোয়াইপ করা যায় এমন প্রিভিউ কার্ড।",
+            preview_1_title: "ABC রকেট গান",
+            preview_1_meta: "বয়স ৩-৫ | ৩:১২",
+            preview_2_title: "তারা গোনা শেখা",
+            preview_2_meta: "বয়স ৪-৭ | ৪:০১",
+            preview_3_title: "চাঁদের আলো গল্প সময়",
+            preview_3_meta: "বয়স ৩-৮ | ৫:১৮",
+            preview_4_title: "টিনি সায়েন্স ল্যাব",
+            preview_4_meta: "বয়স ৬-১০ | ৬:২০",
+            trust_title: "কেন অভিভাবকরা XerivoLearn বিশ্বাস করেন",
+            trust_text: "শিশুর আনন্দ আর অভিভাবকের স্বস্তির জন্য তৈরি।",
+            trust_item_1_title: "শিশু-নিরাপদ কনটেন্ট",
+            trust_item_1_text: "ছোটদের উপযোগী ভিডিও বাছাই করে দেওয়া হয়।",
+            trust_item_2_title: "দ্রুত ও ফোকাসড লেসন",
+            trust_item_2_text: "ছোট ভিডিও পরিবারিক রুটিনের সাথে মানানসই।",
+            trust_item_3_title: "বাংলা + ইংরেজি মোড",
+            trust_item_3_text: "যেকোনো সময় ভাষা বদলান, সেটিংস সংরক্ষিত থাকবে।",
+            testimonials_title: "পরিবারগুলোর অভিজ্ঞতা",
+            testimonials_text: "XerivoLearn ব্যবহারকারী অভিভাবকদের মতামত।",
+            quote_1: '"আমার মেয়ে এখন ঘুমের আগে শেখার কার্টুন দেখতে চায়।"',
+            quote_1_by: "রিমা, ৫ বছরের শিশুর মা",
+            quote_2: '"দ্বিভাষিক অপশন একসাথে বাংলা ও ইংরেজি চর্চায় সাহায্য করে।"',
+            quote_2_by: "তানভীর, অভিভাবক",
+            quote_3: '"পরিবারের জন্য খুব সহজ। ভিডিওগুলো রঙিন, ছোট এবং শিক্ষামূলক।"',
+            quote_3_by: "নুসরাত, অভিভাবক",
+            pricing_title: "সহজ প্ল্যান",
+            pricing_text: "বাড়ি বা ক্লাসরুমের জন্য প্ল্যান বেছে নিন।",
+            parent_price: "৳৯৯ / মাস",
             parent_plan: "প্যারেন্ট প্ল্যান",
-            educator_price: "৳২০০০/বছর",
+            parent_plan_text: "বাড়িতে কার্টুন, গল্প এবং শেখার ভিডিও দেখুন।",
+            start_parent: "প্যারেন্ট প্ল্যান শুরু করুন",
+            educator_price: "৳২০০০ / বছর",
             educator_plan: "এডুকেটর প্ল্যান",
-            trust_title: "অভিভাবকের আস্থা",
-            trust_text:
-              "প্যারেন্ট অ্যাকাউন্টের মাধ্যমে নিরাপদ ভিডিও দেখা, বয়সভিত্তিক ফিল্টার আর সহজ কনটেন্ট খোঁজা একসাথে।",
-            trust_1: "শুধু প্যারেন্ট অ্যাকাউন্টে ভিডিও প্লেব্যাক",
-            trust_2: "বয়স ও ক্যাটাগরি ফিল্টারে দ্রুত কনটেন্ট নির্বাচন",
-            trust_3: "CMS থেকে সহজে নতুন লেসন পাবলিশ",
-            sample_title: "স্যাম্পল ভিডিও থাম্বনেইল",
-            sample_1: "এবিসি অ্যাডভেঞ্চার গান",
-            sample_2: "চাঁদের আলো গল্প",
-            sample_3: "মজার বিজ্ঞান ল্যাব",
-            sample_4: "দ্বিভাষিক শব্দ খেলা",
-            testimonials_title: "প্রশংসাপত্র",
-            review_1: '"আমার বাচ্চা এখন প্রতিদিন শেখার ভিডিও দেখতে চায়। প্যারেন্টদের জন্য খুব সহজ।"',
-            review_2: '"বাংলা + ইংরেজি মোড বাসা আর স্কুল দুজায়গাতেই সাহায্য করেছে।"',
-            review_3: '"CMS খুবই সহজ, দ্রুত ভিডিও আপলোড ও পাবলিশ করা যায়।"'
+            educator_plan_text: "শিক্ষকদের জন্য বার্ষিক ক্লাসরুম অ্যাক্সেস।",
+            start_educator: "এডুকেটর প্ল্যান শুরু করুন"
           }
         };
 
@@ -217,7 +358,9 @@
           "nav-educator-link",
           "nav-admin-link",
           "hero-parent-link",
-          "hero-educator-link"
+          "hero-educator-link",
+          "price-parent-link",
+          "price-educator-link"
         ];
 
         function t(lang, key) {
@@ -292,24 +435,29 @@
           if (isMain) {
             return;
           }
+
           const home = document.getElementById("home-link");
           if (home) {
             home.href = "/";
           }
-          const parentTargets = ["nav-parent-link", "hero-parent-link"];
-          const educatorTargets = ["nav-educator-link", "hero-educator-link"];
+
+          const parentTargets = ["nav-parent-link", "hero-parent-link", "price-parent-link"];
+          const educatorTargets = ["nav-educator-link", "hero-educator-link", "price-educator-link"];
+
           parentTargets.forEach((id) => {
             const node = document.getElementById(id);
             if (node) {
               node.href = "/app/";
             }
           });
+
           educatorTargets.forEach((id) => {
             const node = document.getElementById(id);
             if (node) {
               node.href = "/educator/";
             }
           });
+
           const admin = document.getElementById("nav-admin-link");
           if (admin) {
             admin.href = "/admin/";

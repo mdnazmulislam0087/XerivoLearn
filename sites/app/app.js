@@ -7,7 +7,10 @@ const AVATARS = [
   { key: "fox", label: "Fox", src: "./assets/avatars/fox.svg" }
 ];
 
-const LANGUAGE_STORAGE_KEY = "xerivo_app_lang";
+const LANGUAGE_STORAGE_KEY = "xerivo_lang";
+const LEGACY_LANGUAGE_STORAGE_KEY = "xerivo_app_lang";
+const LANGUAGE_QUERY_KEY = "lang";
+const WATCH_ANALYTICS_STORAGE_KEY = "xerivo_watch_analytics";
 const SUPPORTED_LANGUAGES = new Set(["en", "bn"]);
 
 const TRANSLATIONS = {
@@ -102,6 +105,21 @@ const TRANSLATIONS = {
     short_duration: "Short",
     parent_pill: "Parent: {name}",
     signed_in_as: "Signed in as {email}",
+    btn_student_profile: "Create Student Profile",
+    btn_close: "Close",
+    analytics_title: "Student Analytics",
+    analytics_subtitle_no_child: "Select a student profile to view watch insights.",
+    analytics_subtitle_with_child: "Showing watch insights for {name}.",
+    analytics_empty: "No watch history yet for this student.",
+    analytics_unique_videos: "Unique Videos",
+    analytics_total_views: "Total Views",
+    analytics_total_time: "Watch Time",
+    analytics_top_topic: "Top Topic",
+    analytics_count: "Views: {count}",
+    analytics_last: "Last watched: {value}",
+    analytics_unassigned: "Unassigned",
+    analytics_not_available: "N/A",
+    analytics_minutes: "{count} min",
     error_signin_first: "Please sign in first.",
     error_parent_required_signin: "Parent account required. Please sign in with a parent account.",
     error_session_expired: "Session expired. Please sign in again."
@@ -126,7 +144,22 @@ const TRANSLATIONS = {
     btn_create_account: "অ্যাকাউন্ট তৈরি করুন",
     btn_update_password: "পাসওয়ার্ড আপডেট করুন",
     btn_logout: "লগআউট",
+    btn_student_profile: "স্টুডেন্ট প্রোফাইল",
+    btn_close: "বন্ধ করুন",
     child_profiles_title: "চাইল্ড প্রোফাইল",
+    analytics_title: "স্টুডেন্ট অ্যানালিটিক্স",
+    analytics_subtitle_no_child: "ওয়াচ ইনসাইট দেখতে একটি স্টুডেন্ট প্রোফাইল নির্বাচন করুন।",
+    analytics_subtitle_with_child: "{name} এর জন্য ওয়াচ ইনসাইট দেখানো হচ্ছে।",
+    analytics_empty: "এই স্টুডেন্টের এখনো কোনো ওয়াচ হিস্টোরি নেই।",
+    analytics_unique_videos: "ইউনিক ভিডিও",
+    analytics_total_views: "মোট ভিউ",
+    analytics_total_time: "ওয়াচ টাইম",
+    analytics_top_topic: "টপ টপিক",
+    analytics_count: "ভিউ: {count}",
+    analytics_last: "শেষ দেখা: {value}",
+    analytics_unassigned: "অনির্ধারিত",
+    analytics_not_available: "N/A",
+    analytics_minutes: "{count} মিনিট",
     child_status_signed_out: "চাইল্ড প্রোফাইল তৈরি করতে সাইন ইন করুন।",
     btn_save_child: "চাইল্ড সেভ করুন",
     btn_update_child: "চাইল্ড আপডেট করুন",
@@ -217,7 +250,8 @@ const state = {
   selectedChildId: "",
   editingChildId: "",
   selectedAvatar: "rocket",
-  lang: "en"
+  lang: "en",
+  studentPanelOpen: false
 };
 
 const grid = document.getElementById("videos-grid");
@@ -232,6 +266,15 @@ const parentPill = document.getElementById("parent-pill");
 const authStatusLine = document.getElementById("auth-status-line");
 const langEnButton = document.getElementById("lang-en");
 const langBnButton = document.getElementById("lang-bn");
+const heroPanel = document.getElementById("hero-panel");
+const parentAuthSection = document.getElementById("parent-auth-section");
+const studentProfileBtn = document.getElementById("student-profile-btn");
+const logoutTopBtn = document.getElementById("logout-top-btn");
+const studentPanel = document.getElementById("student-panel");
+const studentPanelClose = document.getElementById("student-panel-close");
+const analyticsSubtitle = document.getElementById("analytics-subtitle");
+const analyticsSummary = document.getElementById("analytics-summary");
+const analyticsList = document.getElementById("analytics-list");
 
 const loginForm = document.getElementById("login-form");
 const registerForm = document.getElementById("register-form");
@@ -266,6 +309,11 @@ if (resetTokenFromQuery) {
   resetTokenInput.value = resetTokenFromQuery;
 }
 
+function getLanguageFromQuery() {
+  const value = (new URLSearchParams(window.location.search).get(LANGUAGE_QUERY_KEY) || "").toLowerCase();
+  return SUPPORTED_LANGUAGES.has(value) ? value : "";
+}
+
 const host = window.location.hostname.toLowerCase();
 const isProdAppDomain = host === "app.xerivolearn.com";
 if (!isProdAppDomain) {
@@ -275,8 +323,16 @@ if (!isProdAppDomain) {
 }
 
 function loadLanguagePreference() {
+  const fromQuery = getLanguageFromQuery();
+  if (fromQuery) {
+    return fromQuery;
+  }
+
   try {
-    const value = localStorage.getItem(LANGUAGE_STORAGE_KEY) || "en";
+    const value =
+      localStorage.getItem(LANGUAGE_STORAGE_KEY) ||
+      localStorage.getItem(LEGACY_LANGUAGE_STORAGE_KEY) ||
+      "en";
     return SUPPORTED_LANGUAGES.has(value) ? value : "en";
   } catch {
     return "en";
@@ -286,7 +342,36 @@ function loadLanguagePreference() {
 function saveLanguagePreference(lang) {
   try {
     localStorage.setItem(LANGUAGE_STORAGE_KEY, lang);
+    localStorage.setItem(LEGACY_LANGUAGE_STORAGE_KEY, lang);
   } catch {}
+}
+
+function setLanguageInUrl(lang) {
+  const url = new URL(window.location.href);
+  url.searchParams.set(LANGUAGE_QUERY_KEY, lang);
+  const next = `${url.pathname}${url.search}${url.hash}`;
+  const current = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+  if (next !== current) {
+    window.history.replaceState({}, "", next);
+  }
+}
+
+function withLanguageParam(url, lang) {
+  try {
+    const resolved = new URL(url, window.location.origin);
+    resolved.searchParams.set(LANGUAGE_QUERY_KEY, lang);
+    return resolved.toString();
+  } catch {
+    return url;
+  }
+}
+
+function updateLanguageAwareLinks(lang) {
+  if (!brandLink) {
+    return;
+  }
+  const homeUrl = isProdAppDomain ? "https://xerivolearn.com" : "/";
+  brandLink.href = withLanguageParam(homeUrl, lang);
 }
 
 function interpolate(template, values) {
@@ -338,10 +423,15 @@ function applyLanguage(lang, options = {}) {
   if (options.persist !== false) {
     saveLanguagePreference(targetLang);
   }
+  if (options.updateUrl !== false) {
+    setLanguageInUrl(targetLang);
+  }
+  updateLanguageAwareLinks(targetLang);
 
   updateFavoritesToggle();
   updateAuthUi();
   renderCategoryChips();
+  renderStudentAnalytics();
   render();
 }
 
@@ -381,12 +471,20 @@ favoritesOnlyBtn.addEventListener("click", () => {
 });
 
 grid.addEventListener("click", async (event) => {
-  const target = event.target.closest("button[data-fav-id]");
-  if (!target) {
+  const watchLink = event.target.closest("a[data-watch-id]");
+  if (watchLink) {
+    const watchId = watchLink.dataset.watchId;
+    if (watchId) {
+      recordVideoWatch(watchId);
+    }
+  }
+
+  const favoriteBtn = event.target.closest("button[data-fav-id]");
+  if (!favoriteBtn) {
     return;
   }
 
-  const videoId = target.dataset.favId;
+  const videoId = favoriteBtn.dataset.favId;
   if (!videoId) {
     return;
   }
@@ -418,11 +516,33 @@ forgotPasswordBtn.addEventListener("click", async () => {
   await handleForgotPassword();
 });
 
-logoutBtn.addEventListener("click", () => {
-  clearSession();
-  updateAuthUi();
-  render();
-});
+if (logoutBtn) {
+  logoutBtn.addEventListener("click", () => {
+    clearSession();
+    updateAuthUi();
+    render();
+  });
+}
+
+if (logoutTopBtn) {
+  logoutTopBtn.addEventListener("click", () => {
+    clearSession();
+    updateAuthUi();
+    render();
+  });
+}
+
+if (studentProfileBtn) {
+  studentProfileBtn.addEventListener("click", () => {
+    toggleStudentPanel();
+  });
+}
+
+if (studentPanelClose) {
+  studentPanelClose.addEventListener("click", () => {
+    toggleStudentPanel(false);
+  });
+}
 
 childForm.addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -473,6 +593,7 @@ async function bootstrap() {
   renderAvatarOptions();
   updateFavoritesToggle();
   updateAuthUi();
+  renderStudentAnalytics();
   render();
 
   if (!state.token) {
@@ -483,12 +604,238 @@ async function bootstrap() {
     await refreshSession();
     await Promise.all([loadVideos(), loadFavorites(), loadChildren()]);
     updateAuthUi();
+    renderStudentAnalytics();
     render();
   } catch {
     clearSession();
     updateAuthUi();
+    renderStudentAnalytics();
     render();
   }
+}
+
+function toggleStudentPanel(forceOpen) {
+  const loggedIn = Boolean(state.user && state.user.role === "parent");
+  const targetOpen = typeof forceOpen === "boolean" ? forceOpen : !state.studentPanelOpen;
+  state.studentPanelOpen = loggedIn && targetOpen;
+
+  if (studentPanel) {
+    studentPanel.classList.toggle("hidden", !state.studentPanelOpen);
+  }
+  if (studentProfileBtn) {
+    studentProfileBtn.classList.toggle("active", state.studentPanelOpen);
+  }
+
+  if (state.studentPanelOpen && studentPanel) {
+    renderStudentAnalytics();
+    studentPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+}
+
+function getParentAnalyticsKey() {
+  if (!state.user) {
+    return "";
+  }
+  return String(state.user.id || state.user.email || "");
+}
+
+function loadWatchAnalyticsStore() {
+  try {
+    const raw = localStorage.getItem(WATCH_ANALYTICS_STORAGE_KEY);
+    if (!raw) {
+      return {};
+    }
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object") {
+      return {};
+    }
+    return parsed;
+  } catch {
+    return {};
+  }
+}
+
+function saveWatchAnalyticsStore(store) {
+  try {
+    localStorage.setItem(WATCH_ANALYTICS_STORAGE_KEY, JSON.stringify(store));
+  } catch {}
+}
+
+function durationToSeconds(duration) {
+  if (!duration && duration !== 0) {
+    return 0;
+  }
+  const value = String(duration).trim();
+  if (!value) {
+    return 0;
+  }
+
+  if (/^\d+:\d{1,2}(:\d{1,2})?$/.test(value)) {
+    const parts = value.split(":").map((part) => Number.parseInt(part, 10));
+    if (parts.some((part) => Number.isNaN(part))) {
+      return 0;
+    }
+    if (parts.length === 3) {
+      return parts[0] * 3600 + parts[1] * 60 + parts[2];
+    }
+    return parts[0] * 60 + parts[1];
+  }
+
+  if (/^\d+(\.\d+)?$/.test(value)) {
+    return Math.max(0, Math.round(Number.parseFloat(value) * 60));
+  }
+
+  return 0;
+}
+
+function formatWatchTime(seconds) {
+  const safeSeconds = Number.isFinite(seconds) ? Math.max(0, seconds) : 0;
+  const roundedMinutes = Math.round(safeSeconds / 60);
+  return t("analytics_minutes", { count: roundedMinutes });
+}
+
+function formatWatchDate(value) {
+  if (!value) {
+    return t("analytics_not_available");
+  }
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
+    return t("analytics_not_available");
+  }
+  return parsed.toLocaleDateString(state.lang === "bn" ? "bn-BD" : "en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric"
+  });
+}
+
+function getAnalyticsForSelectedChild() {
+  const parentKey = getParentAnalyticsKey();
+  if (!parentKey) {
+    return [];
+  }
+
+  const selectedChild = getSelectedChild();
+  const childKey = selectedChild ? selectedChild.id : "__unassigned__";
+  const store = loadWatchAnalyticsStore();
+  const parentBucket = store[parentKey] || {};
+  const childBucket = parentBucket[childKey] || {};
+  return Object.values(childBucket).sort((a, b) => {
+    const byCount = Number(b.count || 0) - Number(a.count || 0);
+    if (byCount !== 0) {
+      return byCount;
+    }
+    return new Date(b.lastWatchedAt || 0).getTime() - new Date(a.lastWatchedAt || 0).getTime();
+  });
+}
+
+function recordVideoWatch(videoId) {
+  if (!state.user || state.user.role !== "parent") {
+    return;
+  }
+  const video = state.videos.find((item) => item.id === videoId);
+  if (!video) {
+    return;
+  }
+
+  const parentKey = getParentAnalyticsKey();
+  if (!parentKey) {
+    return;
+  }
+
+  const selectedChild = getSelectedChild();
+  const childKey = selectedChild ? selectedChild.id : "__unassigned__";
+  const store = loadWatchAnalyticsStore();
+  const parentBucket = store[parentKey] || {};
+  const childBucket = parentBucket[childKey] || {};
+  const current = childBucket[videoId] || {
+    id: video.id,
+    title: video.title || "",
+    category: video.category || t("analytics_not_available"),
+    count: 0,
+    totalSeconds: 0,
+    lastWatchedAt: ""
+  };
+
+  current.count = Number(current.count || 0) + 1;
+  current.totalSeconds = Number(current.totalSeconds || 0) + durationToSeconds(video.duration);
+  current.lastWatchedAt = new Date().toISOString();
+  current.title = video.title || current.title;
+  current.category = video.category || current.category;
+
+  childBucket[videoId] = current;
+  parentBucket[childKey] = childBucket;
+  store[parentKey] = parentBucket;
+  saveWatchAnalyticsStore(store);
+  renderStudentAnalytics();
+}
+
+function renderStudentAnalytics() {
+  if (!analyticsSummary || !analyticsList || !analyticsSubtitle) {
+    return;
+  }
+
+  if (!state.user || state.user.role !== "parent") {
+    analyticsSubtitle.textContent = t("analytics_subtitle_no_child");
+    analyticsSummary.innerHTML = "";
+    analyticsList.innerHTML = "";
+    return;
+  }
+
+  const selectedChild = getSelectedChild();
+  const childName = selectedChild ? selectedChild.name : t("analytics_unassigned");
+  analyticsSubtitle.textContent = selectedChild
+    ? t("analytics_subtitle_with_child", { name: childName })
+    : t("analytics_subtitle_no_child");
+
+  const entries = getAnalyticsForSelectedChild();
+  const totalViews = entries.reduce((sum, item) => sum + Number(item.count || 0), 0);
+  const totalSeconds = entries.reduce((sum, item) => sum + Number(item.totalSeconds || 0), 0);
+  const uniqueVideos = entries.length;
+
+  const topicCounter = {};
+  entries.forEach((item) => {
+    const topic = (item.category || "").trim() || t("analytics_not_available");
+    topicCounter[topic] = (topicCounter[topic] || 0) + Number(item.count || 0);
+  });
+  const topTopic = Object.entries(topicCounter).sort((a, b) => b[1] - a[1])[0]?.[0] || t("analytics_not_available");
+
+  analyticsSummary.innerHTML = `
+    <article class="analytics-card">
+      <p class="analytics-label">${escapeHtml(t("analytics_unique_videos"))}</p>
+      <p class="analytics-value">${escapeHtml(uniqueVideos)}</p>
+    </article>
+    <article class="analytics-card">
+      <p class="analytics-label">${escapeHtml(t("analytics_total_views"))}</p>
+      <p class="analytics-value">${escapeHtml(totalViews)}</p>
+    </article>
+    <article class="analytics-card">
+      <p class="analytics-label">${escapeHtml(t("analytics_total_time"))}</p>
+      <p class="analytics-value">${escapeHtml(formatWatchTime(totalSeconds))}</p>
+    </article>
+    <article class="analytics-card">
+      <p class="analytics-label">${escapeHtml(t("analytics_top_topic"))}</p>
+      <p class="analytics-value">${escapeHtml(topTopic)}</p>
+    </article>
+  `;
+
+  if (entries.length === 0) {
+    analyticsList.innerHTML = `<p class="mini-status">${escapeHtml(t("analytics_empty"))}</p>`;
+    return;
+  }
+
+  analyticsList.innerHTML = entries
+    .map((item) => {
+      return `
+        <article class="analytics-row">
+          <p class="analytics-video">${escapeHtml(item.title || t("analytics_not_available"))}</p>
+          <p class="analytics-meta">${escapeHtml(t("analytics_count", { count: item.count || 0 }))}</p>
+          <p class="analytics-meta">${escapeHtml(formatWatchTime(item.totalSeconds || 0))}</p>
+          <p class="analytics-meta">${escapeHtml(t("analytics_last", { value: formatWatchDate(item.lastWatchedAt) }))}</p>
+        </article>
+      `;
+    })
+    .join("");
 }
 
 async function loadVideos() {
@@ -744,6 +1091,7 @@ async function loadChildren() {
     state.selectedChildId = state.children.length ? state.children[0].id : "";
   }
   renderChildList();
+  renderStudentAnalytics();
 }
 
 async function saveChildProfile() {
@@ -789,6 +1137,7 @@ async function saveChildProfile() {
     if (!state.selectedChildId) {
       state.selectedChildId = data.id;
     }
+    renderStudentAnalytics();
     render();
   } catch (error) {
     childStatus.textContent = error.message;
@@ -818,6 +1167,7 @@ async function deleteChildProfile(childId) {
       state.selectedChildId = "";
     }
     await loadChildren();
+    renderStudentAnalytics();
     render();
   } catch (error) {
     childStatus.textContent = error.message;
@@ -852,6 +1202,7 @@ function selectChild(childId, options = {}) {
     state.age = selectedChild.ageGroup || "";
     ageFilter.value = state.age;
   }
+  renderStudentAnalytics();
   render();
 }
 
@@ -973,7 +1324,9 @@ function render() {
           </div>
           <p class="video-desc">${escapeHtml(video.description || "")}</p>
           <div class="card-actions">
-            <a class="watch-btn" href="${escapeHtml(video.videoUrl)}" target="_blank" rel="noreferrer">
+            <a class="watch-btn" href="${escapeHtml(video.videoUrl)}" target="_blank" rel="noreferrer" data-watch-id="${escapeHtml(
+        video.id
+      )}">
               ${escapeHtml(t("watch_video"))}
             </a>
             <button type="button" class="favorite-btn ${isFavorite ? "active" : ""}" data-fav-id="${escapeHtml(
@@ -1020,7 +1373,16 @@ function updateAuthUi() {
   if (loggedIn) {
     parentPill.textContent = t("parent_pill", { name: state.user.name });
     parentPill.classList.remove("hidden");
-    logoutBtn.classList.remove("hidden");
+    if (logoutBtn) {
+      logoutBtn.classList.add("hidden");
+    }
+    if (logoutTopBtn) {
+      logoutTopBtn.classList.remove("hidden");
+    }
+    if (studentProfileBtn) {
+      studentProfileBtn.classList.remove("hidden");
+      studentProfileBtn.textContent = t("btn_student_profile");
+    }
     loginForm.classList.add("hidden");
     registerForm.classList.add("hidden");
     resetForm.classList.add("hidden");
@@ -1028,10 +1390,25 @@ function updateAuthUi() {
     loginEmail.value = state.user.email || "";
     registerEmail.value = state.user.email || "";
     childStatus.textContent = t("child_status_focus_age");
+    if (heroPanel) {
+      heroPanel.classList.add("hidden");
+    }
+    if (parentAuthSection) {
+      parentAuthSection.classList.add("hidden");
+    }
+    toggleStudentPanel(state.studentPanelOpen);
   } else {
     parentPill.textContent = "";
     parentPill.classList.add("hidden");
-    logoutBtn.classList.add("hidden");
+    if (logoutBtn) {
+      logoutBtn.classList.add("hidden");
+    }
+    if (logoutTopBtn) {
+      logoutTopBtn.classList.add("hidden");
+    }
+    if (studentProfileBtn) {
+      studentProfileBtn.classList.add("hidden");
+    }
     loginForm.classList.remove("hidden");
     registerForm.classList.remove("hidden");
     resetForm.classList.remove("hidden");
@@ -1048,14 +1425,23 @@ function updateAuthUi() {
     state.children = [];
     state.selectedChildId = "";
     state.editingChildId = "";
+    state.studentPanelOpen = false;
     resetChildForm();
     childStatus.textContent = t("child_status_signed_out");
     renderChildList();
+    if (heroPanel) {
+      heroPanel.classList.remove("hidden");
+    }
+    if (parentAuthSection) {
+      parentAuthSection.classList.remove("hidden");
+    }
+    toggleStudentPanel(false);
   }
 
   setChildSectionEnabled(loggedIn);
   setLibraryControlsEnabled(loggedIn);
   updateFavoritesToggle();
+  renderStudentAnalytics();
 }
 
 function setChildSectionEnabled(enabled) {
@@ -1087,6 +1473,7 @@ function clearSession() {
   state.user = null;
   state.videos = [];
   state.isLoadingVideos = false;
+  state.studentPanelOpen = false;
   localStorage.removeItem("xerivo_parent_token");
 }
 

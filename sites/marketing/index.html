@@ -440,6 +440,7 @@
     <script>
       (function () {
         const STORAGE_KEY = "xerivo_lang";
+        const LANGUAGE_QUERY_KEY = "lang";
         const supportedLanguages = new Set(["en", "bn"]);
 
         const translations = {
@@ -677,7 +678,16 @@
           } catch {}
         };
 
+        const getLanguageFromQuery = () => {
+          const value = (new URLSearchParams(location.search).get(LANGUAGE_QUERY_KEY) || "").toLowerCase();
+          return supportedLanguages.has(value) ? value : "";
+        };
+
         const loadLanguage = () => {
+          const queryLang = getLanguageFromQuery();
+          if (queryLang) {
+            return queryLang;
+          }
           try {
             const lang = localStorage.getItem(STORAGE_KEY) || "en";
             return supportedLanguages.has(lang) ? lang : "en";
@@ -686,11 +696,60 @@
           }
         };
 
+        const withLanguageParam = (url, lang) => {
+          try {
+            const resolved = new URL(url, location.origin);
+            resolved.searchParams.set(LANGUAGE_QUERY_KEY, lang);
+            return resolved.toString();
+          } catch {
+            return url;
+          }
+        };
+
+        const setLanguageInUrl = (lang) => {
+          const url = new URL(location.href);
+          url.searchParams.set(LANGUAGE_QUERY_KEY, lang);
+          const next = `${url.pathname}${url.search}${url.hash}`;
+          const current = `${location.pathname}${location.search}${location.hash}`;
+          if (next !== current) {
+            history.replaceState({}, "", next);
+          }
+        };
+
+        const updateLanguageAwareLinks = (lang) => {
+          const linkIds = [
+            "home-link",
+            "nav-parent-link",
+            "hero-parent-link",
+            "plan-parent-link",
+            "journey-parent-link",
+            "cta-parent-link",
+            "nav-educator-link",
+            "hero-educator-link",
+            "plan-educator-link",
+            "journey-educator-link",
+            "cta-educator-link",
+            "nav-admin-link",
+            "journey-admin-link",
+            "cta-admin-link"
+          ];
+
+          linkIds.forEach((id) => {
+            const node = document.getElementById(id);
+            if (!node || !node.href) {
+              return;
+            }
+            node.href = withLanguageParam(node.href, lang);
+          });
+        };
+
         const applyLanguage = (lang) => {
           const targetLang = supportedLanguages.has(lang) ? lang : "en";
           mapText(targetLang);
           setActiveButton(targetLang);
           saveLanguage(targetLang);
+          setLanguageInUrl(targetLang);
+          updateLanguageAwareLinks(targetLang);
         };
 
         document.getElementById("lang-en").addEventListener("click", () => applyLanguage("en"));

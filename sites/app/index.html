@@ -20,6 +20,12 @@
       <a id="brand-link" class="brand" href="https://xerivolearn.com">XerivoLearn</a>
       <div class="topbar-actions">
         <span id="parent-pill" class="parent-pill hidden"></span>
+        <button id="student-profile-btn" type="button" class="topbar-btn hidden" data-i18n="btn_student_profile">
+          Create Student Profile
+        </button>
+        <button id="logout-top-btn" type="button" class="topbar-btn logout hidden" data-i18n="btn_logout">
+          Logout
+        </button>
         <div class="lang-switch" aria-label="Language switch">
           <button id="lang-en" type="button">EN</button>
           <button id="lang-bn" type="button">BN</button>
@@ -28,7 +34,7 @@
     </header>
 
     <main class="page">
-      <section class="hero-panel">
+      <section id="hero-panel" class="hero-panel">
         <div class="hero-copy">
           <p class="eyebrow" data-i18n="hero_eyebrow">Kids Video Library</p>
           <h1 data-i18n="hero_title">Find your child's next favorite learning adventure.</h1>
@@ -47,7 +53,7 @@
         </aside>
       </section>
 
-      <section class="parent-auth">
+      <section id="parent-auth-section" class="parent-auth">
         <div class="auth-heading">
           <h2 data-i18n="parent_account_title">Parent Account</h2>
           <p id="auth-status-line" data-i18n="auth_status_default">
@@ -109,39 +115,53 @@
             <p id="reset-status" class="mini-status"></p>
           </form>
         </div>
-        <div class="auth-actions">
-          <button id="logout-btn" type="button" class="secondary hidden" data-i18n="btn_logout">Logout</button>
-          <p id="forgot-status" class="mini-status"></p>
-        </div>
+        <div class="auth-actions"><p id="forgot-status" class="mini-status"></p></div>
       </section>
 
-      <section class="child-profiles">
-        <div class="child-head">
-          <h2 data-i18n="child_profiles_title">Child Profiles</h2>
-          <p id="child-status" data-i18n="child_status_signed_out">Sign in to create child profiles.</p>
-        </div>
-        <form id="child-form" class="child-form">
-          <input
-            id="child-name"
-            type="text"
-            data-i18n-placeholder="ph_child_name"
-            placeholder="Child name"
-            required
-          />
-          <select id="child-age-group" required>
-            <option value="3-5">3-5</option>
-            <option value="4-7" selected>4-7</option>
-            <option value="7+">7+</option>
-          </select>
-          <div id="avatar-options" class="avatar-options"></div>
-          <div class="child-form-actions">
-            <button id="child-save-btn" type="submit" data-i18n="btn_save_child">Save Child</button>
-            <button id="child-cancel-btn" type="button" class="secondary hidden" data-i18n="btn_cancel_edit">
-              Cancel Edit
-            </button>
+      <section id="student-panel" class="child-profiles hidden">
+        <div class="child-head child-head-row">
+          <div>
+            <h2 data-i18n="child_profiles_title">Child Profiles</h2>
+            <p id="child-status" data-i18n="child_status_signed_out">Sign in to create child profiles.</p>
           </div>
-        </form>
-        <div id="child-list" class="child-list"></div>
+          <button id="student-panel-close" type="button" class="secondary" data-i18n="btn_close">Close</button>
+        </div>
+
+        <div class="student-panel-grid">
+          <div class="student-profile-editor">
+            <form id="child-form" class="child-form">
+              <input
+                id="child-name"
+                type="text"
+                data-i18n-placeholder="ph_child_name"
+                placeholder="Child name"
+                required
+              />
+              <select id="child-age-group" required>
+                <option value="3-5">3-5</option>
+                <option value="4-7" selected>4-7</option>
+                <option value="7+">7+</option>
+              </select>
+              <div id="avatar-options" class="avatar-options"></div>
+              <div class="child-form-actions">
+                <button id="child-save-btn" type="submit" data-i18n="btn_save_child">Save Child</button>
+                <button id="child-cancel-btn" type="button" class="secondary hidden" data-i18n="btn_cancel_edit">
+                  Cancel Edit
+                </button>
+              </div>
+            </form>
+            <div id="child-list" class="child-list"></div>
+          </div>
+
+          <aside class="student-analytics">
+            <h3 data-i18n="analytics_title">Student Analytics</h3>
+            <p id="analytics-subtitle" class="mini-status" data-i18n="analytics_subtitle_no_child">
+              Select a student profile to view watch insights.
+            </p>
+            <div id="analytics-summary" class="analytics-summary"></div>
+            <div id="analytics-list" class="analytics-list"></div>
+          </aside>
+        </div>
       </section>
 
       <section class="library-controls">
@@ -153,19 +173,19 @@
               data-i18n-placeholder="ph_search"
               placeholder="Search title or topic..."
             />
-            <select id="age-filter">
+            <select id="age-filter" class="hidden">
               <option value="" data-i18n="age_all">All ages</option>
               <option value="3-5">3-5</option>
               <option value="4-7">4-7</option>
               <option value="7+">7+</option>
             </select>
           </div>
-          <button id="favorites-only-btn" type="button" class="secondary" data-i18n="favorites_only">
+          <button id="favorites-only-btn" type="button" class="secondary hidden" data-i18n="favorites_only">
             Favorites only
           </button>
         </div>
-        <div id="category-chips" class="category-chips"></div>
-        <p id="result-count" class="result-count"></p>
+        <div id="category-chips" class="category-chips hidden"></div>
+        <p id="result-count" class="result-count hidden"></p>
       </section>
 
       <section id="videos-grid" class="videos-grid" aria-live="polite"></section>

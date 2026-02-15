@@ -186,6 +186,7 @@ html[lang="bn"] .brand {
   background: #fff;
   font-weight: 800;
   line-height: 1;
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
 }
 
 .showcase-nav a:nth-child(2) {
@@ -219,6 +220,7 @@ html[lang="bn"] .brand {
   background: transparent;
   padding: 6px 12px;
   cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .lang-switch button.active {
@@ -306,6 +308,7 @@ html[lang="bn"] .brand {
   text-align: center;
   font-weight: 800;
   cursor: pointer;
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
 }
 
 .btn-primary {
@@ -320,6 +323,19 @@ html[lang="bn"] .brand {
   border-color: var(--line);
 }
 
+.showcase-actions .btn {
+  animation: buttonBounce 3.6s ease-in-out infinite;
+}
+
+.showcase-actions .btn:nth-child(2) {
+  animation-delay: -1.4s;
+}
+
+.showcase-actions .btn:hover,
+.showcase-actions .btn:focus-visible {
+  animation: none;
+}
+
 .hero-secondary-links {
   display: flex;
   justify-content: center;
@@ -332,6 +348,7 @@ html[lang="bn"] .brand {
   color: #4c618f;
   font-size: 0.95rem;
   font-weight: 800;
+  transition: color 0.22s ease;
 }
 
 .showcase-mascots {
@@ -354,7 +371,7 @@ html[lang="bn"] .brand {
   left: -8px;
   bottom: -4px;
   z-index: 2;
-  animation: floatUp 5s ease-in-out infinite;
+  animation: bunnyBounce 5.6s ease-in-out infinite;
 }
 
 .mascot-book {
@@ -403,6 +420,31 @@ html[lang="bn"] .brand {
   font-size: 0.88rem;
   font-weight: 800;
   padding: 6px 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.trust-strip-items span::before {
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+.trust-strip-items span:nth-child(1)::before {
+  content: "\1F6E1";
+}
+
+.trust-strip-items span:nth-child(2)::before {
+  content: "\1F31F";
+}
+
+.trust-strip-items span:nth-child(3)::before {
+  content: "\1F4CF";
+}
+
+.trust-strip-items span:nth-child(4)::before {
+  content: "\1F310";
 }
 
 .social-proof {
@@ -448,6 +490,7 @@ html[lang="bn"] .brand {
   gap: 10px;
   align-content: start;
   text-align: left;
+  transition: transform 0.24s ease, box-shadow 0.24s ease, border-color 0.24s ease;
 }
 
 .show-tile h2 {
@@ -471,6 +514,7 @@ html[lang="bn"] .brand {
 .tile-thumb img {
   width: min(86%, 160px);
   display: block;
+  transition: transform 0.24s ease;
 }
 
 .tile-play {
@@ -517,6 +561,7 @@ html[lang="bn"] .brand {
   text-align: center;
   padding: 12px;
   box-shadow: var(--shadow-sm);
+  transition: transform 0.24s ease, box-shadow 0.24s ease, border-color 0.24s ease;
 }
 
 .price-orb.parent {
@@ -648,6 +693,7 @@ html[lang="bn"] .brand {
   font-weight: 800;
   padding: 8px 14px;
   cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .demo-controls span {
@@ -660,6 +706,45 @@ html[lang="bn"] .brand {
 .trust,
 .testimonials {
   padding: 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+.topics::before,
+.previews::before,
+.trust::before,
+.testimonials::before {
+  content: "";
+  position: absolute;
+  width: 170px;
+  height: 170px;
+  border-radius: 42% 58% 58% 42% / 45% 43% 57% 55%;
+  opacity: 0.42;
+  pointer-events: none;
+}
+
+.topics::before {
+  right: -60px;
+  top: -50px;
+  background: #d8eaff;
+}
+
+.previews::before {
+  left: -65px;
+  bottom: -70px;
+  background: #d7f4e8;
+}
+
+.trust::before {
+  right: -70px;
+  bottom: -72px;
+  background: #ffe4ca;
+}
+
+.testimonials::before {
+  left: -70px;
+  top: -60px;
+  background: #d9e4ff;
 }
 
 .section-head {
@@ -696,10 +781,42 @@ html[lang="bn"] .brand {
   display: grid;
   gap: 8px;
   box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.24s ease, box-shadow 0.24s ease, border-color 0.24s ease;
 }
 
 .topic-card {
   min-height: 152px;
+}
+
+.topic-card::after {
+  content: "";
+  position: absolute;
+  right: -8px;
+  bottom: -10px;
+  width: 86px;
+  height: 86px;
+  opacity: 0.28;
+  pointer-events: none;
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+
+.topic-card:nth-child(1)::after {
+  background-image: url("./assets/characters/fox.svg");
+}
+
+.topic-card:nth-child(2)::after {
+  background-image: url("./assets/characters/penguin.svg");
+}
+
+.topic-card:nth-child(3)::after {
+  background-image: url("./assets/characters/bunny.svg");
+}
+
+.topic-card:nth-child(4)::after {
+  background-image: url("./assets/characters/bear.svg");
 }
 
 .topic-icon {
@@ -744,6 +861,7 @@ html[lang="bn"] .brand {
   padding: 10px;
   display: grid;
   gap: 8px;
+  transition: transform 0.24s ease, box-shadow 0.24s ease, border-color 0.24s ease;
 }
 
 .preview-image {
@@ -757,6 +875,7 @@ html[lang="bn"] .brand {
 .preview-image img {
   width: min(84%, 184px);
   display: block;
+  transition: transform 0.24s ease;
 }
 
 .preview-card h3 {
@@ -800,6 +919,63 @@ html[lang="bn"] .brand {
 
 .tone-lime {
   background: linear-gradient(160deg, #e8f8dd, #d8f1cb);
+}
+
+.showcase-nav a:hover,
+.showcase-nav a:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(66, 97, 143, 0.16);
+}
+
+.lang-switch button:hover,
+.lang-switch button:focus-visible {
+  transform: translateY(-1px);
+}
+
+.btn:hover,
+.btn:focus-visible {
+  transform: translateY(-2px) scale(1.01);
+}
+
+.hero-secondary-links a:hover,
+.hero-secondary-links a:focus-visible {
+  color: #2f4e86;
+}
+
+.trust-strip-items span:hover,
+.trust-strip-items span:focus-visible {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 12px rgba(65, 101, 148, 0.14);
+}
+
+.show-tile:hover,
+.show-tile:focus-within,
+.topic-card:hover,
+.topic-card:focus-within,
+.preview-card:hover,
+.preview-card:focus-within,
+.trust-card:hover,
+.trust-card:focus-within,
+.testimonial-card:hover,
+.testimonial-card:focus-within,
+.price-orb:hover,
+.price-orb:focus-visible {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 28px rgba(62, 96, 141, 0.16);
+  border-color: #c9defd;
+}
+
+.show-tile:hover .tile-thumb img,
+.show-tile:focus-within .tile-thumb img,
+.preview-card:hover .preview-image img,
+.preview-card:focus-within .preview-image img {
+  transform: scale(1.04);
+}
+
+.demo-controls button:hover,
+.demo-controls button:focus-visible {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 14px rgba(64, 98, 143, 0.12);
 }
 
 @media (min-width: 700px) {
@@ -907,6 +1083,32 @@ html[lang="bn"] .brand {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+@keyframes buttonBounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes bunnyBounce {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+
+  40% {
+    transform: translateY(-8px) rotate(-2deg);
+  }
+
+  75% {
+    transform: translateY(-3px) rotate(2deg);
   }
 }
 

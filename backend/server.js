@@ -204,31 +204,26 @@ async function handleApi(req, res, pathname, searchParams) {
 
 function resolveSite(hostHeader, pathname) {
   const host = (hostHeader || "").split(":")[0].toLowerCase();
-  const isLocalHost =
-    host === "" ||
-    host === "localhost" ||
-    host === "127.0.0.1" ||
-    host.endsWith(".localhost");
+  const isAppPath = pathname === "/app" || pathname.startsWith("/app/");
+  const isAdminPath = pathname === "/admin" || pathname.startsWith("/admin/");
 
-  if (isLocalHost) {
-    if (pathname === "/app" || pathname.startsWith("/app/")) {
-      return { site: "app", path: pathname.replace(/^\/app/, "") || "/" };
-    }
-    if (pathname === "/admin" || pathname.startsWith("/admin/")) {
-      return { site: "admin", path: pathname.replace(/^\/admin/, "") || "/" };
-    }
-    return { site: "marketing", path: pathname };
+  if (host.startsWith("admin.")) {
+    return { site: "admin", path: pathname };
   }
 
   if (host.startsWith("app.")) {
-    if (pathname === "/admin" || pathname.startsWith("/admin/")) {
+    if (isAdminPath) {
       return { site: "admin", path: pathname.replace(/^\/admin/, "") || "/" };
     }
     return { site: "app", path: pathname };
   }
 
-  if (host.startsWith("admin.")) {
-    return { site: "admin", path: pathname };
+  // Path-based fallback for single-host deployments like Railway free domains.
+  if (isAppPath) {
+    return { site: "app", path: pathname.replace(/^\/app/, "") || "/" };
+  }
+  if (isAdminPath) {
+    return { site: "admin", path: pathname.replace(/^\/admin/, "") || "/" };
   }
 
   return { site: "marketing", path: pathname };

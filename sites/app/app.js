@@ -120,6 +120,10 @@ const TRANSLATIONS = {
     analytics_unassigned: "Unassigned",
     analytics_not_available: "N/A",
     analytics_minutes: "{count} min",
+    player_close: "Close",
+    player_prev: "Previous",
+    player_next: "Next",
+    player_open_external: "Open Original Video",
     error_signin_first: "Please sign in first.",
     error_parent_required_signin: "Parent account required. Please sign in with a parent account.",
     error_session_expired: "Session expired. Please sign in again."
@@ -160,6 +164,10 @@ const TRANSLATIONS = {
     analytics_unassigned: "অনির্ধারিত",
     analytics_not_available: "N/A",
     analytics_minutes: "{count} মিনিট",
+    player_close: "বন্ধ করুন",
+    player_prev: "আগেরটি",
+    player_next: "পরেরটি",
+    player_open_external: "মূল ভিডিও খুলুন",
     child_status_signed_out: "চাইল্ড প্রোফাইল তৈরি করতে সাইন ইন করুন।",
     btn_save_child: "চাইল্ড সেভ করুন",
     btn_update_child: "চাইল্ড আপডেট করুন",
@@ -251,7 +259,12 @@ const state = {
   editingChildId: "",
   selectedAvatar: "rocket",
   lang: "en",
-  studentPanelOpen: false
+  studentPanelOpen: false,
+  player: {
+    isOpen: false,
+    queue: [],
+    index: -1
+  }
 };
 
 const grid = document.getElementById("videos-grid");
@@ -275,6 +288,15 @@ const studentPanelClose = document.getElementById("student-panel-close");
 const analyticsSubtitle = document.getElementById("analytics-subtitle");
 const analyticsSummary = document.getElementById("analytics-summary");
 const analyticsList = document.getElementById("analytics-list");
+const playerModal = document.getElementById("player-modal");
+const playerBackdrop = document.getElementById("player-backdrop");
+const playerShell = playerModal ? playerModal.querySelector(".player-shell") : null;
+const playerStage = document.getElementById("player-stage");
+const playerTitle = document.getElementById("player-title");
+const playerCloseBtn = document.getElementById("player-close-btn");
+const playerPrevBtn = document.getElementById("player-prev-btn");
+const playerNextBtn = document.getElementById("player-next-btn");
+const playerExternalLink = document.getElementById("player-external-link");
 
 const loginForm = document.getElementById("login-form");
 const registerForm = document.getElementById("register-form");
@@ -308,6 +330,12 @@ const resetTokenFromQuery = new URLSearchParams(window.location.search).get("res
 if (resetTokenFromQuery) {
   resetTokenInput.value = resetTokenFromQuery;
 }
+
+const playerSwipeState = {
+  startX: 0,
+  startY: 0,
+  isTracking: false
+};
 
 function getLanguageFromQuery() {
   const value = (new URLSearchParams(window.location.search).get(LANGUAGE_QUERY_KEY) || "").toLowerCase();
@@ -432,6 +460,7 @@ function applyLanguage(lang, options = {}) {
   updateAuthUi();
   renderCategoryChips();
   renderStudentAnalytics();
+  renderPlayer();
   render();
 }
 
@@ -471,11 +500,14 @@ favoritesOnlyBtn.addEventListener("click", () => {
 });
 
 grid.addEventListener("click", async (event) => {
-  const watchLink = event.target.closest("a[data-watch-id]");
-  if (watchLink) {
-    const watchId = watchLink.dataset.watchId;
+  const watchTrigger = event.target.closest("[data-watch-id]");
+  if (watchTrigger) {
+    const watchId = watchTrigger.dataset.watchId;
     if (watchId) {
+      event.preventDefault();
+      openVideoPlayer(watchId);
       recordVideoWatch(watchId);
+      return;
     }
   }
 
@@ -542,6 +574,87 @@ if (studentPanelClose) {
   studentPanelClose.addEventListener("click", () => {
     toggleStudentPanel(false);
   });
+}
+
+if (playerCloseBtn) {
+  playerCloseBtn.addEventListener("click", () => {
+    closeVideoPlayer();
+  });
+}
+
+if (playerBackdrop) {
+  playerBackdrop.addEventListener("click", () => {
+    closeVideoPlayer();
+  });
+}
+
+if (playerPrevBtn) {
+  playerPrevBtn.addEventListener("click", () => {
+    stepPlayer(-1);
+  });
+}
+
+if (playerNextBtn) {
+  playerNextBtn.addEventListener("click", () => {
+    stepPlayer(1);
+  });
+}
+
+document.addEventListener("keydown", (event) => {
+  if (!state.player.isOpen) {
+    return;
+  }
+  if (event.key === "Escape") {
+    closeVideoPlayer();
+    return;
+  }
+  if (event.key === "ArrowLeft") {
+    stepPlayer(-1);
+    return;
+  }
+  if (event.key === "ArrowRight") {
+    stepPlayer(1);
+  }
+});
+
+if (playerShell) {
+  playerShell.addEventListener(
+    "touchstart",
+    (event) => {
+      if (!state.player.isOpen || !event.touches || event.touches.length !== 1) {
+        playerSwipeState.isTracking = false;
+        return;
+      }
+      playerSwipeState.isTracking = true;
+      playerSwipeState.startX = event.touches[0].clientX;
+      playerSwipeState.startY = event.touches[0].clientY;
+    },
+    { passive: true }
+  );
+
+  playerShell.addEventListener(
+    "touchend",
+    (event) => {
+      if (!state.player.isOpen || !playerSwipeState.isTracking || !event.changedTouches || !event.changedTouches.length) {
+        return;
+      }
+      const endX = event.changedTouches[0].clientX;
+      const endY = event.changedTouches[0].clientY;
+      const dx = endX - playerSwipeState.startX;
+      const dy = endY - playerSwipeState.startY;
+      playerSwipeState.isTracking = false;
+
+      if (Math.abs(dx) < 38 || Math.abs(dx) < Math.abs(dy)) {
+        return;
+      }
+      if (dx < 0) {
+        stepPlayer(1);
+      } else {
+        stepPlayer(-1);
+      }
+    },
+    { passive: true }
+  );
 }
 
 childForm.addEventListener("submit", async (event) => {
@@ -836,6 +949,180 @@ function renderStudentAnalytics() {
       `;
     })
     .join("");
+}
+
+function getFilteredVideos() {
+  return state.videos.filter((video) => {
+    const ageMatch = !state.age || video.ageGroup === state.age;
+    const categoryMatch =
+      !state.category || (video.category || "").toLowerCase() === state.category.toLowerCase();
+    const text = `${video.title} ${video.description}`.toLowerCase();
+    const searchMatch = !state.search || text.includes(state.search);
+    const favoriteMatch = !state.favoritesOnly || state.favoriteIds.has(video.id);
+    return ageMatch && categoryMatch && searchMatch && favoriteMatch;
+  });
+}
+
+function isDirectVideoUrl(url) {
+  if (!url) {
+    return false;
+  }
+  const clean = String(url).toLowerCase().split("?")[0];
+  return [".mp4", ".webm", ".m3u8", ".ogg", ".mov"].some((suffix) => clean.endsWith(suffix));
+}
+
+function extractYouTubeId(url) {
+  try {
+    const parsed = new URL(url);
+    const host = parsed.hostname.toLowerCase();
+    if (host === "youtu.be") {
+      return parsed.pathname.replaceAll("/", "") || "";
+    }
+    if (host.includes("youtube.com")) {
+      if (parsed.pathname === "/watch") {
+        return parsed.searchParams.get("v") || "";
+      }
+      if (parsed.pathname.startsWith("/embed/")) {
+        return parsed.pathname.split("/")[2] || "";
+      }
+      if (parsed.pathname.startsWith("/shorts/")) {
+        return parsed.pathname.split("/")[2] || "";
+      }
+    }
+    return "";
+  } catch {
+    return "";
+  }
+}
+
+function toYouTubeEmbedUrl(url) {
+  const id = extractYouTubeId(url);
+  if (!id) {
+    return "";
+  }
+  return `https://www.youtube-nocookie.com/embed/${encodeURIComponent(
+    id
+  )}?rel=0&modestbranding=1&playsinline=1&autoplay=1`;
+}
+
+function getPlayerQueue(video) {
+  if (!video) {
+    return [];
+  }
+  const category = (video.category || "").trim().toLowerCase();
+  if (!category) {
+    return state.videos.slice();
+  }
+  const sameCategory = state.videos.filter(
+    (item) => (item.category || "").trim().toLowerCase() === category
+  );
+  return sameCategory.length ? sameCategory : [video];
+}
+
+function getCurrentPlayerVideo() {
+  if (!state.player.isOpen || state.player.index < 0) {
+    return null;
+  }
+  return state.player.queue[state.player.index] || null;
+}
+
+function openVideoPlayer(videoId) {
+  if (!state.user || state.user.role !== "parent") {
+    return;
+  }
+  const video = state.videos.find((item) => item.id === videoId);
+  if (!video) {
+    return;
+  }
+  const queue = getPlayerQueue(video);
+  const index = queue.findIndex((item) => item.id === video.id);
+  state.player.isOpen = true;
+  state.player.queue = queue;
+  state.player.index = index >= 0 ? index : 0;
+  renderPlayer();
+}
+
+function closeVideoPlayer() {
+  state.player.isOpen = false;
+  state.player.queue = [];
+  state.player.index = -1;
+  renderPlayer();
+}
+
+function stepPlayer(direction) {
+  if (!state.player.isOpen || !state.player.queue.length) {
+    return;
+  }
+  const total = state.player.queue.length;
+  if (total < 2) {
+    return;
+  }
+  state.player.index = (state.player.index + direction + total) % total;
+  const video = getCurrentPlayerVideo();
+  if (video) {
+    recordVideoWatch(video.id);
+  }
+  renderPlayer();
+}
+
+function renderPlayer() {
+  if (!playerModal || !playerStage || !playerTitle || !playerExternalLink || !playerPrevBtn || !playerNextBtn) {
+    return;
+  }
+
+  if (!state.player.isOpen) {
+    playerModal.classList.add("hidden");
+    playerModal.setAttribute("aria-hidden", "true");
+    playerStage.innerHTML = "";
+    playerTitle.textContent = "";
+    playerExternalLink.href = "#";
+    playerPrevBtn.disabled = true;
+    playerNextBtn.disabled = true;
+    return;
+  }
+
+  const video = getCurrentPlayerVideo();
+  if (!video) {
+    closeVideoPlayer();
+    return;
+  }
+
+  const category = video.category || t("general_category");
+  playerTitle.textContent = `${video.title} - ${category}`;
+  playerExternalLink.href = video.videoUrl || "#";
+
+  const ytEmbed = toYouTubeEmbedUrl(video.videoUrl);
+  if (ytEmbed) {
+    playerStage.innerHTML = `
+      <iframe
+        src="${escapeHtml(ytEmbed)}"
+        title="${escapeHtml(video.title)}"
+        loading="eager"
+        allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+        allowfullscreen
+      ></iframe>
+    `;
+  } else if (isDirectVideoUrl(video.videoUrl)) {
+    playerStage.innerHTML = `
+      <video controls playsinline preload="metadata" src="${escapeHtml(video.videoUrl)}"></video>
+    `;
+  } else {
+    playerStage.innerHTML = `
+      <iframe
+        src="${escapeHtml(video.videoUrl)}"
+        title="${escapeHtml(video.title)}"
+        loading="eager"
+        allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+        allowfullscreen
+      ></iframe>
+    `;
+  }
+
+  const hasNav = state.player.queue.length > 1;
+  playerPrevBtn.disabled = !hasNav;
+  playerNextBtn.disabled = !hasNav;
+  playerModal.classList.remove("hidden");
+  playerModal.setAttribute("aria-hidden", "false");
 }
 
 async function loadVideos() {
@@ -1276,15 +1563,7 @@ function render() {
     return;
   }
 
-  const filtered = state.videos.filter((video) => {
-    const ageMatch = !state.age || video.ageGroup === state.age;
-    const categoryMatch =
-      !state.category || (video.category || "").toLowerCase() === state.category.toLowerCase();
-    const text = `${video.title} ${video.description}`.toLowerCase();
-    const searchMatch = !state.search || text.includes(state.search);
-    const favoriteMatch = !state.favoritesOnly || state.favoriteIds.has(video.id);
-    return ageMatch && categoryMatch && searchMatch && favoriteMatch;
-  });
+  const filtered = getFilteredVideos();
 
   const label = filtered.length === 1 ? t("video_single") : t("video_plural");
   const selectedChild = getSelectedChild();
@@ -1324,11 +1603,9 @@ function render() {
           </div>
           <p class="video-desc">${escapeHtml(video.description || "")}</p>
           <div class="card-actions">
-            <a class="watch-btn" href="${escapeHtml(video.videoUrl)}" target="_blank" rel="noreferrer" data-watch-id="${escapeHtml(
-        video.id
-      )}">
+            <button type="button" class="watch-btn" data-watch-id="${escapeHtml(video.id)}">
               ${escapeHtml(t("watch_video"))}
-            </a>
+            </button>
             <button type="button" class="favorite-btn ${isFavorite ? "active" : ""}" data-fav-id="${escapeHtml(
         video.id
       )}">
@@ -1442,6 +1719,7 @@ function updateAuthUi() {
   setLibraryControlsEnabled(loggedIn);
   updateFavoritesToggle();
   renderStudentAnalytics();
+  renderPlayer();
 }
 
 function setChildSectionEnabled(enabled) {
@@ -1474,6 +1752,9 @@ function clearSession() {
   state.videos = [];
   state.isLoadingVideos = false;
   state.studentPanelOpen = false;
+  state.player.isOpen = false;
+  state.player.queue = [];
+  state.player.index = -1;
   localStorage.removeItem("xerivo_parent_token");
 }
 

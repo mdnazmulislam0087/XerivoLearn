@@ -562,7 +562,7 @@ html[lang="bn"] .mini-status {
 
 .filters {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr) 180px;
   gap: 10px;
   margin-bottom: 10px;
   flex: 1;
@@ -674,7 +674,9 @@ html[lang="bn"] .mini-status {
 }
 
 .watch-btn {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   margin-top: 12px;
   text-decoration: none;
   background: linear-gradient(90deg, var(--accent-2), var(--accent-3));
@@ -682,6 +684,9 @@ html[lang="bn"] .mini-status {
   font-weight: 700;
   padding: 9px 13px;
   border-radius: 11px;
+  border: 0;
+  font: inherit;
+  cursor: pointer;
 }
 
 .card-actions {
@@ -713,6 +718,83 @@ html[lang="bn"] .mini-status {
   text-align: center;
   font-weight: 700;
   color: #4c5d84;
+}
+
+.player-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+}
+
+.player-backdrop {
+  position: absolute;
+  inset: 0;
+  background: #0a1730cc;
+}
+
+.player-shell {
+  position: relative;
+  width: min(980px, calc(100% - 16px));
+  max-height: calc(100vh - 16px);
+  border-radius: 18px;
+  border: 1px solid #ffffff33;
+  background: #0f2348;
+  color: #e9f3ff;
+  padding: 10px;
+  box-shadow: 0 20px 50px #00000055;
+  overflow: auto;
+}
+
+.player-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.player-title {
+  margin: 0;
+  font-family: "Fredoka", sans-serif;
+  font-size: clamp(1rem, 2.4vw, 1.45rem);
+  color: #ffffff;
+}
+
+.player-stage {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #061227;
+  touch-action: pan-y;
+}
+
+.player-stage iframe,
+.player-stage video {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+
+.player-controls {
+  margin-top: 10px;
+  display: flex;
+  gap: 8px;
+}
+
+.player-controls .secondary {
+  flex: 1;
+}
+
+.player-external-link {
+  display: inline-flex;
+  margin-top: 10px;
+  color: #c8e6ff;
+  font-weight: 700;
+  text-decoration: underline;
 }
 
 .hidden {
@@ -791,5 +873,16 @@ html[lang="bn"] .mini-status {
 
   .analytics-summary {
     grid-template-columns: 1fr;
+  }
+
+  .player-shell {
+    width: calc(100% - 10px);
+    max-height: calc(100vh - 10px);
+    border-radius: 14px;
+    padding: 8px;
+  }
+
+  .player-controls {
+    flex-direction: column;
   }
 }

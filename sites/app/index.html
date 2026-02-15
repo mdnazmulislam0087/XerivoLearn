@@ -173,7 +173,7 @@
               data-i18n-placeholder="ph_search"
               placeholder="Search title or topic..."
             />
-            <select id="age-filter" class="hidden">
+            <select id="age-filter">
               <option value="" data-i18n="age_all">All ages</option>
               <option value="3-5">3-5</option>
               <option value="4-7">4-7</option>
@@ -184,12 +184,32 @@
             Favorites only
           </button>
         </div>
-        <div id="category-chips" class="category-chips hidden"></div>
-        <p id="result-count" class="result-count hidden"></p>
+        <div id="category-chips" class="category-chips"></div>
+        <p id="result-count" class="result-count"></p>
       </section>
 
       <section id="videos-grid" class="videos-grid" aria-live="polite"></section>
       <p id="empty-state" class="empty-state hidden" data-i18n="empty_no_match">No videos match your filters yet.</p>
+
+      <section id="player-modal" class="player-modal hidden" aria-hidden="true">
+        <div id="player-backdrop" class="player-backdrop"></div>
+        <div class="player-shell" role="dialog" aria-modal="true" aria-label="Video Player">
+          <div class="player-topbar">
+            <h2 id="player-title" class="player-title"></h2>
+            <button id="player-close-btn" type="button" class="secondary" data-i18n="player_close">Close</button>
+          </div>
+          <div id="player-stage" class="player-stage"></div>
+          <div class="player-controls">
+            <button id="player-prev-btn" type="button" class="secondary" data-i18n="player_prev">
+              Previous
+            </button>
+            <button id="player-next-btn" type="button" class="secondary" data-i18n="player_next">Next</button>
+          </div>
+          <a id="player-external-link" class="player-external-link" target="_blank" rel="noreferrer" data-i18n="player_open_external">
+            Open Original Video
+          </a>
+        </div>
+      </section>
     </main>
 
     <script src="./app.js"></script>

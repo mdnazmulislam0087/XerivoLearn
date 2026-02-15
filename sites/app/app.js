@@ -59,6 +59,11 @@ const TRANSLATIONS = {
       "This portal is for parent accounts only. Educators should use the Educator portal.",
     error_name_email_password_required: "Name, email, and password are required.",
     error_registration_failed: "Registration failed.",
+    error_email_registered: "Email already registered.",
+    error_invalid_email_password: "Invalid email or password.",
+    error_password_strength: "Password must be at least 8 chars with letters and numbers.",
+    error_reset_invalid_or_expired: "Invalid or expired reset token.",
+    reset_not_configured: "Password reset email is not configured yet. Contact support to reset your password.",
     error_parent_only_create: "Only parent accounts can be created from this app.",
     error_enter_email_first: "Enter your email in Sign In first.",
     error_request_reset_failed: "Could not request password reset.",
@@ -71,6 +76,7 @@ const TRANSLATIONS = {
     error_terms_unavailable: "Terms are not available right now. Please try again shortly.",
     captcha_loading: "Loading captcha...",
     captcha_invalid: "Captcha verification failed. Please try again.",
+    error_captcha_failed: "Captcha verification failed. Please try again.",
     terms_title: "Terms and Conditions",
     terms_accept_label: "I agree to Terms and Conditions",
     reset_from_email_help: "Open your reset link from email to set a new password.",
@@ -201,6 +207,11 @@ const TRANSLATIONS = {
       "এই পোর্টাল শুধু প্যারেন্ট অ্যাকাউন্টের জন্য। এডুকেটররা Educator পোর্টাল ব্যবহার করুন।",
     error_name_email_password_required: "নাম, ইমেইল এবং পাসওয়ার্ড প্রয়োজন।",
     error_registration_failed: "রেজিস্ট্রেশন ব্যর্থ হয়েছে।",
+    error_email_registered: "এই ইমেইল আগেই রেজিস্টার করা আছে।",
+    error_invalid_email_password: "ইমেইল বা পাসওয়ার্ড ভুল।",
+    error_password_strength: "পাসওয়ার্ডে কমপক্ষে ৮ অক্ষর এবং অক্ষর+সংখ্যা থাকতে হবে।",
+    error_reset_invalid_or_expired: "রিসেট টোকেন অবৈধ অথবা মেয়াদ শেষ হয়েছে।",
+    reset_not_configured: "পাসওয়ার্ড রিসেট ইমেইল এখনো কনফিগার হয়নি। সাপোর্টে যোগাযোগ করুন।",
     error_parent_only_create: "এই অ্যাপ থেকে শুধু প্যারেন্ট অ্যাকাউন্ট তৈরি করা যাবে।",
     error_enter_email_first: "আগে Sign In অংশে আপনার ইমেইল দিন।",
     error_request_reset_failed: "পাসওয়ার্ড রিসেট অনুরোধ করা যায়নি।",
@@ -213,6 +224,7 @@ const TRANSLATIONS = {
     error_terms_unavailable: "টার্মস এখন পাওয়া যাচ্ছে না। কিছুক্ষণ পর আবার চেষ্টা করুন।",
     captcha_loading: "ক্যাপচা লোড হচ্ছে...",
     captcha_invalid: "ক্যাপচা যাচাই ব্যর্থ হয়েছে। আবার চেষ্টা করুন।",
+    error_captcha_failed: "ক্যাপচা যাচাই ব্যর্থ হয়েছে। আবার চেষ্টা করুন।",
     terms_title: "টার্মস এবং কন্ডিশন",
     terms_accept_label: "আমি টার্মস এবং কন্ডিশন গ্রহণ করছি",
     reset_from_email_help: "ইমেইলের রিসেট লিংক থেকে এসে নতুন পাসওয়ার্ড দিন।",
@@ -442,6 +454,31 @@ function t(key, values = {}) {
   const current = TRANSLATIONS[state.lang] || TRANSLATIONS.en;
   const source = current[key] || TRANSLATIONS.en[key] || key;
   return interpolate(source, values);
+}
+
+const API_MESSAGE_KEY_MAP = {
+  "Email already registered.": "error_email_registered",
+  "Invalid email or password.": "error_invalid_email_password",
+  "Password must be at least 8 chars with letters and numbers.": "error_password_strength",
+  "Captcha verification failed. Please try again.": "error_captcha_failed",
+  "If an account exists, a reset link has been sent.": "reset_sent",
+  "Password reset email is not configured yet. Contact support to reset your password.": "reset_not_configured",
+  "Invalid or expired reset token.": "error_reset_invalid_or_expired",
+  "Password updated. You can sign in now.": "reset_success"
+};
+
+function localizeApiMessage(message, fallbackKey = "") {
+  const raw = typeof message === "string" ? message.trim() : "";
+  if (!raw) {
+    return fallbackKey ? t(fallbackKey) : "";
+  }
+
+  const key = API_MESSAGE_KEY_MAP[raw];
+  if (key) {
+    return t(key);
+  }
+
+  return raw;
 }
 
 function setActiveLanguageButton(lang) {
@@ -1299,7 +1336,7 @@ async function handleLogin() {
     });
     const data = await response.json();
     if (!response.ok) {
-      throw new Error(data.error || t("error_login_failed"));
+      throw new Error(localizeApiMessage(data.error, "error_login_failed"));
     }
 
     if (!data.user || data.user.role !== "parent") {
@@ -1315,7 +1352,7 @@ async function handleLogin() {
     updateAuthUi();
     render();
   } catch (error) {
-    authStatusLine.textContent = error.message;
+    authStatusLine.textContent = localizeApiMessage(error.message, "error_login_failed");
   }
 }
 
@@ -1359,7 +1396,7 @@ async function handleRegister() {
     });
     const data = await response.json();
     if (!response.ok) {
-      throw new Error(data.error || t("error_registration_failed"));
+      throw new Error(localizeApiMessage(data.error, "error_registration_failed"));
     }
     if (!data.user || data.user.role !== "parent") {
       throw new Error(t("error_parent_only_create"));
@@ -1381,7 +1418,7 @@ async function handleRegister() {
     updateAuthUi();
     render();
   } catch (error) {
-    authStatusLine.textContent = error.message;
+    authStatusLine.textContent = localizeApiMessage(error.message, "error_registration_failed");
     await loadCaptchaChallenge();
   }
 }
@@ -1405,12 +1442,12 @@ async function handleForgotPassword() {
     });
     const data = await response.json();
     if (!response.ok) {
-      throw new Error(data.error || t("error_request_reset_failed"));
+      throw new Error(localizeApiMessage(data.error, "error_request_reset_failed"));
     }
 
-    forgotStatus.textContent = data.message || t("reset_sent");
+    forgotStatus.textContent = localizeApiMessage(data.message, "reset_sent");
   } catch (error) {
-    forgotStatus.textContent = error.message;
+    forgotStatus.textContent = localizeApiMessage(error.message, "error_request_reset_failed");
   }
 }
 
@@ -1433,16 +1470,16 @@ async function handleResetPassword() {
     });
     const data = await response.json();
     if (!response.ok) {
-      throw new Error(data.error || t("error_reset_failed"));
+      throw new Error(localizeApiMessage(data.error, "error_reset_failed"));
     }
 
-    resetStatus.textContent = data.message || t("reset_success");
+    resetStatus.textContent = localizeApiMessage(data.message, "reset_success");
     resetNewPasswordInput.value = "";
     state.resetToken = "";
     clearResetTokenFromQuery();
     updateResetModeUi();
   } catch (error) {
-    resetStatus.textContent = error.message;
+    resetStatus.textContent = localizeApiMessage(error.message, "error_reset_failed");
   }
 }
 

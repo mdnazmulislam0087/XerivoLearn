@@ -48,29 +48,56 @@
             </figure>
           </div>
           <div class="showcase-copy">
-            <h1 data-i18n="hero_title">A Magical Cartoon World</h1>
+            <h1 data-i18n="hero_title">A Magical Cartoon World for Ages 3-10</h1>
             <p data-i18n="hero_text">
-              Happy songs, bedtime stories, and playful science cartoons made for little learners.
+              Safe cartoon lessons, bedtime stories, and playful science for happy little learners.
             </p>
             <div class="showcase-actions">
               <a id="hero-parent-link" class="btn btn-primary" href="https://app.xerivolearn.com" data-i18n="cta_parent">
-                Enter Parent App
+                Start for Parents
               </a>
-              <a
-                id="hero-educator-link"
-                class="btn btn-primary ghost"
-                href="https://educator.xerivolearn.com"
-                data-i18n="cta_educator"
-              >
-                Educator Portal
+              <button id="demo-open" class="btn btn-secondary" type="button" data-i18n="cta_demo">Watch 30-sec Demo</button>
+            </div>
+            <div class="hero-secondary-links">
+              <a id="hero-educator-link" href="https://educator.xerivolearn.com" data-i18n="cta_educator_secondary">
+                Educator Login
               </a>
+              <a id="hero-admin-link" href="https://admin.xerivolearn.com" data-i18n="cta_admin_secondary">Admin CMS</a>
             </div>
           </div>
         </section>
 
+        <section class="trust-strip" aria-label="Parent trust quick facts">
+          <p class="trust-strip-title" data-i18n="trust_strip_title">Trusted by Parents:</p>
+          <div class="trust-strip-items">
+            <span data-i18n="trust_strip_1">Safe Content</span>
+            <span data-i18n="trust_strip_2">No Ads</span>
+            <span data-i18n="trust_strip_3">Age Filtered</span>
+            <span data-i18n="trust_strip_4">Bangla + English</span>
+          </div>
+        </section>
+
+        <section class="social-proof" aria-label="Community stats">
+          <article>
+            <p class="stat-value" data-i18n="stat_1_value">500+</p>
+            <p class="stat-label" data-i18n="stat_1_label">Families learning weekly</p>
+          </article>
+          <article>
+            <p class="stat-value" data-i18n="stat_2_value">1,000+</p>
+            <p class="stat-label" data-i18n="stat_2_label">Lessons watched this month</p>
+          </article>
+          <article>
+            <p class="stat-value" data-i18n="stat_3_value">4.8/5</p>
+            <p class="stat-label" data-i18n="stat_3_label">Average parent rating</p>
+          </article>
+        </section>
+
         <section class="showcase-features" aria-label="Feature highlights">
           <article class="show-tile tile-blue">
-            <p class="tile-icon" aria-hidden="true">&#128290;</p>
+            <div class="tile-thumb">
+              <img src="./assets/characters/fox.svg" alt="Alphabet and numbers cartoon preview" />
+              <span aria-hidden="true" class="tile-play">&#9654;</span>
+            </div>
             <h2>
               <span data-i18n="topic_alpha">Alphabet</span>
               <span>&amp;</span>
@@ -78,12 +105,18 @@
             </h2>
           </article>
           <article class="show-tile tile-mint">
-            <p class="tile-icon" aria-hidden="true">&#127769;</p>
+            <div class="tile-thumb">
+              <img src="./assets/characters/penguin.svg" alt="Bedtime story cartoon preview" />
+              <span aria-hidden="true" class="tile-play">&#9654;</span>
+            </div>
             <h2 data-i18n="topic_story">Bedtime Stories</h2>
           </article>
           <article class="show-tile tile-green">
-            <p class="tile-icon" aria-hidden="true">&#127760;</p>
-            <h2 data-i18n="trust_item_3_title">Bangla + English mode</h2>
+            <div class="tile-thumb">
+              <img src="./assets/characters/bear.svg" alt="Bilingual cartoon preview" />
+              <span aria-hidden="true" class="tile-play">&#9654;</span>
+            </div>
+            <h2 data-i18n="trust_item_3_title">Bilingual Mode (Bangla + English)</h2>
           </article>
         </section>
 
@@ -98,6 +131,28 @@
           </a>
         </section>
       </section>
+
+      <dialog id="demo-dialog" class="demo-dialog" aria-labelledby="demo-title">
+        <div class="demo-shell">
+          <div class="demo-head">
+            <h3 id="demo-title" data-i18n="demo_title">30-second XerivoLearn Preview</h3>
+            <button id="demo-close" class="demo-close" type="button" aria-label="Close">X</button>
+          </div>
+          <div class="demo-player">
+            <div class="demo-frame">
+              <img class="demo-scene active" src="./assets/characters/fox.svg" alt="Alphabet demo scene" />
+              <img class="demo-scene" src="./assets/characters/penguin.svg" alt="Story demo scene" />
+              <img class="demo-scene" src="./assets/characters/bear.svg" alt="Science demo scene" />
+            </div>
+            <p id="demo-caption" class="demo-caption" data-i18n="demo_caption_1">Scene 1: Alphabet song with cartoon friends</p>
+            <div class="demo-progress"><span id="demo-progress-bar"></span></div>
+            <div class="demo-controls">
+              <button id="demo-toggle" type="button" data-i18n="demo_pause">Pause</button>
+              <span id="demo-time">00:00 / 00:30</span>
+            </div>
+          </div>
+        </div>
+      </dialog>
 
       <section class="topics card">
         <div class="section-head">
@@ -225,10 +280,13 @@
             nav_educators: "Educators",
             nav_admin: "Admin CMS",
             hero_chip: "Ages 3-10",
-            hero_title: "A Magical Cartoon World",
-            hero_text: "Happy songs, bedtime stories, and playful science cartoons made for little learners.",
-            cta_parent: "Enter Parent App",
+            hero_title: "A Magical Cartoon World for Ages 3-10",
+            hero_text: "Safe cartoon lessons, bedtime stories, and playful science for happy little learners.",
+            cta_parent: "Start for Parents",
             cta_educator: "Educator Portal",
+            cta_demo: "Watch 30-sec Demo",
+            cta_educator_secondary: "Educator Login",
+            cta_admin_secondary: "Admin CMS",
             pill_1: "Bilingual learning",
             pill_2: "Safe for children",
             pill_3: "Mobile friendly",
@@ -254,6 +312,17 @@
             preview_3_meta: "Age 3-8 | 5:18",
             preview_4_title: "Tiny Science Lab",
             preview_4_meta: "Age 6-10 | 6:20",
+            trust_strip_title: "Trusted by Parents:",
+            trust_strip_1: "Safe Content",
+            trust_strip_2: "No Ads",
+            trust_strip_3: "Age Filtered",
+            trust_strip_4: "Bangla + English",
+            stat_1_value: "500+",
+            stat_1_label: "Families learning weekly",
+            stat_2_value: "1,000+",
+            stat_2_label: "Lessons watched this month",
+            stat_3_value: "4.8/5",
+            stat_3_label: "Average parent rating",
             trust_title: "Why parents trust XerivoLearn",
             trust_text: "Built for happy kids and low-stress parenting.",
             trust_item_1_title: "Child-safe content",
@@ -279,18 +348,27 @@
             educator_price: "$20/year",
             educator_plan: "Educator Plan",
             educator_plan_text: "Designed for teachers with annual classroom access.",
-            start_educator: "Start Educator Plan"
+            start_educator: "Start Educator Plan",
+            demo_title: "30-second XerivoLearn Preview",
+            demo_caption_1: "Scene 1: Alphabet song with cartoon friends",
+            demo_caption_2: "Scene 2: Bedtime story time with calm narration",
+            demo_caption_3: "Scene 3: Fun science cartoon mini lesson",
+            demo_pause: "Pause",
+            demo_play: "Play"
           },
           bn: {
             nav_parents: "প্যারেন্টস",
             nav_educators: "এডুকেটরস",
             nav_admin: "অ্যাডমিন CMS",
             hero_chip: "বয়স ৩-১০",
-            hero_title: "কৌতূহলী শিশুদের জন্য জাদুকরী কার্টুন ক্লাসরুম",
+            hero_title: "৩-১০ বছরের শিশুদের জন্য এক জাদুকরী কার্টুন দুনিয়া",
             hero_text:
-              "ছোট ছোট অ্যানিমেটেড লেসন, ঘুমপাড়ানি গল্প আর মজার বিজ্ঞান ভিডিও, যা বাচ্চারা পছন্দ করে এবং অভিভাবকরা বিশ্বাস করেন।",
-            cta_parent: "প্যারেন্ট অ্যাপে প্রবেশ করুন",
+              "নিরাপদ কার্টুন লেসন, ঘুমপাড়ানি গল্প আর মজার বিজ্ঞান ভিডিও, যা শিশুরা আনন্দ নিয়ে দেখে।",
+            cta_parent: "প্যারেন্টদের জন্য শুরু করুন",
             cta_educator: "এডুকেটর পোর্টাল",
+            cta_demo: "৩০ সেকেন্ড ডেমো দেখুন",
+            cta_educator_secondary: "এডুকেটর লগইন",
+            cta_admin_secondary: "অ্যাডমিন CMS",
             pill_1: "দ্বিভাষিক শেখা",
             pill_2: "শিশুদের জন্য নিরাপদ",
             pill_3: "মোবাইল ফ্রেন্ডলি",
@@ -316,6 +394,17 @@
             preview_3_meta: "বয়স ৩-৮ | ৫:১৮",
             preview_4_title: "টিনি সায়েন্স ল্যাব",
             preview_4_meta: "বয়স ৬-১০ | ৬:২০",
+            trust_strip_title: "অভিভাবকদের বিশ্বাস:",
+            trust_strip_1: "নিরাপদ কনটেন্ট",
+            trust_strip_2: "কোনো বিজ্ঞাপন নেই",
+            trust_strip_3: "বয়সভিত্তিক ফিল্টার",
+            trust_strip_4: "বাংলা + ইংরেজি",
+            stat_1_value: "৫০০+",
+            stat_1_label: "পরিবার প্রতি সপ্তাহে শিখছে",
+            stat_2_value: "১,০০০+",
+            stat_2_label: "এই মাসে দেখা লেসন",
+            stat_3_value: "৪.৮/৫",
+            stat_3_label: "গড় অভিভাবক রেটিং",
             trust_title: "কেন অভিভাবকরা XerivoLearn বিশ্বাস করেন",
             trust_text: "শিশুর আনন্দ আর অভিভাবকের স্বস্তির জন্য তৈরি।",
             trust_item_1_title: "শিশু-নিরাপদ কনটেন্ট",
@@ -341,7 +430,13 @@
             educator_price: "৳২০০০ / বছর",
             educator_plan: "এডুকেটর প্ল্যান",
             educator_plan_text: "শিক্ষকদের জন্য বার্ষিক ক্লাসরুম অ্যাক্সেস।",
-            start_educator: "এডুকেটর প্ল্যান শুরু করুন"
+            start_educator: "এডুকেটর প্ল্যান শুরু করুন",
+            demo_title: "৩০ সেকেন্ডের XerivoLearn প্রিভিউ",
+            demo_caption_1: "দৃশ্য ১: কার্টুন বন্ধুদের সাথে বর্ণমালার গান",
+            demo_caption_2: "দৃশ্য ২: শান্ত ঘুমপাড়ানি গল্পের সময়",
+            demo_caption_3: "দৃশ্য ৩: মজার বিজ্ঞান ছোট্ট লেসন",
+            demo_pause: "থামান",
+            demo_play: "চালু করুন"
           }
         };
 
@@ -352,9 +447,11 @@
           "nav-admin-link",
           "hero-parent-link",
           "hero-educator-link",
+          "hero-admin-link",
           "price-parent-link",
           "price-educator-link"
         ];
+        let demoState = null;
 
         function t(lang, key) {
           return (translations[lang] && translations[lang][key]) || translations.en[key] || key;
@@ -394,6 +491,7 @@
               node.href = withLang(node.href, target);
             }
           });
+          syncDemoLabels(target);
 
           if (options.persist !== false) {
             try {
@@ -436,6 +534,7 @@
 
           const parentTargets = ["nav-parent-link", "hero-parent-link", "price-parent-link"];
           const educatorTargets = ["nav-educator-link", "hero-educator-link", "price-educator-link"];
+          const adminTargets = ["nav-admin-link", "hero-admin-link"];
 
           parentTargets.forEach((id) => {
             const node = document.getElementById(id);
@@ -451,13 +550,146 @@
             }
           });
 
-          const admin = document.getElementById("nav-admin-link");
-          if (admin) {
-            admin.href = "/admin/";
+          adminTargets.forEach((id) => {
+            const node = document.getElementById(id);
+            if (node) {
+              node.href = "/admin/";
+            }
+          });
+        }
+
+        function syncDemoLabels(lang) {
+          if (!demoState) {
+            return;
+          }
+          const captionKey = `demo_caption_${demoState.sceneIndex + 1}`;
+          if (demoState.caption) {
+            demoState.caption.textContent = t(lang, captionKey);
+          }
+          if (demoState.toggle) {
+            demoState.toggle.textContent = demoState.isPlaying ? t(lang, "demo_pause") : t(lang, "demo_play");
           }
         }
 
+        function setupDemoPreview() {
+          const dialog = document.getElementById("demo-dialog");
+          const openBtn = document.getElementById("demo-open");
+          const closeBtn = document.getElementById("demo-close");
+          const toggleBtn = document.getElementById("demo-toggle");
+          const scenes = Array.from(document.querySelectorAll(".demo-scene"));
+          const caption = document.getElementById("demo-caption");
+          const progressBar = document.getElementById("demo-progress-bar");
+          const time = document.getElementById("demo-time");
+          if (!dialog || !openBtn || !closeBtn || !toggleBtn || scenes.length === 0 || !caption || !progressBar || !time) {
+            return;
+          }
+
+          const totalMs = 30000;
+          const sceneMs = totalMs / scenes.length;
+          let elapsedMs = 0;
+          let timer = null;
+
+          demoState = {
+            toggle: toggleBtn,
+            caption,
+            sceneIndex: 0,
+            isPlaying: false
+          };
+
+          function formatTime(ms) {
+            const totalSeconds = Math.max(0, Math.floor(ms / 1000));
+            const mm = String(Math.floor(totalSeconds / 60)).padStart(2, "0");
+            const ss = String(totalSeconds % 60).padStart(2, "0");
+            return `${mm}:${ss}`;
+          }
+
+          function render() {
+            const safeElapsed = Math.min(totalMs, Math.max(0, elapsedMs));
+            const index = Math.min(scenes.length - 1, Math.floor(safeElapsed / sceneMs));
+            demoState.sceneIndex = index;
+            scenes.forEach((scene, sceneIndex) => {
+              scene.classList.toggle("active", sceneIndex === index);
+            });
+            progressBar.style.width = `${(safeElapsed / totalMs) * 100}%`;
+            time.textContent = `${formatTime(safeElapsed)} / 00:30`;
+            syncDemoLabels(document.documentElement.lang || "en");
+          }
+
+          function stopTimer() {
+            if (timer) {
+              window.clearInterval(timer);
+              timer = null;
+            }
+          }
+
+          function startTimer(reset = false) {
+            if (reset) {
+              elapsedMs = 0;
+            }
+            stopTimer();
+            demoState.isPlaying = true;
+            syncDemoLabels(document.documentElement.lang || "en");
+            timer = window.setInterval(() => {
+              elapsedMs += 250;
+              if (elapsedMs >= totalMs) {
+                elapsedMs = totalMs;
+                demoState.isPlaying = false;
+                stopTimer();
+              }
+              render();
+            }, 250);
+            render();
+          }
+
+          function pause() {
+            demoState.isPlaying = false;
+            stopTimer();
+            syncDemoLabels(document.documentElement.lang || "en");
+          }
+
+          function resume() {
+            startTimer(false);
+          }
+
+          function openDialog() {
+            if (typeof dialog.showModal === "function") {
+              dialog.showModal();
+            } else {
+              dialog.setAttribute("open", "open");
+            }
+            startTimer(true);
+          }
+
+          function closeDialog() {
+            pause();
+            elapsedMs = 0;
+            render();
+            if (typeof dialog.close === "function") {
+              dialog.close();
+            } else {
+              dialog.removeAttribute("open");
+            }
+          }
+
+          openBtn.addEventListener("click", openDialog);
+          closeBtn.addEventListener("click", closeDialog);
+          toggleBtn.addEventListener("click", () => {
+            if (demoState.isPlaying) {
+              pause();
+            } else {
+              resume();
+            }
+          });
+          dialog.addEventListener("cancel", (event) => {
+            event.preventDefault();
+            closeDialog();
+          });
+
+          render();
+        }
+
         applySingleHostFallback();
+        setupDemoPreview();
         applyLanguage(initialLanguage(), { persist: false });
 
         document.getElementById("lang-en").addEventListener("click", () => applyLanguage("en"));

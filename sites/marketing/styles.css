@@ -31,6 +31,18 @@ body {
   overflow-x: hidden;
 }
 
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+img,
+svg {
+  max-width: 100%;
+  height: auto;
+}
+
 h1,
 h2,
 h3,
@@ -117,11 +129,13 @@ html[lang="bn"] .trust-benefit h4 {
   display: flex;
   align-items: center;
   gap: 10px;
+  min-width: 0;
 }
 
 .site-nav {
   display: flex;
   gap: 8px;
+  min-width: 0;
 }
 
 .site-nav a {
@@ -133,6 +147,9 @@ html[lang="bn"] .trust-benefit h4 {
   border-radius: 12px;
   padding: 9px 12px;
   transition: transform 0.18s ease;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  text-align: center;
 }
 
 .site-nav a:hover {
@@ -170,12 +187,14 @@ html[lang="bn"] .trust-benefit h4 {
   margin: 14px auto 34px;
   display: grid;
   gap: 16px;
+  min-width: 0;
 }
 
 .hero {
   display: grid;
   grid-template-columns: minmax(0, 1.02fr) minmax(0, 0.98fr);
   gap: 12px;
+  min-width: 0;
 }
 
 .hero-copy,
@@ -191,6 +210,7 @@ html[lang="bn"] .trust-benefit h4 {
   border: 1px solid #ffffff;
   background: linear-gradient(165deg, var(--card), #fffffffa);
   box-shadow: 0 18px 40px #4074a81f;
+  min-width: 0;
 }
 
 .hero-copy {
@@ -212,6 +232,7 @@ html[lang="bn"] .trust-benefit h4 {
   margin: 10px 0 10px;
   font-size: clamp(2rem, 4.8vw, 3.9rem);
   line-height: 1.03;
+  overflow-wrap: anywhere;
 }
 
 .hero-text {
@@ -220,6 +241,7 @@ html[lang="bn"] .trust-benefit h4 {
   line-height: 1.58;
   font-size: 1.04rem;
   font-weight: 700;
+  overflow-wrap: anywhere;
 }
 
 .hero-actions-row {
@@ -419,6 +441,7 @@ html[lang="bn"] .trust-benefit h4 {
   border: 1px solid #ffffff;
   box-shadow: 0 12px 24px #3f6ea314;
   background: linear-gradient(170deg, #ffffff, #fff9ef);
+  min-width: 0;
 }
 
 .feature-card:nth-child(2) {
@@ -478,6 +501,7 @@ html[lang="bn"] .trust-benefit h4 {
 .trust-main {
   padding: 14px;
   background: linear-gradient(165deg, #ffffff, #f6fcff);
+  min-width: 0;
 }
 
 .trust-main h3 {
@@ -500,6 +524,7 @@ html[lang="bn"] .trust-benefit h4 {
 .trust-benefit {
   padding: 12px;
   background: linear-gradient(165deg, #fffdf6, #fff8ea);
+  min-width: 0;
 }
 
 .trust-benefit:nth-child(2) {
@@ -556,6 +581,7 @@ html[lang="bn"] .trust-benefit h4 {
   overflow: hidden;
   background: linear-gradient(160deg, #ffffff, #fffaf4);
   box-shadow: 0 11px 24px #3f6ea61f;
+  min-width: 0;
 }
 
 .sample-thumb.two {
@@ -651,6 +677,7 @@ html[lang="bn"] .trust-benefit h4 {
   padding: 12px;
   background: linear-gradient(165deg, #ffffff, #fffdf7);
   box-shadow: 0 11px 24px #406da61a;
+  min-width: 0;
 }
 
 .testimonial-card:nth-child(2) {
@@ -666,12 +693,14 @@ html[lang="bn"] .trust-benefit h4 {
   color: #335987;
   line-height: 1.55;
   font-weight: 700;
+  overflow-wrap: anywhere;
 }
 
 .author {
   margin: 10px 0 0;
   font-weight: 800;
   color: #264777;
+  overflow-wrap: anywhere;
 }
 
 .features,
@@ -688,12 +717,14 @@ html[lang="bn"] .trust-benefit h4 {
 .section-head h2 {
   margin: 0;
   font-size: clamp(1.78rem, 3vw, 2.7rem);
+  overflow-wrap: anywhere;
 }
 
 .section-head p {
   margin: 6px 0 0;
   color: var(--muted);
   font-weight: 700;
+  overflow-wrap: anywhere;
 }
 
 .friend-grid {
@@ -758,6 +789,7 @@ html[lang="bn"] .trust-benefit h4 {
   border: 1px solid #ffffff;
   padding: 14px;
   box-shadow: inset 0 0 0 1px #ffffff9b;
+  min-width: 0;
 }
 
 .parent-plan {
@@ -791,6 +823,7 @@ html[lang="bn"] .trust-benefit h4 {
   margin: 6px 0 0;
   color: #3e5b8d;
   font-weight: 800;
+  overflow-wrap: anywhere;
 }
 
 .plan-card ul {
@@ -820,6 +853,7 @@ html[lang="bn"] .trust-benefit h4 {
   border: 1px solid #ffffff;
   padding: 13px;
   box-shadow: 0 11px 24px #406da61a;
+  min-width: 0;
 }
 
 .journey-card h3 {
@@ -832,6 +866,7 @@ html[lang="bn"] .trust-benefit h4 {
   color: #3d5788;
   line-height: 1.5;
   font-weight: 700;
+  overflow-wrap: anywhere;
 }
 
 .journey-card.parents {
@@ -953,16 +988,28 @@ html[lang="bn"] .trust-benefit h4 {
 
   .site-nav {
     width: 100%;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .site-nav a {
-    flex: 1;
+    width: 100%;
     text-align: center;
+    padding: 10px 8px;
+    font-size: 0.94rem;
+  }
+
+  .site-nav a:last-child {
+    grid-column: 1 / -1;
   }
 
   .lang-switch {
     justify-content: space-between;
+    width: 100%;
+  }
+
+  .lang-switch button {
+    flex: 1;
   }
 
   .plan-grid {
@@ -997,6 +1044,21 @@ html[lang="bn"] .trust-benefit h4 {
 }
 
 @media (max-width: 620px) {
+  .site-header,
+  .page {
+    width: min(1180px, calc(100% - 14px));
+  }
+
+  .site-header {
+    padding: 12px;
+    border-radius: 18px;
+  }
+
+  .logo {
+    font-size: clamp(1.45rem, 7.8vw, 1.95rem);
+    text-align: center;
+  }
+
   .hero-copy,
   .features,
   .parent-trust,
@@ -1020,8 +1082,17 @@ html[lang="bn"] .trust-benefit h4 {
     text-align: center;
   }
 
+  .hero-copy h1 {
+    font-size: clamp(1.7rem, 8.4vw, 2.2rem);
+    line-height: 1.08;
+  }
+
+  .hero-text {
+    font-size: 0.95rem;
+  }
+
   .hero-scene {
-    min-height: 410px;
+    min-height: 370px;
   }
 
   .hero-character {
@@ -1066,12 +1137,39 @@ html[lang="bn"] .trust-benefit h4 {
     grid-template-columns: 1fr;
   }
 
+  .carousel-viewport {
+    padding: 8px;
+  }
+
   .sample-thumb {
-    flex-basis: min(84vw, 248px);
-    width: min(84vw, 248px);
+    flex-basis: clamp(196px, 78vw, 238px);
+    width: clamp(196px, 78vw, 238px);
   }
 
   .trust-main h3 {
     font-size: 1.35rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .site-nav {
+    grid-template-columns: 1fr;
+  }
+
+  .site-nav a:last-child {
+    grid-column: auto;
+  }
+
+  .hero-scene {
+    min-height: 350px;
+  }
+
+  .hero-character {
+    width: 108px;
+  }
+
+  .speech {
+    max-width: 112px;
+    font-size: 0.74rem;
   }
 }

@@ -378,7 +378,7 @@ html[lang="bn"] .brand {
   filter: drop-shadow(0 14px 20px rgba(70, 92, 126, 0.2));
 }
 
-.mascot-bunny {
+.mascot-cat {
   width: min(52vw, 250px);
   left: -8px;
   bottom: -4px;
@@ -395,10 +395,10 @@ html[lang="bn"] .brand {
   animation-delay: -0.5s;
 }
 
-.mascot-robot {
-  width: min(24vw, 124px);
+.mascot-mouse {
+  width: min(26vw, 132px);
   right: 0;
-  top: 8px;
+  top: 6px;
   z-index: 1;
   animation: floatUp 4.8s ease-in-out infinite;
   animation-delay: -1s;

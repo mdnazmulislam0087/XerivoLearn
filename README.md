@@ -149,3 +149,4 @@ Notes:
 - Keep `ADMIN_PASSWORD`, `EDUCATOR_PASSWORD`, and `JWT_SECRET` strong.
 - Password reset emails are sent automatically when SMTP (`SMTP_*`) or Resend (`RESEND_API_KEY` + `PASSWORD_RESET_FROM_EMAIL`) is configured.
 - If no provider is configured, reset links are logged only for server-side debugging.
+- In Railway Raw Editor, prefer `KEY=value` without wrapping values in quotes.

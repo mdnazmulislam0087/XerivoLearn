@@ -22,38 +22,41 @@ try {
 const ROOT_DIR = path.resolve(__dirname, "..");
 loadDotEnv(path.join(ROOT_DIR, ".env"));
 
-const PORT = Number(process.env.PORT || 8080);
-const ADMIN_TOKEN = process.env.ADMIN_TOKEN || "";
-const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || "admin@xerivolearn.com").toLowerCase();
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "Admin123!change";
-const EDUCATOR_EMAIL = (process.env.EDUCATOR_EMAIL || "educator@xerivolearn.com").toLowerCase();
-const EDUCATOR_PASSWORD = process.env.EDUCATOR_PASSWORD || "Educator123!change";
-const EDUCATOR_NAME = process.env.EDUCATOR_NAME || "Xerivo Educator";
-const JWT_SECRET = process.env.JWT_SECRET || ADMIN_TOKEN || "change-this-jwt-secret";
-const JWT_TTL_SECONDS = Number(process.env.JWT_TTL_SECONDS || 60 * 60 * 24 * 7);
+const NODE_ENV = envString("NODE_ENV", "");
+const IS_PRODUCTION = NODE_ENV === "production";
+const PORT = envNumber("PORT", 8080);
+const ADMIN_TOKEN = envString("ADMIN_TOKEN", "");
+const ADMIN_EMAIL = envString("ADMIN_EMAIL", "admin@xerivolearn.com").toLowerCase();
+const ADMIN_PASSWORD = envString("ADMIN_PASSWORD", "Admin123!change");
+const EDUCATOR_EMAIL = envString("EDUCATOR_EMAIL", "educator@xerivolearn.com").toLowerCase();
+const EDUCATOR_PASSWORD = envString("EDUCATOR_PASSWORD", "Educator123!change");
+const EDUCATOR_NAME = envString("EDUCATOR_NAME", "Xerivo Educator");
+const JWT_SECRET = envString("JWT_SECRET", ADMIN_TOKEN || "change-this-jwt-secret");
+const JWT_TTL_SECONDS = envNumber("JWT_TTL_SECONDS", 60 * 60 * 24 * 7);
 
-const APP_BASE_URL = (process.env.APP_BASE_URL || "").trim();
-const PASSWORD_RESET_TTL_MINUTES = Number(process.env.PASSWORD_RESET_TTL_MINUTES || 30);
-const PASSWORD_RESET_DEBUG = String(process.env.PASSWORD_RESET_DEBUG || "false").toLowerCase() === "true";
-const PASSWORD_RESET_WEBHOOK_URL = (process.env.PASSWORD_RESET_WEBHOOK_URL || "").trim();
-const PASSWORD_RESET_FROM_EMAIL = (process.env.PASSWORD_RESET_FROM_EMAIL || "").trim();
-const RESEND_API_KEY = (process.env.RESEND_API_KEY || "").trim();
-const CAPTCHA_TTL_MINUTES = Number(process.env.CAPTCHA_TTL_MINUTES || 10);
-const DATABASE_URL = (process.env.DATABASE_URL || "").trim();
-const REQUIRE_POSTGRES =
-  String(process.env.REQUIRE_POSTGRES || (process.env.NODE_ENV === "production" ? "true" : "false")).toLowerCase() ===
-  "true";
-const PG_SSL =
-  String(process.env.PG_SSL || (process.env.NODE_ENV === "production" ? "true" : "false")).toLowerCase() ===
-  "true";
-const SMTP_HOST = (process.env.SMTP_HOST || "").trim();
-const SMTP_PORT = Number(process.env.SMTP_PORT || 587);
-const SMTP_USER = (process.env.SMTP_USER || "").trim();
-const SMTP_PASS = (process.env.SMTP_PASS || "").trim();
-const SMTP_SECURE =
-  String(process.env.SMTP_SECURE || (SMTP_PORT === 465 ? "true" : "false")).toLowerCase() === "true";
-const SMTP_FROM_EMAIL = (process.env.SMTP_FROM_EMAIL || PASSWORD_RESET_FROM_EMAIL || SMTP_USER).trim();
+const APP_BASE_URL = envString("APP_BASE_URL", "");
+const PASSWORD_RESET_TTL_MINUTES = envNumber("PASSWORD_RESET_TTL_MINUTES", 30);
+const PASSWORD_RESET_DEBUG = envBoolean("PASSWORD_RESET_DEBUG", false);
+const PASSWORD_RESET_WEBHOOK_URL = envString("PASSWORD_RESET_WEBHOOK_URL", "");
+const PASSWORD_RESET_FROM_EMAIL = envString("PASSWORD_RESET_FROM_EMAIL", "");
+const RESEND_API_KEY = envString("RESEND_API_KEY", "");
+const CAPTCHA_TTL_MINUTES = envNumber("CAPTCHA_TTL_MINUTES", 10);
+const DATABASE_URL = envString("DATABASE_URL", "");
+const REQUIRE_POSTGRES = envBoolean("REQUIRE_POSTGRES", IS_PRODUCTION);
+const PG_SSL = envBoolean("PG_SSL", IS_PRODUCTION);
+const SMTP_HOST = envString("SMTP_HOST", "");
+const SMTP_PORT = envNumber("SMTP_PORT", 587);
+const SMTP_USER = envString("SMTP_USER", "");
+const SMTP_PASS = envString("SMTP_PASS", "");
+const SMTP_SECURE = envBoolean("SMTP_SECURE", SMTP_PORT === 465);
+const SMTP_FROM_EMAIL = envString("SMTP_FROM_EMAIL", PASSWORD_RESET_FROM_EMAIL || SMTP_USER);
 const USE_POSTGRES = Boolean(DATABASE_URL);
+
+if (DATABASE_URL.includes("${{")) {
+  throw new Error(
+    "DATABASE_URL appears unresolved (contains '${{...}}'). In Railway, set DATABASE_URL as a Reference to Postgres.DATABASE_URL."
+  );
+}
 
 if (REQUIRE_POSTGRES && !USE_POSTGRES) {
   throw new Error(
@@ -837,7 +840,7 @@ async function initializeStorage() {
   ensureDataStore();
   if (!USE_POSTGRES) {
     console.log("Storage mode: JSON files");
-    if (process.env.NODE_ENV === "production") {
+    if (IS_PRODUCTION) {
       console.warn(
         "Production is running without DATABASE_URL. Data will be file-based and may not persist on Railway restarts."
       );
@@ -2146,6 +2149,52 @@ function validateVideoInput(payload, { creating }) {
 
 function sortByNewest(a, b) {
   return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+}
+
+function envString(key, fallback = "") {
+  if (!(key in process.env)) {
+    return String(fallback);
+  }
+  return normalizeEnvValue(process.env[key], String(fallback));
+}
+
+function envNumber(key, fallback) {
+  const raw = envString(key, "");
+  if (!raw) {
+    return fallback;
+  }
+  const value = Number(raw);
+  return Number.isFinite(value) ? value : fallback;
+}
+
+function envBoolean(key, fallback = false) {
+  const raw = envString(key, "");
+  if (!raw) {
+    return fallback;
+  }
+  const normalized = raw.toLowerCase();
+  if (normalized === "true" || normalized === "1" || normalized === "yes" || normalized === "on") {
+    return true;
+  }
+  if (normalized === "false" || normalized === "0" || normalized === "no" || normalized === "off") {
+    return false;
+  }
+  return fallback;
+}
+
+function normalizeEnvValue(value, fallback = "") {
+  const raw = String(value ?? "").trim();
+  if (!raw) {
+    return fallback;
+  }
+
+  const hasDoubleQuotes = raw.startsWith('"') && raw.endsWith('"') && raw.length >= 2;
+  const hasSingleQuotes = raw.startsWith("'") && raw.endsWith("'") && raw.length >= 2;
+  if (hasDoubleQuotes || hasSingleQuotes) {
+    return raw.slice(1, -1).trim();
+  }
+
+  return raw;
 }
 
 function loadDotEnv(filePath) {

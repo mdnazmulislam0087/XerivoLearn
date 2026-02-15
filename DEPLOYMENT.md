@@ -32,6 +32,7 @@
    - Optional: `PASSWORD_RESET_WEBHOOK_URL=https://your-email-worker.example/send`
    - Optional: `CAPTCHA_TTL_MINUTES=10`
 5. Deploy. Railway uses `railway.json` and starts with `npm start`.
+6. In Railway Raw Editor, prefer `KEY=value` without wrapping values in quotes.
 
 ## 2) Attach Domains in Railway
 

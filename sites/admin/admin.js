@@ -13,11 +13,16 @@ const TRANSLATIONS = {
     nav_admin: "Admin CMS",
 
     auth_title: "Admin Access",
+    auth_title_logged_in: "Admin Profile",
     auth_subtitle: "Sign in with your admin account to access video publication controls.",
+    auth_subtitle_logged_in: "You are signed in. Manage CMS and content from the shortcuts below.",
     ph_admin_email: "Admin email",
     ph_admin_password: "Admin password",
     btn_sign_in: "Sign In",
     btn_logout: "Logout",
+    profile_label: "Admin Profile",
+    btn_cms_management: "CMS Management",
+    btn_content_management: "Content Management",
 
     stats_title: "Library Snapshot",
     stats_total: "Total Videos",
@@ -97,11 +102,16 @@ const TRANSLATIONS = {
     nav_admin: "অ্যাডমিন সিএমএস",
 
     auth_title: "অ্যাডমিন অ্যাক্সেস",
+    auth_title_logged_in: "অ্যাডমিন প্রোফাইল",
     auth_subtitle: "ভিডিও পাবলিকেশন কন্ট্রোল ব্যবহার করতে অ্যাডমিন অ্যাকাউন্টে সাইন ইন করুন।",
+    auth_subtitle_logged_in: "আপনি সাইন ইন করেছেন। নিচের শর্টকাট থেকে সিএমএস এবং কনটেন্ট ম্যানেজ করুন।",
     ph_admin_email: "অ্যাডমিন ইমেইল",
     ph_admin_password: "অ্যাডমিন পাসওয়ার্ড",
     btn_sign_in: "সাইন ইন",
     btn_logout: "লগআউট",
+    profile_label: "অ্যাডমিন প্রোফাইল",
+    btn_cms_management: "সিএমএস ম্যানেজমেন্ট",
+    btn_content_management: "কনটেন্ট ম্যানেজমেন্ট",
 
     stats_title: "লাইব্রেরি সারাংশ",
     stats_total: "মোট ভিডিও",
@@ -195,11 +205,19 @@ const authLoginBtn = document.getElementById("auth-login-btn");
 const authLogoutBtn = document.getElementById("auth-logout-btn");
 const authStatus = document.getElementById("auth-status");
 const authUser = document.getElementById("auth-user");
+const authHeading = document.getElementById("auth-heading");
+const authSubtitle = document.getElementById("auth-subtitle");
+const authLoginControls = document.getElementById("auth-login-controls");
+const authSessionControls = document.getElementById("auth-session-controls");
 const navParentsLink = document.getElementById("nav-parents");
 const navEducatorsLink = document.getElementById("nav-educators");
 const navAdminLink = document.getElementById("nav-admin");
 const langEnButton = document.getElementById("lang-en");
 const langBnButton = document.getElementById("lang-bn");
+const jumpCmsBtn = document.getElementById("jump-cms-btn");
+const jumpContentBtn = document.getElementById("jump-content-btn");
+const cmsManagementSection = document.getElementById("cms-management");
+const contentManagementSection = document.getElementById("content-management");
 
 const formTitle = document.getElementById("form-title");
 const videoForm = document.getElementById("video-form");
@@ -297,6 +315,16 @@ if (langEnButton) {
 }
 if (langBnButton) {
   langBnButton.addEventListener("click", () => applyLanguage("bn"));
+}
+if (jumpCmsBtn) {
+  jumpCmsBtn.addEventListener("click", () => {
+    cmsManagementSection?.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+}
+if (jumpContentBtn) {
+  jumpContentBtn.addEventListener("click", () => {
+    contentManagementSection?.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
 }
 
 applyLanguage(loadLanguagePreference(), { persist: false });
@@ -564,21 +592,33 @@ function resetForm() {
 
 function showLoggedIn() {
   setCmsEnabled(true);
+  if (authLoginControls) {
+    authLoginControls.classList.add("hidden");
+  }
+  if (authSessionControls) {
+    authSessionControls.classList.remove("hidden");
+  }
   authStatus.textContent = t("status_authenticated");
   authUser.textContent = state.user
     ? t("status_logged_in_as", { name: state.user.name || "Admin", email: state.user.email || "" })
     : t("status_logged_in");
-  authLogoutBtn.classList.remove("hidden");
+  updateAuthPanelText();
 }
 
 function showLoggedOut(message) {
   setCmsEnabled(false);
+  if (authLoginControls) {
+    authLoginControls.classList.remove("hidden");
+  }
+  if (authSessionControls) {
+    authSessionControls.classList.add("hidden");
+  }
   authStatus.textContent = message || "";
   authUser.textContent = "";
-  authLogoutBtn.classList.add("hidden");
   state.videos = [];
   updateStats();
   videoList.innerHTML = `<p>${escapeHtml(t("status_signin_to_load"))}</p>`;
+  updateAuthPanelText();
 }
 
 function setCmsEnabled(enabled) {
@@ -759,12 +799,28 @@ function applyLanguage(lang, options = {}) {
     formTitle.textContent = t("form_add_title");
     saveBtn.textContent = t("btn_save_video");
   }
+  updateAuthPanelText();
 
   renderList();
 
   if (!state.user && !state.token && !authStatus.textContent) {
     authStatus.textContent = t("status_signin_to_manage");
   }
+}
+
+function updateAuthPanelText() {
+  if (!authHeading || !authSubtitle) {
+    return;
+  }
+
+  if (state.user && state.token) {
+    authHeading.textContent = t("auth_title_logged_in");
+    authSubtitle.textContent = t("auth_subtitle_logged_in");
+    return;
+  }
+
+  authHeading.textContent = t("auth_title");
+  authSubtitle.textContent = t("auth_subtitle");
 }
 
 function configurePortalLinks(lang = state.lang) {

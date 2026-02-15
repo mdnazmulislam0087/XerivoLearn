@@ -159,6 +159,36 @@ body {
   margin-bottom: 8px;
 }
 
+.auth-controls {
+  display: grid;
+  gap: 10px;
+}
+
+.admin-profile-card {
+  border: 1px solid #d9e7ff;
+  border-radius: 12px;
+  background: #f7fbff;
+  padding: 10px;
+}
+
+.profile-label {
+  margin: 0;
+  color: #3c5e95;
+  font-weight: 800;
+  font-size: 0.82rem;
+}
+
+.admin-shortcuts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.admin-shortcuts button {
+  border-radius: 999px;
+  padding: 8px 12px;
+}
+
 label {
   display: block;
   font-weight: 700;
@@ -223,7 +253,7 @@ button.muted {
 }
 
 .auth-user {
-  margin: 8px 0 0;
+  margin: 6px 0 0;
   color: #1d3f7a;
   font-weight: 700;
 }

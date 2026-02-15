@@ -34,15 +34,26 @@
     <main class="dashboard">
       <aside class="left-column">
         <section class="panel auth-panel">
-          <h2 data-i18n="auth_title">Admin Access</h2>
-          <p data-i18n="auth_subtitle">Sign in with your admin account to access video publication controls.</p>
-          <input id="auth-email" type="email" data-i18n-placeholder="ph_admin_email" placeholder="Admin email" />
-          <input id="auth-password" type="password" data-i18n-placeholder="ph_admin_password" placeholder="Admin password" />
-          <div class="actions">
-            <button id="auth-login-btn" type="button" data-i18n="btn_sign_in">Sign In</button>
-            <button id="auth-logout-btn" class="muted hidden" type="button" data-i18n="btn_logout">Logout</button>
+          <h2 id="auth-heading" data-i18n="auth_title">Admin Access</h2>
+          <p id="auth-subtitle" data-i18n="auth_subtitle">Sign in with your admin account to access video publication controls.</p>
+          <div id="auth-login-controls" class="auth-controls">
+            <input id="auth-email" type="email" data-i18n-placeholder="ph_admin_email" placeholder="Admin email" />
+            <input id="auth-password" type="password" data-i18n-placeholder="ph_admin_password" placeholder="Admin password" />
+            <div class="actions">
+              <button id="auth-login-btn" type="button" data-i18n="btn_sign_in">Sign In</button>
+            </div>
           </div>
-          <p id="auth-user" class="auth-user"></p>
+          <div id="auth-session-controls" class="auth-controls hidden">
+            <div class="admin-profile-card">
+              <p class="profile-label" data-i18n="profile_label">Admin Profile</p>
+              <p id="auth-user" class="auth-user"></p>
+            </div>
+            <div class="admin-shortcuts">
+              <button id="jump-cms-btn" class="muted" type="button" data-i18n="btn_cms_management">CMS Management</button>
+              <button id="jump-content-btn" class="muted" type="button" data-i18n="btn_content_management">Content Management</button>
+              <button id="auth-logout-btn" class="muted" type="button" data-i18n="btn_logout">Logout</button>
+            </div>
+          </div>
           <p id="auth-status" class="status"></p>
         </section>
 
@@ -75,7 +86,7 @@
       </aside>
 
       <section class="right-column requires-auth hidden">
-        <section class="panel form-panel">
+        <section class="panel form-panel" id="cms-management">
           <h2 id="form-title" data-i18n="form_add_title">Add New Video</h2>
           <form id="video-form">
             <label>
@@ -124,7 +135,7 @@
           </form>
         </section>
 
-        <section class="panel library-panel">
+        <section class="panel library-panel" id="content-management">
           <div class="library-head">
             <h2 data-i18n="library_title">Video Library</h2>
             <input id="library-search" type="search" data-i18n-placeholder="ph_search_videos" placeholder="Search videos..." />

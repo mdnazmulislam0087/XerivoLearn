@@ -1,0 +1,16 @@
+<svg width="640" height="640" viewBox="0 0 640 640" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="g1" x1="68" y1="58" x2="576" y2="590" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#89D4FF"/>
+      <stop offset="1" stop-color="#3A9CE9"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="640" rx="320" fill="url(#g1)"/>
+  <circle cx="320" cy="256" r="110" fill="#F9E5D6"/>
+  <path d="M206 252C206 186 256 140 320 140C384 140 434 186 434 252V308H206V252Z" fill="#4D79A8"/>
+  <circle cx="270" cy="256" r="10" fill="#2A3554"/>
+  <circle cx="370" cy="256" r="10" fill="#2A3554"/>
+  <path d="M280 304C292 318 348 318 360 304" stroke="#2A3554" stroke-width="10" stroke-linecap="round"/>
+  <path d="M112 532C128 434 210 376 320 376C430 376 512 434 528 532V640H112V532Z" fill="#DDF0FF"/>
+  <text x="320" y="600" text-anchor="middle" fill="#2D5D93" font-family="Arial, sans-serif" font-size="54" font-weight="700">Rima</text>
+</svg>

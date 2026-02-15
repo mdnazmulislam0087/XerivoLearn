@@ -1,0 +1,16 @@
+<svg width="640" height="640" viewBox="0 0 640 640" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="g2" x1="74" y1="64" x2="570" y2="586" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#8BE2C5"/>
+      <stop offset="1" stop-color="#45BE9C"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="640" rx="320" fill="url(#g2)"/>
+  <circle cx="320" cy="260" r="108" fill="#F6DFC9"/>
+  <path d="M208 258C208 194 258 146 320 146C382 146 432 194 432 258V300H208V258Z" fill="#3F5E87"/>
+  <circle cx="274" cy="260" r="10" fill="#253148"/>
+  <circle cx="366" cy="260" r="10" fill="#253148"/>
+  <path d="M282 304C296 316 344 316 358 304" stroke="#253148" stroke-width="10" stroke-linecap="round"/>
+  <path d="M116 534C130 438 210 384 320 384C430 384 510 438 524 534V640H116V534Z" fill="#E6FFF5"/>
+  <text x="320" y="602" text-anchor="middle" fill="#2E7E63" font-family="Arial, sans-serif" font-size="50" font-weight="700">Tanvir</text>
+</svg>

@@ -38,14 +38,14 @@
         <section class="showcase-hero">
           <div class="showcase-mascots" aria-hidden="true">
             <figure class="mascot mascot-cat">
-              <img src="./assets/characters/cat.svg" alt="" />
+              <img class="mascot-photo" src="./assets/characters/tom.png" alt="" onerror="this.onerror=null;this.src='./assets/characters/cat.svg';" />
             </figure>
             <figure class="mascot mascot-mouse">
-              <img src="./assets/characters/mouse.svg" alt="" />
+              <img class="mascot-photo" src="./assets/characters/jerry.png" alt="" onerror="this.onerror=null;this.src='./assets/characters/mouse.svg';" />
             </figure>
           </div>
           <div class="showcase-copy">
-            <h1 data-i18n="hero_title">A Magical Cartoon World</h1>
+            <h1 data-i18n="hero_title">Where Cartoons Spark Curious Minds 🧠</h1>
             <div class="showcase-actions">
               <a id="hero-parent-link" class="btn btn-primary" href="https://app.xerivolearn.com" data-i18n="cta_parent">
                 Enter Parent App
@@ -85,14 +85,10 @@
         <section class="showcase-features" aria-label="Feature highlights">
           <article class="show-tile tile-blue">
             <div class="tile-thumb">
-              <img src="./assets/characters/fox.svg" alt="Alphabet and numbers cartoon preview" />
+              <img src="./assets/characters/fox.svg" alt="Alphabet cartoon preview" />
               <span aria-hidden="true" class="tile-play">&#9654;</span>
             </div>
-            <h2>
-              <span data-i18n="topic_alpha">Alphabet</span>
-              <span>&amp;</span>
-              <span data-i18n="topic_numbers">Numbers</span>
-            </h2>
+            <h2 data-i18n="topic_alpha">Alphabet</h2>
           </article>
           <article class="show-tile tile-mint">
             <div class="tile-thumb">
@@ -106,7 +102,7 @@
               <img src="./assets/characters/bear.svg" alt="Bilingual cartoon preview" />
               <span aria-hidden="true" class="tile-play">&#9654;</span>
             </div>
-            <h2 data-i18n="trust_item_3_title">Bilingual Mode (Bangla + English)</h2>
+            <h2 data-i18n="feature_words">Words</h2>
           </article>
         </section>
 
@@ -133,35 +129,6 @@
           </div>
         </div>
       </dialog>
-
-      <section class="topics card">
-        <div class="section-head">
-          <h2 data-i18n="topics_title">More fun learning zones</h2>
-          <p data-i18n="topics_text">Age-friendly categories for playful daily learning.</p>
-        </div>
-        <div class="topic-grid">
-          <article class="topic-card tone-blue">
-            <div class="topic-icon" aria-hidden="true">&#128290;</div>
-            <h3 data-i18n="topic_alpha">Alphabet</h3>
-            <p data-i18n="topic_alpha_text">Letter songs and phonics adventures.</p>
-          </article>
-          <article class="topic-card tone-orange">
-            <div class="topic-icon" aria-hidden="true">&#128290;</div>
-            <h3 data-i18n="topic_numbers">Numbers</h3>
-            <p data-i18n="topic_numbers_text">Counting games and number cartoons.</p>
-          </article>
-          <article class="topic-card tone-green">
-            <div class="topic-icon" aria-hidden="true">&#127769;</div>
-            <h3 data-i18n="topic_story">Bedtime Stories</h3>
-            <p data-i18n="topic_story_text">Calm story videos for bedtime routines.</p>
-          </article>
-          <article class="topic-card tone-lime">
-            <div class="topic-icon" aria-hidden="true">&#128300;</div>
-            <h3 data-i18n="topic_science">Fun Science</h3>
-            <p data-i18n="topic_science_text">Simple experiments with cartoon explainers.</p>
-          </article>
-        </div>
-      </section>
 
       <section class="previews card">
         <div class="section-head">
@@ -229,21 +196,91 @@
           <h2 data-i18n="testimonials_title">What families are saying</h2>
           <p data-i18n="testimonials_text">Parent feedback from early XerivoLearn users.</p>
         </div>
-        <div class="testimonial-grid">
-          <article class="testimonial-card">
-            <p data-i18n="quote_1">"My daughter now asks for learning cartoons before bedtime."</p>
-            <span data-i18n="quote_1_by">Rima, Parent of a 5-year-old</span>
-          </article>
-          <article class="testimonial-card">
-            <p data-i18n="quote_2">"The bilingual option helps us practice Bangla and English together."</p>
-            <span data-i18n="quote_2_by">Tanvir, Parent</span>
-          </article>
-          <article class="testimonial-card">
-            <p data-i18n="quote_3">"Very easy for families. The videos are bright, short, and educational."</p>
-            <span data-i18n="quote_3_by">Nusrat, Guardian</span>
-          </article>
+        <div class="testimonial-slider" aria-label="Family testimonials">
+          <div class="testimonial-viewport">
+            <div class="testimonial-track">
+              <article class="testimonial-card">
+                <div class="testimonial-head">
+                  <span class="testimonial-avatar avatar-one">
+                    <img
+                      class="testimonial-avatar-photo"
+                      src="./assets/testimonials/rima.png"
+                      alt="Rima profile photo"
+                      onerror="this.onerror=null;this.src='./assets/testimonials/rima-placeholder.svg';"
+                    />
+                  </span>
+                  <span class="testimonial-name" data-i18n="quote_1_by">Rima, Parent of a 5-year-old</span>
+                </div>
+                <p class="testimonial-quote" data-i18n="quote_1">"My daughter now asks for learning cartoons before bedtime."</p>
+                <div class="testimonial-foot">
+                  <p class="testimonial-stars" aria-label="5 out of 5 stars">★★★★★</p>
+                </div>
+              </article>
+              <article class="testimonial-card">
+                <div class="testimonial-head">
+                  <span class="testimonial-avatar avatar-two">
+                    <img
+                      class="testimonial-avatar-photo"
+                      src="./assets/testimonials/tanvir.png"
+                      alt="Tanvir profile photo"
+                      onerror="this.onerror=null;this.src='./assets/testimonials/tanvir-placeholder.svg';"
+                    />
+                  </span>
+                  <span class="testimonial-name" data-i18n="quote_2_by">Tanvir, Parent</span>
+                </div>
+                <p class="testimonial-quote" data-i18n="quote_2">"The bilingual option helps us practice Bangla and English together."</p>
+                <div class="testimonial-foot">
+                  <p class="testimonial-stars" aria-label="5 out of 5 stars">★★★★★</p>
+                </div>
+              </article>
+              <article class="testimonial-card">
+                <div class="testimonial-head">
+                  <span class="testimonial-avatar avatar-three">
+                    <img
+                      class="testimonial-avatar-photo"
+                      src="./assets/testimonials/nusrat.png"
+                      alt="Nusrat profile photo"
+                      onerror="this.onerror=null;this.src='./assets/testimonials/nusrat-placeholder.svg';"
+                    />
+                  </span>
+                  <span class="testimonial-name" data-i18n="quote_3_by">Nusrat, Guardian</span>
+                </div>
+                <p class="testimonial-quote" data-i18n="quote_3">"Very easy for families. The videos are bright, short, and educational."</p>
+                <div class="testimonial-foot">
+                  <p class="testimonial-stars" aria-label="5 out of 5 stars">★★★★★</p>
+                </div>
+              </article>
+            </div>
+          </div>
+          <div class="testimonial-dots" aria-label="Testimonial navigation"></div>
         </div>
       </section>
+
+      <footer class="site-footer card">
+        <div class="footer-top">
+          <div class="footer-brand">
+            <a id="footer-home-link" class="footer-logo" href="https://xerivolearn.com">XerivoLearn</a>
+            <p data-i18n="footer_tagline">Safe cartoons and learning joy for every family.</p>
+          </div>
+          <div class="footer-social">
+            <h3 data-i18n="footer_social_title">Follow Us</h3>
+            <div class="footer-social-row">
+              <a class="footer-social-link youtube" href="https://www.youtube.com/" target="_blank" rel="noreferrer noopener" aria-label="YouTube">▶</a>
+              <a class="footer-social-link facebook" href="https://www.facebook.com/" target="_blank" rel="noreferrer noopener" aria-label="Facebook">f</a>
+              <a class="footer-social-link instagram" href="https://www.instagram.com/" target="_blank" rel="noreferrer noopener" aria-label="Instagram">◎</a>
+            </div>
+          </div>
+          <div class="footer-contact">
+            <h3 data-i18n="footer_contact_title">Contact</h3>
+            <p data-i18n="footer_contact_text">Need help with your plan or videos? Email us anytime.</p>
+            <a class="footer-mail" href="mailto:hello@xerivolearn.com">hello@xerivolearn.com</a>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p data-i18n="footer_rights">© 2026 XerivoLearn. All rights reserved.</p>
+          <p data-i18n="footer_made">Made for children, trusted by parents.</p>
+        </div>
+      </footer>
 
     </main>
 
@@ -260,7 +297,7 @@
             nav_educators: "Educators",
             nav_admin: "Admin CMS",
             hero_chip: "Ages 3-10",
-            hero_title: "A Magical Cartoon World",
+            hero_title: "Where Cartoons Spark Curious Minds 🧠",
             hero_text: "Safe cartoon lessons, bedtime stories, and playful science for happy little learners.",
             cta_parent: "Enter Parent App",
             cta_educator: "Educator Portal",
@@ -272,16 +309,9 @@
             pill_3: "Mobile friendly",
             speech_1: "Let's learn ABC!",
             speech_2: "Science can be fun!",
-            topics_title: "More fun learning zones",
-            topics_text: "Age-friendly categories for playful daily learning.",
             topic_alpha: "Alphabet",
-            topic_alpha_text: "Letter songs and phonics adventures.",
-            topic_numbers: "Numbers",
-            topic_numbers_text: "Counting games and number cartoons.",
+            feature_words: "Words",
             topic_story: "Bedtime Stories",
-            topic_story_text: "Calm story videos for bedtime routines.",
-            topic_science: "Fun Science",
-            topic_science_text: "Simple experiments with cartoon explainers.",
             preview_title: "Sample video carousel",
             preview_text: "Swipeable preview cards to show what children will watch.",
             preview_1_title: "ABC Rocket Song",
@@ -319,6 +349,12 @@
             quote_2_by: "Tanvir, Parent",
             quote_3: '"Very easy for families. The videos are bright, short, and educational."',
             quote_3_by: "Nusrat, Guardian",
+            footer_tagline: "Safe cartoons and learning joy for every family.",
+            footer_social_title: "Follow Us",
+            footer_contact_title: "Contact",
+            footer_contact_text: "Need help with your plan or videos? Email us anytime.",
+            footer_rights: "© 2026 XerivoLearn. All rights reserved.",
+            footer_made: "Made for children, trusted by parents.",
             pricing_title: "Simple plans",
             pricing_text: "Choose a plan for home or classroom.",
             parent_price: "$1/month",
@@ -341,7 +377,7 @@
             nav_educators: "এডুকেটরস",
             nav_admin: "অ্যাডমিন CMS",
             hero_chip: "বয়স ৩-১০",
-            hero_title: "এক জাদুকরী কার্টুন দুনিয়া",
+            hero_title: "যেখানে কার্টুন জাগায় কৌতূহলী মন 🧠",
             hero_text:
               "নিরাপদ কার্টুন লেসন, ঘুমপাড়ানি গল্প আর মজার বিজ্ঞান ভিডিও, যা শিশুরা আনন্দ নিয়ে দেখে।",
             cta_parent: "প্যারেন্ট অ্যাপে প্রবেশ করুন",
@@ -354,16 +390,9 @@
             pill_3: "মোবাইল ফ্রেন্ডলি",
             speech_1: "চলো ABC শিখি!",
             speech_2: "বিজ্ঞানও মজার হতে পারে!",
-            topics_title: "শিশুদের জন্য শেখার জোন",
-            topics_text: "রঙিন, ছোট ছোট ভিডিও বয়স ও বিষয়ের ভিত্তিতে সাজানো।",
             topic_alpha: "বর্ণমালা",
-            topic_alpha_text: "অক্ষর শেখার গান ও ফনিক্স অ্যাডভেঞ্চার।",
-            topic_numbers: "সংখ্যা",
-            topic_numbers_text: "গণনা শেখার গেম ও নাম্বার কার্টুন।",
+            feature_words: "শব্দ",
             topic_story: "ঘুমপাড়ানি গল্প",
-            topic_story_text: "ঘুমের আগে শান্ত গল্পের ভিডিও।",
-            topic_science: "মজার বিজ্ঞান",
-            topic_science_text: "কার্টুন ব্যাখ্যায় সহজ এক্সপেরিমেন্ট।",
             preview_title: "স্যাম্পল ভিডিও ক্যারাউসেল",
             preview_text: "শিশুরা কী দেখবে তা দেখাতে সোয়াইপ করা যায় এমন প্রিভিউ কার্ড।",
             preview_1_title: "ABC রকেট গান",
@@ -401,6 +430,12 @@
             quote_2_by: "তানভীর, অভিভাবক",
             quote_3: '"পরিবারের জন্য খুব সহজ। ভিডিওগুলো রঙিন, ছোট এবং শিক্ষামূলক।"',
             quote_3_by: "নুসরাত, অভিভাবক",
+            footer_tagline: "প্রতিটি পরিবারের জন্য নিরাপদ কার্টুন আর আনন্দময় শেখা।",
+            footer_social_title: "আমাদের সাথে থাকুন",
+            footer_contact_title: "যোগাযোগ",
+            footer_contact_text: "প্ল্যান বা ভিডিও নিয়ে সাহায্য লাগলে যেকোনো সময় ইমেইল করুন।",
+            footer_rights: "© 2026 XerivoLearn. সর্বস্বত্ব সংরক্ষিত।",
+            footer_made: "শিশুদের জন্য তৈরি, অভিভাবকদের বিশ্বাসে।",
             pricing_title: "সহজ প্ল্যান",
             pricing_text: "বাড়ি বা ক্লাসরুমের জন্য প্ল্যান বেছে নিন।",
             parent_price: "৳৯৯ / মাস",
@@ -429,7 +464,8 @@
           "hero-educator-link",
           "hero-admin-link",
           "price-parent-link",
-          "price-educator-link"
+          "price-educator-link",
+          "footer-home-link"
         ];
         let demoState = null;
 
@@ -507,10 +543,12 @@
             return;
           }
 
-          const home = document.getElementById("home-link");
-          if (home) {
-            home.href = "/";
-          }
+          ["home-link", "footer-home-link"].forEach((id) => {
+            const node = document.getElementById(id);
+            if (node) {
+              node.href = "/";
+            }
+          });
 
           const parentTargets = ["nav-parent-link", "hero-parent-link", "price-parent-link"];
           const educatorTargets = ["nav-educator-link", "hero-educator-link", "price-educator-link"];
@@ -668,8 +706,133 @@
           render();
         }
 
+        function setupTestimonialsSlider() {
+          const slider = document.querySelector(".testimonial-slider");
+          if (!slider) {
+            return;
+          }
+
+          const track = slider.querySelector(".testimonial-track");
+          const cards = Array.from(slider.querySelectorAll(".testimonial-card"));
+          const dots = slider.querySelector(".testimonial-dots");
+          if (!track || !dots || cards.length <= 1) {
+            return;
+          }
+
+          let activeIndex = 0;
+          let autoplayTimer = null;
+          let swipeStartX = 0;
+          let swipeDeltaX = 0;
+          let swipeActive = false;
+          const autoplayMs = 3200;
+
+          function render(animate = true) {
+            if (!animate) {
+              track.style.transition = "none";
+            } else {
+              track.style.transition = "";
+            }
+
+            track.style.transform = `translateX(-${activeIndex * 100}%)`;
+            dots.querySelectorAll(".testimonial-dot").forEach((dot, index) => {
+              const isActive = index === activeIndex;
+              dot.classList.toggle("active", isActive);
+              dot.setAttribute("aria-pressed", String(isActive));
+            });
+
+            if (!animate) {
+              window.requestAnimationFrame(() => {
+                track.style.transition = "";
+              });
+            }
+          }
+
+          function goTo(index, animate = true) {
+            activeIndex = (index + cards.length) % cards.length;
+            render(animate);
+          }
+
+          function next() {
+            goTo(activeIndex + 1);
+          }
+
+          function stopAutoplay() {
+            if (autoplayTimer) {
+              window.clearInterval(autoplayTimer);
+              autoplayTimer = null;
+            }
+          }
+
+          function startAutoplay() {
+            stopAutoplay();
+            autoplayTimer = window.setInterval(next, autoplayMs);
+          }
+
+          cards.forEach((_, index) => {
+            const dot = document.createElement("button");
+            dot.type = "button";
+            dot.className = `testimonial-dot${index === 0 ? " active" : ""}`;
+            dot.setAttribute("aria-label", `Go to testimonial ${index + 1}`);
+            dot.setAttribute("aria-pressed", String(index === 0));
+            dot.addEventListener("click", () => {
+              goTo(index);
+              startAutoplay();
+            });
+            dots.appendChild(dot);
+          });
+
+          function finishSwipe() {
+            if (!swipeActive) {
+              return;
+            }
+            swipeActive = false;
+            if (Math.abs(swipeDeltaX) > 42) {
+              if (swipeDeltaX < 0) {
+                next();
+              } else {
+                goTo(activeIndex - 1);
+              }
+            } else {
+              render();
+            }
+            startAutoplay();
+          }
+
+          track.addEventListener("pointerdown", (event) => {
+            swipeActive = true;
+            swipeStartX = event.clientX;
+            swipeDeltaX = 0;
+            stopAutoplay();
+            if (track.setPointerCapture) {
+              track.setPointerCapture(event.pointerId);
+            }
+          });
+
+          track.addEventListener("pointermove", (event) => {
+            if (!swipeActive) {
+              return;
+            }
+            swipeDeltaX = event.clientX - swipeStartX;
+          });
+
+          track.addEventListener("pointerup", finishSwipe);
+          track.addEventListener("pointercancel", finishSwipe);
+
+          document.addEventListener("visibilitychange", () => {
+            if (document.hidden) {
+              stopAutoplay();
+            } else {
+              startAutoplay();
+            }
+          });
+
+          render(false);
+          startAutoplay();
+        }
+
         applySingleHostFallback();
         setupDemoPreview();
+        setupTestimonialsSlider();
         applyLanguage(initialLanguage(), { persist: false });
 
         document.getElementById("lang-en").addEventListener("click", () => applyLanguage("en"));

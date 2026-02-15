@@ -1,0 +1,16 @@
+<svg width="640" height="640" viewBox="0 0 640 640" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="g3" x1="66" y1="56" x2="578" y2="592" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFD19E"/>
+      <stop offset="1" stop-color="#F49C59"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="640" rx="320" fill="url(#g3)"/>
+  <circle cx="320" cy="258" r="109" fill="#F8E0CF"/>
+  <path d="M208 260C208 196 258 146 320 146C382 146 432 196 432 260V302H208V260Z" fill="#7F4F31"/>
+  <circle cx="272" cy="258" r="10" fill="#3B271E"/>
+  <circle cx="368" cy="258" r="10" fill="#3B271E"/>
+  <path d="M282 306C296 320 344 320 358 306" stroke="#3B271E" stroke-width="10" stroke-linecap="round"/>
+  <path d="M114 534C130 438 212 382 320 382C428 382 510 438 526 534V640H114V534Z" fill="#FFEEDB"/>
+  <text x="320" y="602" text-anchor="middle" fill="#A1602D" font-family="Arial, sans-serif" font-size="50" font-weight="700">Nusrat</text>
+</svg>

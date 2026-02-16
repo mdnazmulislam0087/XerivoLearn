@@ -77,7 +77,9 @@ const CHILDREN_FILE = path.join(DATA_DIR, "children.json");
 const PASSWORD_RESETS_FILE = path.join(DATA_DIR, "password_resets.json");
 const EMAIL_VERIFICATIONS_FILE = path.join(DATA_DIR, "email_verifications.json");
 const SETTINGS_FILE = path.join(DATA_DIR, "settings.json");
+const MEDIA_ASSETS_FILE = path.join(DATA_DIR, "media_assets.json");
 const SITES_DIR = path.join(ROOT_DIR, "sites");
+const MARKETING_UPLOADS_DIR = path.join(SITES_DIR, "marketing", "assets", "uploads");
 
 const ALLOWED_CHILD_AVATARS = new Set(["rocket", "star", "whale", "panda", "owl", "fox"]);
 const ALLOWED_AGE_GROUPS = new Set(["3-5", "4-7", "7+"]);
@@ -190,6 +192,32 @@ async function handleApi(req, res, pathname, searchParams) {
     const settings = await loadSettings();
     sendJson(res, 200, {
       marketingContent: normalizeMarketingContent(settings.marketingContent)
+    });
+    return;
+  }
+
+  if (req.method === "GET" && pathname.startsWith("/api/public/media/slot/")) {
+    const rawSlot = pathname.slice("/api/public/media/slot/".length);
+    let decodedSlot = "";
+    try {
+      decodedSlot = decodeURIComponent(rawSlot || "");
+    } catch {
+      decodedSlot = "";
+    }
+    const slot = normalizeMediaSlot(decodedSlot);
+    if (!slot) {
+      sendJson(res, 404, { error: "Media asset not found." });
+      return;
+    }
+
+    const asset = await loadMediaAsset(slot);
+    if (!asset || !asset.data || !asset.mimeType) {
+      sendJson(res, 404, { error: "Media asset not found." });
+      return;
+    }
+
+    sendBinary(res, 200, asset.data, asset.mimeType, {
+      "Cache-Control": "public, max-age=300"
     });
     return;
   }
@@ -753,6 +781,48 @@ async function handleApi(req, res, pathname, searchParams) {
     }
   }
 
+  if (req.method === "POST" && pathname === "/api/admin/media/upload") {
+    const payload = await readBodyJson(req, res, 10_000_000);
+    if (!payload) {
+      return;
+    }
+
+    const slot = normalizeMediaSlot(payload.slot || payload.mediaKey || "");
+    if (!slot) {
+      sendJson(res, 400, { error: "Invalid media slot." });
+      return;
+    }
+
+    const parsed = parseImageDataUrl(payload.dataUrl);
+    if (!parsed.ok) {
+      sendJson(res, 400, { error: parsed.error });
+      return;
+    }
+
+    if (parsed.data.length > 5_000_000) {
+      sendJson(res, 413, { error: "Image is too large. Max size is 5MB." });
+      return;
+    }
+
+    const fileName = sanitizeFileName(payload.fileName || `${slot}.${extensionForImageMimeType(parsed.mimeType)}`);
+    const saved = await saveMediaAsset({
+      slot,
+      mimeType: parsed.mimeType,
+      data: parsed.data,
+      fileName
+    });
+
+    const stamp = saved.updatedAt ? new Date(saved.updatedAt).getTime() : Date.now();
+    const url = `/api/public/media/slot/${encodeURIComponent(slot)}?v=${Number.isFinite(stamp) ? stamp : Date.now()}`;
+    sendJson(res, 200, {
+      slot,
+      url,
+      mimeType: saved.mimeType || parsed.mimeType,
+      updatedAt: saved.updatedAt || new Date().toISOString()
+    });
+    return;
+  }
+
   if (req.method === "GET" && pathname === "/api/admin/settings") {
     const settings = await loadSettings();
     sendJson(res, 200, settings);
@@ -1000,6 +1070,12 @@ function ensureDataStore() {
   if (!fs.existsSync(SETTINGS_FILE)) {
     fs.writeFileSync(SETTINGS_FILE, "{}", "utf8");
   }
+  if (!fs.existsSync(MEDIA_ASSETS_FILE)) {
+    fs.writeFileSync(MEDIA_ASSETS_FILE, "{}", "utf8");
+  }
+  if (!fs.existsSync(MARKETING_UPLOADS_DIR)) {
+    fs.mkdirSync(MARKETING_UPLOADS_DIR, { recursive: true });
+  }
 }
 
 async function initializeStorage() {
@@ -1117,6 +1193,16 @@ async function initializePostgresSchema() {
   await pool.query(
     `ALTER TABLE settings ADD COLUMN IF NOT EXISTS marketing_content_json text NOT NULL DEFAULT '{}'`
   );
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS media_assets (
+      slot text PRIMARY KEY,
+      mime_type text NOT NULL,
+      data bytea NOT NULL,
+      file_name text NOT NULL DEFAULT '',
+      updated_at timestamptz NOT NULL DEFAULT now()
+    )
+  `);
 }
 
 async function seedPostgresFromJsonIfEmpty() {
@@ -1131,6 +1217,7 @@ async function seedPostgresFromJsonIfEmpty() {
   const resetsCount = await dbCountRows("password_resets");
   const verificationCount = await dbCountRows("email_verifications");
   const settingsCount = await dbCountRows("settings");
+  const mediaCount = await dbCountRows("media_assets");
   const hasAnyData =
     usersCount > 0 ||
     videosCount > 0 ||
@@ -1138,7 +1225,8 @@ async function seedPostgresFromJsonIfEmpty() {
     favoritesCount > 0 ||
     resetsCount > 0 ||
     verificationCount > 0 ||
-    settingsCount > 0;
+    settingsCount > 0 ||
+    mediaCount > 0;
 
   if (hasAnyData) {
     return;
@@ -1151,6 +1239,7 @@ async function seedPostgresFromJsonIfEmpty() {
   const verifications = readJsonArray(EMAIL_VERIFICATIONS_FILE, "email verifications");
   const favorites = readJsonObject(FAVORITES_FILE, "favorites");
   const settings = readJsonObject(SETTINGS_FILE, "settings");
+  const mediaAssets = readJsonObject(MEDIA_ASSETS_FILE, "media assets");
 
   if (users.length) {
     await saveUsers(users);
@@ -1172,6 +1261,29 @@ async function seedPostgresFromJsonIfEmpty() {
   }
   if (Object.keys(settings).length) {
     await saveSettings(settings);
+  }
+  if (mediaAssets && typeof mediaAssets === "object") {
+    for (const [slot, entry] of Object.entries(mediaAssets)) {
+      const normalizedSlot = normalizeMediaSlot(slot);
+      if (!normalizedSlot || !entry || typeof entry !== "object") {
+        continue;
+      }
+      const mimeType = normalizeImageMimeType(entry.mimeType || "");
+      const dataBase64 = typeof entry.dataBase64 === "string" ? entry.dataBase64 : "";
+      if (!mimeType || !dataBase64) {
+        continue;
+      }
+      const buffer = Buffer.from(dataBase64, "base64");
+      if (!buffer.length) {
+        continue;
+      }
+      await saveMediaAsset({
+        slot: normalizedSlot,
+        mimeType,
+        data: buffer,
+        fileName: typeof entry.fileName === "string" ? entry.fileName : ""
+      });
+    }
   }
 }
 
@@ -1711,6 +1823,210 @@ async function saveSettings(settings) {
     `,
     [termsAndConditions, termsUpdatedAt, marketingContentJson, createdAt]
   );
+}
+
+async function loadMediaAsset(slotInput) {
+  const slot = normalizeMediaSlot(slotInput);
+  if (!slot) {
+    return null;
+  }
+
+  if (!USE_POSTGRES || !pool) {
+    const assets = readJsonObject(MEDIA_ASSETS_FILE, "media assets");
+    const entry = assets[slot];
+    if (!entry || typeof entry !== "object") {
+      return null;
+    }
+    const mimeType = normalizeImageMimeType(entry.mimeType || "");
+    const dataBase64 = typeof entry.dataBase64 === "string" ? entry.dataBase64 : "";
+    if (!mimeType || !dataBase64) {
+      return null;
+    }
+    const data = Buffer.from(dataBase64, "base64");
+    if (!data.length) {
+      return null;
+    }
+    return {
+      slot,
+      mimeType,
+      data,
+      fileName: typeof entry.fileName === "string" ? entry.fileName : "",
+      updatedAt: entry.updatedAt || null
+    };
+  }
+
+  const result = await pool.query(
+    `
+      SELECT
+        slot,
+        mime_type AS "mimeType",
+        data,
+        file_name AS "fileName",
+        updated_at AS "updatedAt"
+      FROM media_assets
+      WHERE slot = $1
+      LIMIT 1
+    `,
+    [slot]
+  );
+
+  const row = result.rows[0];
+  if (!row) {
+    return null;
+  }
+
+  const mimeType = normalizeImageMimeType(row.mimeType || "");
+  const data = Buffer.isBuffer(row.data) ? row.data : Buffer.from(row.data || "", "base64");
+  if (!mimeType || !data.length) {
+    return null;
+  }
+
+  return {
+    slot,
+    mimeType,
+    data,
+    fileName: typeof row.fileName === "string" ? row.fileName : "",
+    updatedAt: row.updatedAt || null
+  };
+}
+
+async function saveMediaAsset(assetInput) {
+  const slot = normalizeMediaSlot(assetInput?.slot || "");
+  const mimeType = normalizeImageMimeType(assetInput?.mimeType || "");
+  const data = Buffer.isBuffer(assetInput?.data) ? assetInput.data : Buffer.from(assetInput?.data || "");
+  const fileName = sanitizeFileName(assetInput?.fileName || `${slot}.${extensionForImageMimeType(mimeType)}`);
+
+  if (!slot) {
+    throw new Error("Invalid media slot.");
+  }
+  if (!mimeType || !data.length) {
+    throw new Error("Invalid media payload.");
+  }
+
+  const updatedAt = new Date().toISOString();
+  writeMediaMirrorFile(slot, mimeType, data);
+
+  if (!USE_POSTGRES || !pool) {
+    const assets = readJsonObject(MEDIA_ASSETS_FILE, "media assets");
+    assets[slot] = {
+      mimeType,
+      dataBase64: data.toString("base64"),
+      fileName,
+      updatedAt
+    };
+    fs.writeFileSync(MEDIA_ASSETS_FILE, JSON.stringify(assets, null, 2), "utf8");
+    return {
+      slot,
+      mimeType,
+      fileName,
+      updatedAt
+    };
+  }
+
+  await pool.query(
+    `
+      INSERT INTO media_assets (slot, mime_type, data, file_name, updated_at)
+      VALUES ($1, $2, $3, $4, $5)
+      ON CONFLICT (slot) DO UPDATE SET
+        mime_type = EXCLUDED.mime_type,
+        data = EXCLUDED.data,
+        file_name = EXCLUDED.file_name,
+        updated_at = EXCLUDED.updated_at
+    `,
+    [slot, mimeType, data, fileName, updatedAt]
+  );
+
+  return {
+    slot,
+    mimeType,
+    fileName,
+    updatedAt
+  };
+}
+
+function writeMediaMirrorFile(slot, mimeType, data) {
+  try {
+    if (!fs.existsSync(MARKETING_UPLOADS_DIR)) {
+      fs.mkdirSync(MARKETING_UPLOADS_DIR, { recursive: true });
+    }
+    const extension = extensionForImageMimeType(mimeType);
+    const filePath = path.join(MARKETING_UPLOADS_DIR, `${slot}.${extension}`);
+    fs.writeFileSync(filePath, data);
+  } catch (error) {
+    console.warn(`Could not mirror uploaded media asset '${slot}' to uploads folder:`, error.message || error);
+  }
+}
+
+function normalizeMediaSlot(value) {
+  const slot = String(value || "").trim();
+  if (!slot) {
+    return "";
+  }
+  const mediaShape = defaultMarketingContent().media || {};
+  return Object.prototype.hasOwnProperty.call(mediaShape, slot) ? slot : "";
+}
+
+function normalizeImageMimeType(value) {
+  const raw = String(value || "").trim().toLowerCase();
+  if (!raw) {
+    return "";
+  }
+  if (raw === "image/jpg") {
+    return "image/jpeg";
+  }
+  return ["image/png", "image/jpeg", "image/webp", "image/gif"].includes(raw) ? raw : "";
+}
+
+function extensionForImageMimeType(mimeType) {
+  const normalized = normalizeImageMimeType(mimeType);
+  if (normalized === "image/jpeg") {
+    return "jpg";
+  }
+  if (normalized === "image/webp") {
+    return "webp";
+  }
+  if (normalized === "image/gif") {
+    return "gif";
+  }
+  return "png";
+}
+
+function parseImageDataUrl(value) {
+  const dataUrl = String(value || "").trim();
+  if (!dataUrl) {
+    return { ok: false, error: "Image payload is required." };
+  }
+
+  const match = dataUrl.match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,([A-Za-z0-9+/=]+)$/);
+  if (!match) {
+    return { ok: false, error: "Invalid image payload format." };
+  }
+
+  const mimeType = normalizeImageMimeType(match[1]);
+  if (!mimeType) {
+    return { ok: false, error: "Unsupported image type. Use PNG, JPG, WEBP, or GIF." };
+  }
+
+  const base64 = match[2] || "";
+  const data = Buffer.from(base64, "base64");
+  if (!data.length) {
+    return { ok: false, error: "Image payload is empty." };
+  }
+
+  return {
+    ok: true,
+    mimeType,
+    data
+  };
+}
+
+function sanitizeFileName(value) {
+  const raw = String(value || "").trim();
+  if (!raw) {
+    return "";
+  }
+  const base = path.basename(raw);
+  return base.replace(/[^a-zA-Z0-9._-]/g, "_").slice(0, 120);
 }
 
 async function loadFavorites() {
@@ -2719,25 +3035,38 @@ function sendJson(res, status, payload) {
   res.end(JSON.stringify(payload));
 }
 
-async function readBodyJson(req, res) {
+function sendBinary(res, status, buffer, contentType, extraHeaders = {}) {
+  res.writeHead(status, {
+    "Access-Control-Allow-Origin": "*",
+    "Content-Type": contentType || "application/octet-stream",
+    ...extraHeaders
+  });
+  res.end(buffer);
+}
+
+async function readBodyJson(req, res, maxBytes = 2_000_000) {
   try {
-    const raw = await readBody(req);
+    const raw = await readBody(req, maxBytes);
     if (!raw) {
       return {};
     }
     return JSON.parse(raw);
   } catch (error) {
+    if (error && error.message === "Payload too large") {
+      sendJson(res, 413, { error: "Payload too large." });
+      return null;
+    }
     sendJson(res, 400, { error: "Invalid JSON payload." });
     return null;
   }
 }
 
-function readBody(req) {
+function readBody(req, maxBytes = 2_000_000) {
   return new Promise((resolve, reject) => {
     let body = "";
     req.on("data", (chunk) => {
       body += chunk;
-      if (body.length > 2_000_000) {
+      if (body.length > maxBytes) {
         reject(new Error("Payload too large"));
       }
     });

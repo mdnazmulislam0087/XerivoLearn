@@ -96,6 +96,14 @@ const TRANSLATIONS = {
     status_content_saved: "Homepage content saved.",
     status_content_save_failed: "Could not save homepage content.",
     status_content_load_failed: "Could not load homepage content.",
+    btn_upload_image: "Upload Image",
+    status_select_image_first: "Select an image first.",
+    status_uploading_image: "Uploading image...",
+    status_upload_success: "Image uploaded.",
+    status_upload_failed: "Could not upload image.",
+    status_upload_save_reminder: "Image uploaded. Click Save Homepage Content to publish it.",
+    status_upload_unsupported_type: "Unsupported image type. Use PNG, JPG, WEBP, or GIF.",
+    status_upload_too_large: "Image is too large. Max size is 5MB.",
 
     label_general: "General",
     label_age: "Age {age}",
@@ -202,6 +210,14 @@ const TRANSLATIONS = {
     status_content_saved: "হোমপেজ কনটেন্ট সেভ হয়েছে।",
     status_content_save_failed: "হোমপেজ কনটেন্ট সেভ করা যায়নি।",
     status_content_load_failed: "হোমপেজ কনটেন্ট লোড করা যায়নি।",
+    btn_upload_image: "ছবি আপলোড করুন",
+    status_select_image_first: "আগে একটি ছবি নির্বাচন করুন।",
+    status_uploading_image: "ছবি আপলোড হচ্ছে...",
+    status_upload_success: "ছবি আপলোড হয়েছে।",
+    status_upload_failed: "ছবি আপলোড করা যায়নি।",
+    status_upload_save_reminder: "ছবি আপলোড হয়েছে। প্রকাশ করতে হোমপেজ কনটেন্ট সেভ করুন।",
+    status_upload_unsupported_type: "এই ধরনের ছবি সমর্থিত নয়। PNG, JPG, WEBP, বা GIF ব্যবহার করুন।",
+    status_upload_too_large: "ছবির সাইজ বেশি। সর্বোচ্চ 5MB।",
 
     label_general: "সাধারণ",
     label_age: "বয়স {age}",
@@ -227,6 +243,13 @@ const API_MESSAGE_KEY_MAP = {
   "Could not save video.": "status_could_not_save_video",
   "Delete failed.": "status_delete_failed",
   "Update failed.": "status_update_failed",
+  "Invalid media slot.": "status_upload_failed",
+  "Image payload is required.": "status_upload_failed",
+  "Invalid image payload format.": "status_upload_failed",
+  "Unsupported image type. Use PNG, JPG, WEBP, or GIF.": "status_upload_unsupported_type",
+  "Image payload is empty.": "status_upload_failed",
+  "Image is too large. Max size is 5MB.": "status_upload_too_large",
+  "Payload too large.": "status_upload_too_large",
   "Unauthorized. Missing bearer token.": "status_signin_first_admin",
   "Unauthorized. Invalid or expired session.": "status_session_expired",
   "Unauthorized. User not found.": "status_session_expired",
@@ -432,6 +455,7 @@ const state = {
   marketingContent: null
 };
 let contentAccordion = null;
+const mediaUploadControls = new Map();
 
 authEmail.value = localStorage.getItem("xerivo_admin_email") || "";
 
@@ -530,6 +554,7 @@ if (contentResetBtn) {
 }
 
 setupContentAccordion();
+setupMediaUploadControls();
 applyLanguage(loadLanguagePreference(), { persist: false });
 bootstrap();
 
@@ -1010,6 +1035,129 @@ function readMarketingContentForm() {
   });
 
   return next;
+}
+
+function setupMediaUploadControls() {
+  if (!contentForm || mediaUploadControls.size > 0) {
+    return;
+  }
+
+  CONTENT_MEDIA_FIELD_MAP.forEach(([inputId, slot]) => {
+    const urlInput = document.getElementById(inputId);
+    if (!urlInput) {
+      return;
+    }
+    const hostLabel = urlInput.closest("label");
+    if (!hostLabel || hostLabel.querySelector(".media-upload-row")) {
+      return;
+    }
+
+    const row = document.createElement("div");
+    row.className = "media-upload-row";
+
+    const fileInput = document.createElement("input");
+    fileInput.type = "file";
+    fileInput.accept = "image/png,image/jpeg,image/webp,image/gif";
+    fileInput.className = "media-upload-file";
+
+    const uploadBtn = document.createElement("button");
+    uploadBtn.type = "button";
+    uploadBtn.className = "muted media-upload-btn";
+    uploadBtn.setAttribute("data-i18n", "btn_upload_image");
+    uploadBtn.textContent = "Upload Image";
+
+    const statusNode = document.createElement("span");
+    statusNode.className = "media-upload-status";
+
+    row.appendChild(fileInput);
+    row.appendChild(uploadBtn);
+    row.appendChild(statusNode);
+    hostLabel.appendChild(row);
+
+    mediaUploadControls.set(slot, {
+      slot,
+      urlInput,
+      fileInput,
+      uploadBtn,
+      statusNode
+    });
+
+    uploadBtn.addEventListener("click", async () => {
+      const file = fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
+      if (!file) {
+        statusNode.textContent = t("status_select_image_first");
+        return;
+      }
+
+      const fileType = String(file.type || "").toLowerCase();
+      const allowedTypes = new Set(["image/png", "image/jpeg", "image/jpg", "image/webp", "image/gif"]);
+      if (!allowedTypes.has(fileType)) {
+        statusNode.textContent = t("status_upload_unsupported_type");
+        return;
+      }
+
+      if (Number(file.size || 0) > 5_000_000) {
+        statusNode.textContent = t("status_upload_too_large");
+        return;
+      }
+
+      statusNode.textContent = t("status_uploading_image");
+      uploadBtn.disabled = true;
+
+      try {
+        assertAuthenticated();
+        const dataUrl = await readFileAsDataUrl(file);
+        const response = await adminFetch("/api/admin/media/upload", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            slot,
+            fileName: file.name || `${slot}.png`,
+            dataUrl
+          })
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(localizeApiMessage(data.error, "status_upload_failed"));
+        }
+
+        if (typeof data.url === "string" && data.url.trim()) {
+          urlInput.value = data.url.trim();
+          updateContentAccordionProgress();
+        }
+        fileInput.value = "";
+        statusNode.textContent = t("status_upload_success");
+        if (contentStatus) {
+          contentStatus.textContent = t("status_upload_save_reminder");
+        }
+      } catch (error) {
+        statusNode.textContent = localizeApiMessage(error.message, "status_upload_failed");
+      } finally {
+        uploadBtn.disabled = false;
+      }
+    });
+  });
+}
+
+function readFileAsDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const value = typeof reader.result === "string" ? reader.result : "";
+      if (!value) {
+        reject(new Error("Could not read selected file."));
+        return;
+      }
+      resolve(value);
+    };
+    reader.onerror = () => {
+      reject(new Error("Could not read selected file."));
+    };
+    reader.readAsDataURL(file);
+  });
 }
 
 function setManagerView(view, options = {}) {

@@ -21,8 +21,20 @@ const TRANSLATIONS = {
     btn_sign_in: "Sign In",
     btn_logout: "Logout",
     profile_label: "Admin Profile",
-    btn_cms_management: "CMS Management",
     btn_content_management: "Content Management",
+    btn_post_management: "Post Management",
+    manager_title: "Management Console",
+    content_panel_title: "Homepage Content Management",
+    content_links_legend: "Portal and Social Links",
+    content_media_legend: "Mascots and Image Assets",
+    content_hero_legend: "Navigation, Hero, Pricing, and Features (EN / BN)",
+    content_trust_legend: "Trust, Testimonials, and Footer (EN / BN)",
+    btn_save_content: "Save Homepage Content",
+    btn_reload_content: "Reload Content",
+    btn_expand_all: "Expand All",
+    btn_collapse_all: "Collapse All",
+    section_status_complete: "Complete",
+    section_status_progress: "{filled}/{total} filled",
 
     stats_title: "Library Snapshot",
     stats_total: "Total Videos",
@@ -79,6 +91,11 @@ const TRANSLATIONS = {
     status_no_videos_match: "No videos match this search.",
     status_no_videos: "No videos yet. Add your first video above.",
     status_signin_first_admin: "Please sign in as admin first.",
+    status_loading_content: "Loading homepage content...",
+    status_content_loaded: "Homepage content loaded.",
+    status_content_saved: "Homepage content saved.",
+    status_content_save_failed: "Could not save homepage content.",
+    status_content_load_failed: "Could not load homepage content.",
 
     label_general: "General",
     label_age: "Age {age}",
@@ -110,8 +127,20 @@ const TRANSLATIONS = {
     btn_sign_in: "সাইন ইন",
     btn_logout: "লগআউট",
     profile_label: "অ্যাডমিন প্রোফাইল",
-    btn_cms_management: "সিএমএস ম্যানেজমেন্ট",
     btn_content_management: "কনটেন্ট ম্যানেজমেন্ট",
+    btn_post_management: "পোস্ট ম্যানেজমেন্ট",
+    manager_title: "ম্যানেজমেন্ট কনসোল",
+    content_panel_title: "হোমপেজ কনটেন্ট ম্যানেজমেন্ট",
+    content_links_legend: "পোর্টাল এবং সোশ্যাল লিংক",
+    content_media_legend: "ম্যাসকট এবং ইমেজ অ্যাসেট",
+    content_hero_legend: "নেভিগেশন, হিরো, প্রাইসিং, এবং ফিচার (EN / BN)",
+    content_trust_legend: "ট্রাস্ট, টেস্টিমোনিয়াল, এবং ফুটার (EN / BN)",
+    btn_save_content: "হোমপেজ কনটেন্ট সেভ করুন",
+    btn_reload_content: "কনটেন্ট রিলোড করুন",
+    btn_expand_all: "সব খুলুন",
+    btn_collapse_all: "সব বন্ধ করুন",
+    section_status_complete: "পূর্ণ",
+    section_status_progress: "{total} এর মধ্যে {filled} পূরণ",
 
     stats_title: "লাইব্রেরি সারাংশ",
     stats_total: "মোট ভিডিও",
@@ -168,6 +197,11 @@ const TRANSLATIONS = {
     status_no_videos_match: "এই সার্চে কোনো ভিডিও মেলেনি।",
     status_no_videos: "এখনো কোনো ভিডিও নেই। প্রথম ভিডিও যোগ করুন।",
     status_signin_first_admin: "আগে অ্যাডমিন হিসেবে সাইন ইন করুন।",
+    status_loading_content: "হোমপেজ কনটেন্ট লোড হচ্ছে...",
+    status_content_loaded: "হোমপেজ কনটেন্ট লোড হয়েছে।",
+    status_content_saved: "হোমপেজ কনটেন্ট সেভ হয়েছে।",
+    status_content_save_failed: "হোমপেজ কনটেন্ট সেভ করা যায়নি।",
+    status_content_load_failed: "হোমপেজ কনটেন্ট লোড করা যায়নি।",
 
     label_general: "সাধারণ",
     label_age: "বয়স {age}",
@@ -214,10 +248,16 @@ const navEducatorsLink = document.getElementById("nav-educators");
 const navAdminLink = document.getElementById("nav-admin");
 const langEnButton = document.getElementById("lang-en");
 const langBnButton = document.getElementById("lang-bn");
-const jumpCmsBtn = document.getElementById("jump-cms-btn");
 const jumpContentBtn = document.getElementById("jump-content-btn");
-const cmsManagementSection = document.getElementById("cms-management");
-const contentManagementSection = document.getElementById("content-management");
+const jumpPostBtn = document.getElementById("jump-post-btn");
+const openContentManagerBtn = document.getElementById("open-content-manager-btn");
+const openPostManagerBtn = document.getElementById("open-post-manager-btn");
+const contentManagementView = document.getElementById("content-management-view");
+const postManagementView = document.getElementById("post-management-view");
+const contentForm = document.getElementById("content-form");
+const contentSaveBtn = document.getElementById("content-save-btn");
+const contentResetBtn = document.getElementById("content-reset-btn");
+const contentStatus = document.getElementById("content-status");
 
 const formTitle = document.getElementById("form-title");
 const videoForm = document.getElementById("video-form");
@@ -243,14 +283,155 @@ const fields = {
   isPublished: document.getElementById("isPublished")
 };
 
+const CONTENT_LINK_FIELD_MAP = [
+  ["content-parent-url", "parentAppUrl"],
+  ["content-educator-url", "educatorPortalUrl"],
+  ["content-admin-url", "adminCmsUrl"],
+  ["content-contact-email", "contactEmail"],
+  ["content-youtube-url", "youtubeUrl"],
+  ["content-facebook-url", "facebookUrl"],
+  ["content-instagram-url", "instagramUrl"]
+];
+
+const CONTENT_MEDIA_FIELD_MAP = [
+  ["content-tom-url", "mascotTomUrl"],
+  ["content-jerry-url", "mascotJerryUrl"],
+  ["content-feature-1-url", "featureOneImageUrl"],
+  ["content-feature-2-url", "featureTwoImageUrl"],
+  ["content-feature-3-url", "featureThreeImageUrl"],
+  ["content-testimonial-1-url", "testimonialOneAvatarUrl"],
+  ["content-testimonial-2-url", "testimonialTwoAvatarUrl"],
+  ["content-testimonial-3-url", "testimonialThreeAvatarUrl"]
+];
+
+const CONTENT_TEXT_FIELD_MAP = [
+  ["content-nav-parents-en", "en", "nav_parents"],
+  ["content-nav-parents-bn", "bn", "nav_parents"],
+  ["content-nav-educators-en", "en", "nav_educators"],
+  ["content-nav-educators-bn", "bn", "nav_educators"],
+  ["content-nav-admin-en", "en", "nav_admin"],
+  ["content-nav-admin-bn", "bn", "nav_admin"],
+  ["content-hero-title-en", "en", "hero_title"],
+  ["content-hero-title-bn", "bn", "hero_title"],
+  ["content-parent-cta-en", "en", "cta_parent"],
+  ["content-parent-cta-bn", "bn", "cta_parent"],
+  ["content-educator-cta-en", "en", "cta_educator"],
+  ["content-educator-cta-bn", "bn", "cta_educator"],
+  ["content-parent-price-en", "en", "parent_price"],
+  ["content-parent-price-bn", "bn", "parent_price"],
+  ["content-parent-plan-en", "en", "parent_plan"],
+  ["content-parent-plan-bn", "bn", "parent_plan"],
+  ["content-educator-price-en", "en", "educator_price"],
+  ["content-educator-price-bn", "bn", "educator_price"],
+  ["content-educator-plan-en", "en", "educator_plan"],
+  ["content-educator-plan-bn", "bn", "educator_plan"],
+  ["content-feature-alpha-en", "en", "topic_alpha"],
+  ["content-feature-alpha-bn", "bn", "topic_alpha"],
+  ["content-feature-story-en", "en", "topic_story"],
+  ["content-feature-story-bn", "bn", "topic_story"],
+  ["content-feature-words-en", "en", "feature_words"],
+  ["content-feature-words-bn", "bn", "feature_words"],
+  ["content-stat-1-value-en", "en", "stat_1_value"],
+  ["content-stat-1-value-bn", "bn", "stat_1_value"],
+  ["content-stat-1-label-en", "en", "stat_1_label"],
+  ["content-stat-1-label-bn", "bn", "stat_1_label"],
+  ["content-stat-2-value-en", "en", "stat_2_value"],
+  ["content-stat-2-value-bn", "bn", "stat_2_value"],
+  ["content-stat-2-label-en", "en", "stat_2_label"],
+  ["content-stat-2-label-bn", "bn", "stat_2_label"],
+  ["content-stat-3-value-en", "en", "stat_3_value"],
+  ["content-stat-3-value-bn", "bn", "stat_3_value"],
+  ["content-stat-3-label-en", "en", "stat_3_label"],
+  ["content-stat-3-label-bn", "bn", "stat_3_label"],
+  ["content-demo-title-en", "en", "demo_title"],
+  ["content-demo-title-bn", "bn", "demo_title"],
+  ["content-demo-caption-1-en", "en", "demo_caption_1"],
+  ["content-demo-caption-1-bn", "bn", "demo_caption_1"],
+  ["content-demo-caption-2-en", "en", "demo_caption_2"],
+  ["content-demo-caption-2-bn", "bn", "demo_caption_2"],
+  ["content-demo-caption-3-en", "en", "demo_caption_3"],
+  ["content-demo-caption-3-bn", "bn", "demo_caption_3"],
+  ["content-demo-pause-en", "en", "demo_pause"],
+  ["content-demo-pause-bn", "bn", "demo_pause"],
+  ["content-demo-play-en", "en", "demo_play"],
+  ["content-demo-play-bn", "bn", "demo_play"],
+  ["content-preview-title-en", "en", "preview_title"],
+  ["content-preview-title-bn", "bn", "preview_title"],
+  ["content-preview-text-en", "en", "preview_text"],
+  ["content-preview-text-bn", "bn", "preview_text"],
+  ["content-preview-1-title-en", "en", "preview_1_title"],
+  ["content-preview-1-title-bn", "bn", "preview_1_title"],
+  ["content-preview-1-meta-en", "en", "preview_1_meta"],
+  ["content-preview-1-meta-bn", "bn", "preview_1_meta"],
+  ["content-preview-2-title-en", "en", "preview_2_title"],
+  ["content-preview-2-title-bn", "bn", "preview_2_title"],
+  ["content-preview-2-meta-en", "en", "preview_2_meta"],
+  ["content-preview-2-meta-bn", "bn", "preview_2_meta"],
+  ["content-preview-3-title-en", "en", "preview_3_title"],
+  ["content-preview-3-title-bn", "bn", "preview_3_title"],
+  ["content-preview-3-meta-en", "en", "preview_3_meta"],
+  ["content-preview-3-meta-bn", "bn", "preview_3_meta"],
+  ["content-preview-4-title-en", "en", "preview_4_title"],
+  ["content-preview-4-title-bn", "bn", "preview_4_title"],
+  ["content-preview-4-meta-en", "en", "preview_4_meta"],
+  ["content-preview-4-meta-bn", "bn", "preview_4_meta"],
+  ["content-trust-title-en", "en", "trust_title"],
+  ["content-trust-title-bn", "bn", "trust_title"],
+  ["content-trust-text-en", "en", "trust_text"],
+  ["content-trust-text-bn", "bn", "trust_text"],
+  ["content-trust-item-1-title-en", "en", "trust_item_1_title"],
+  ["content-trust-item-1-title-bn", "bn", "trust_item_1_title"],
+  ["content-trust-item-1-text-en", "en", "trust_item_1_text"],
+  ["content-trust-item-1-text-bn", "bn", "trust_item_1_text"],
+  ["content-trust-item-2-title-en", "en", "trust_item_2_title"],
+  ["content-trust-item-2-title-bn", "bn", "trust_item_2_title"],
+  ["content-trust-item-2-text-en", "en", "trust_item_2_text"],
+  ["content-trust-item-2-text-bn", "bn", "trust_item_2_text"],
+  ["content-trust-item-3-title-en", "en", "trust_item_3_title"],
+  ["content-trust-item-3-title-bn", "bn", "trust_item_3_title"],
+  ["content-trust-item-3-text-en", "en", "trust_item_3_text"],
+  ["content-trust-item-3-text-bn", "bn", "trust_item_3_text"],
+  ["content-testimonials-title-en", "en", "testimonials_title"],
+  ["content-testimonials-title-bn", "bn", "testimonials_title"],
+  ["content-testimonials-text-en", "en", "testimonials_text"],
+  ["content-testimonials-text-bn", "bn", "testimonials_text"],
+  ["content-quote-1-en", "en", "quote_1"],
+  ["content-quote-1-bn", "bn", "quote_1"],
+  ["content-quote-1-by-en", "en", "quote_1_by"],
+  ["content-quote-1-by-bn", "bn", "quote_1_by"],
+  ["content-quote-2-en", "en", "quote_2"],
+  ["content-quote-2-bn", "bn", "quote_2"],
+  ["content-quote-2-by-en", "en", "quote_2_by"],
+  ["content-quote-2-by-bn", "bn", "quote_2_by"],
+  ["content-quote-3-en", "en", "quote_3"],
+  ["content-quote-3-bn", "bn", "quote_3"],
+  ["content-quote-3-by-en", "en", "quote_3_by"],
+  ["content-quote-3-by-bn", "bn", "quote_3_by"],
+  ["content-footer-tagline-en", "en", "footer_tagline"],
+  ["content-footer-tagline-bn", "bn", "footer_tagline"],
+  ["content-footer-social-title-en", "en", "footer_social_title"],
+  ["content-footer-social-title-bn", "bn", "footer_social_title"],
+  ["content-footer-contact-title-en", "en", "footer_contact_title"],
+  ["content-footer-contact-title-bn", "bn", "footer_contact_title"],
+  ["content-footer-contact-en", "en", "footer_contact_text"],
+  ["content-footer-contact-bn", "bn", "footer_contact_text"],
+  ["content-footer-rights-en", "en", "footer_rights"],
+  ["content-footer-rights-bn", "bn", "footer_rights"],
+  ["content-footer-made-en", "en", "footer_made"],
+  ["content-footer-made-bn", "bn", "footer_made"]
+];
+
 const state = {
   token: localStorage.getItem("xerivo_auth_token") || "",
   user: null,
   editingId: null,
   videos: [],
   searchQuery: "",
-  lang: "en"
+  lang: "en",
+  managerView: "content",
+  marketingContent: null
 };
+let contentAccordion = null;
 
 authEmail.value = localStorage.getItem("xerivo_admin_email") || "";
 
@@ -316,22 +497,45 @@ if (langEnButton) {
 if (langBnButton) {
   langBnButton.addEventListener("click", () => applyLanguage("bn"));
 }
-if (jumpCmsBtn) {
-  jumpCmsBtn.addEventListener("click", () => {
-    cmsManagementSection?.scrollIntoView({ behavior: "smooth", block: "start" });
-  });
-}
 if (jumpContentBtn) {
   jumpContentBtn.addEventListener("click", () => {
-    contentManagementSection?.scrollIntoView({ behavior: "smooth", block: "start" });
+    setManagerView("content", { scroll: true });
+  });
+}
+if (jumpPostBtn) {
+  jumpPostBtn.addEventListener("click", () => {
+    setManagerView("post", { scroll: true });
+  });
+}
+if (openContentManagerBtn) {
+  openContentManagerBtn.addEventListener("click", () => {
+    setManagerView("content");
+  });
+}
+if (openPostManagerBtn) {
+  openPostManagerBtn.addEventListener("click", () => {
+    setManagerView("post");
+  });
+}
+if (contentForm) {
+  contentForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    await saveMarketingContent();
+  });
+}
+if (contentResetBtn) {
+  contentResetBtn.addEventListener("click", async () => {
+    await loadMarketingContent();
   });
 }
 
+setupContentAccordion();
 applyLanguage(loadLanguagePreference(), { persist: false });
 bootstrap();
 
 async function bootstrap() {
   setCmsEnabled(false);
+  setManagerView("content");
   if (!state.token) {
     showLoggedOut(t("status_signin_to_manage"));
     return;
@@ -339,7 +543,7 @@ async function bootstrap() {
 
   try {
     await refreshAdminSession();
-    await loadVideos();
+    await Promise.all([loadVideos(), loadMarketingContent()]);
   } catch (error) {
     clearSession();
     showLoggedOut(localizeApiMessage(error.message, "status_session_expired"));
@@ -380,7 +584,7 @@ async function loginAdmin() {
 
     authPassword.value = "";
     showLoggedIn();
-    await loadVideos();
+    await Promise.all([loadVideos(), loadMarketingContent()]);
   } catch (error) {
     clearSession();
     showLoggedOut(localizeApiMessage(error.message, "status_login_failed"));
@@ -434,6 +638,64 @@ async function loadVideos() {
     state.videos = [];
     updateStats();
     videoList.innerHTML = `<p>${escapeHtml(localizeApiMessage(error.message, "status_could_not_load_videos"))}</p>`;
+  }
+}
+
+async function loadMarketingContent() {
+  if (!contentStatus) {
+    return;
+  }
+
+  if (!state.token) {
+    state.marketingContent = getDefaultMarketingContent();
+    populateContentForm(state.marketingContent);
+    contentStatus.textContent = t("status_signin_to_manage");
+    return;
+  }
+
+  contentStatus.textContent = t("status_loading_content");
+  try {
+    const response = await adminFetch("/api/admin/settings/marketing-content", { method: "GET" });
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(localizeApiMessage(data.error, "status_content_load_failed"));
+    }
+
+    state.marketingContent = normalizeMarketingContent(data.marketingContent);
+    populateContentForm(state.marketingContent);
+    contentStatus.textContent = t("status_content_loaded");
+  } catch (error) {
+    state.marketingContent = getDefaultMarketingContent();
+    populateContentForm(state.marketingContent);
+    contentStatus.textContent = localizeApiMessage(error.message, "status_content_load_failed");
+  }
+}
+
+async function saveMarketingContent() {
+  if (!contentStatus) {
+    return;
+  }
+
+  try {
+    assertAuthenticated();
+    const marketingContent = readMarketingContentForm();
+    const response = await adminFetch("/api/admin/settings/marketing-content", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ marketingContent })
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(localizeApiMessage(data.error, "status_content_save_failed"));
+    }
+
+    state.marketingContent = normalizeMarketingContent(data.marketingContent);
+    populateContentForm(state.marketingContent);
+    contentStatus.textContent = t("status_content_saved");
+  } catch (error) {
+    contentStatus.textContent = localizeApiMessage(error.message, "status_content_save_failed");
   }
 }
 
@@ -564,6 +826,7 @@ async function updateVideo(id, payload) {
 }
 
 function beginEdit(video) {
+  setManagerView("post");
   state.editingId = video.id;
   formTitle.textContent = t("form_edit_title");
   saveBtn.textContent = t("btn_update_video");
@@ -590,8 +853,359 @@ function resetForm() {
   fields.isPublished.checked = true;
 }
 
+function getDefaultMarketingContent() {
+  return {
+    links: {
+      parentAppUrl: "https://app.xerivolearn.com",
+      educatorPortalUrl: "https://educator.xerivolearn.com",
+      adminCmsUrl: "https://admin.xerivolearn.com",
+      contactEmail: "hello@xerivolearn.com",
+      youtubeUrl: "https://www.youtube.com/",
+      facebookUrl: "https://www.facebook.com/",
+      instagramUrl: "https://www.instagram.com/"
+    },
+    media: {
+      mascotTomUrl: "./assets/characters/tom.png",
+      mascotJerryUrl: "./assets/characters/jerry.png",
+      featureOneImageUrl: "./assets/characters/fox.svg",
+      featureTwoImageUrl: "./assets/characters/penguin.svg",
+      featureThreeImageUrl: "./assets/characters/bear.svg",
+      testimonialOneAvatarUrl: "./assets/testimonials/rima.png",
+      testimonialTwoAvatarUrl: "./assets/testimonials/tanvir.png",
+      testimonialThreeAvatarUrl: "./assets/testimonials/nusrat.png"
+    },
+    i18n: {
+      en: {
+        nav_parents: "Parents",
+        nav_educators: "Educators",
+        nav_admin: "Admin CMS",
+        hero_title: "Where Cartoons Spark Curious Minds",
+        cta_parent: "Enter Parent App",
+        cta_educator: "Educator Portal",
+        parent_price: "$1/month",
+        parent_plan: "Parent Plan",
+        educator_price: "$20/year",
+        educator_plan: "Educator Plan",
+        topic_alpha: "Alphabet",
+        topic_story: "Bedtime Stories",
+        feature_words: "Words",
+        stat_1_value: "500+",
+        stat_1_label: "Families learning weekly",
+        stat_2_value: "1,000+",
+        stat_2_label: "Lessons watched this month",
+        stat_3_value: "4.8/5",
+        stat_3_label: "Average parent rating",
+        preview_title: "Sample video carousel",
+        preview_text: "Swipeable preview cards to show what children will watch.",
+        preview_1_title: "ABC Rocket Song",
+        preview_1_meta: "Age 3-5 | 3:12",
+        preview_2_title: "Count the Stars",
+        preview_2_meta: "Age 4-7 | 4:01",
+        preview_3_title: "Moonlight Story Time",
+        preview_3_meta: "Age 3-8 | 5:18",
+        preview_4_title: "Tiny Science Lab",
+        preview_4_meta: "Age 6-10 | 6:20",
+        trust_title: "Why parents trust XerivoLearn",
+        trust_text: "Built for happy kids and low-stress parenting.",
+        trust_item_1_title: "Child-safe content",
+        trust_item_1_text: "Curated videos designed for young learners.",
+        trust_item_2_title: "Quick, focused lessons",
+        trust_item_2_text: "Short formats match real family routines.",
+        trust_item_3_title: "Bilingual Mode (Bangla + English)",
+        trust_item_3_text: "Switch language anytime and keep it saved.",
+        testimonials_title: "What families are saying",
+        testimonials_text: "Parent feedback from early XerivoLearn users.",
+        quote_1: "\"My daughter now asks for learning cartoons before bedtime.\"",
+        quote_1_by: "Rima, Parent of a 5-year-old",
+        quote_2: "\"The bilingual option helps us practice Bangla and English together.\"",
+        quote_2_by: "Tanvir, Parent",
+        quote_3: "\"Very easy for families. The videos are bright, short, and educational.\"",
+        quote_3_by: "Nusrat, Guardian",
+        demo_title: "30-second XerivoLearn Preview",
+        demo_caption_1: "Scene 1: Alphabet song with cartoon friends",
+        demo_caption_2: "Scene 2: Bedtime story time with calm narration",
+        demo_caption_3: "Scene 3: Fun science cartoon mini lesson",
+        demo_pause: "Pause",
+        demo_play: "Play",
+        footer_tagline: "Safe cartoons and learning joy for every family.",
+        footer_social_title: "Follow Us",
+        footer_contact_title: "Contact",
+        footer_contact_text: "Need help with your plan or videos? Email us anytime.",
+        footer_rights: "(C) 2026 XerivoLearn. All rights reserved.",
+        footer_made: "Made for children, trusted by parents."
+      },
+      bn: {}
+    }
+  };
+}
+
+function normalizeMarketingContent(content) {
+  const defaults = getDefaultMarketingContent();
+  const source = content && typeof content === "object" ? content : {};
+  return {
+    links: { ...defaults.links, ...(source.links || {}) },
+    media: { ...defaults.media, ...(source.media || {}) },
+    i18n: {
+      en: { ...(source.i18n?.en || {}) },
+      bn: { ...(source.i18n?.bn || {}) }
+    }
+  };
+}
+
+function setInputValueById(id, value) {
+  const input = document.getElementById(id);
+  if (!input) {
+    return;
+  }
+  input.value = typeof value === "string" ? value : "";
+}
+
+function populateContentForm(content) {
+  const safe = normalizeMarketingContent(content);
+  CONTENT_LINK_FIELD_MAP.forEach(([id, key]) => {
+    setInputValueById(id, safe.links[key] || "");
+  });
+  CONTENT_MEDIA_FIELD_MAP.forEach(([id, key]) => {
+    setInputValueById(id, safe.media[key] || "");
+  });
+  CONTENT_TEXT_FIELD_MAP.forEach(([id, lang, key]) => {
+    setInputValueById(id, safe.i18n?.[lang]?.[key] || "");
+  });
+  updateContentAccordionProgress();
+}
+
+function getInputValueById(id) {
+  const input = document.getElementById(id);
+  return input ? String(input.value || "").trim() : "";
+}
+
+function readMarketingContentForm() {
+  const current = normalizeMarketingContent(state.marketingContent);
+  const next = {
+    links: { ...current.links },
+    media: { ...current.media },
+    i18n: {
+      en: { ...current.i18n.en },
+      bn: { ...current.i18n.bn }
+    }
+  };
+
+  CONTENT_LINK_FIELD_MAP.forEach(([id, key]) => {
+    const value = getInputValueById(id);
+    next.links[key] = value || current.links[key] || "";
+  });
+
+  CONTENT_MEDIA_FIELD_MAP.forEach(([id, key]) => {
+    const value = getInputValueById(id);
+    next.media[key] = value || current.media[key] || "";
+  });
+
+  CONTENT_TEXT_FIELD_MAP.forEach(([id, lang, key]) => {
+    const value = getInputValueById(id);
+    if (value) {
+      next.i18n[lang][key] = value;
+    } else {
+      delete next.i18n[lang][key];
+    }
+  });
+
+  return next;
+}
+
+function setManagerView(view, options = {}) {
+  const target = view === "post" ? "post" : "content";
+  state.managerView = target;
+
+  if (contentManagementView) {
+    contentManagementView.classList.toggle("hidden", target !== "content");
+  }
+  if (postManagementView) {
+    postManagementView.classList.toggle("hidden", target !== "post");
+  }
+  if (openContentManagerBtn) {
+    openContentManagerBtn.classList.toggle("active", target === "content");
+  }
+  if (openPostManagerBtn) {
+    openPostManagerBtn.classList.toggle("active", target === "post");
+  }
+  if (jumpContentBtn) {
+    jumpContentBtn.classList.toggle("active", target === "content");
+  }
+  if (jumpPostBtn) {
+    jumpPostBtn.classList.toggle("active", target === "post");
+  }
+
+  if (options.scroll) {
+    if (target === "content") {
+      contentManagementView?.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else {
+      postManagementView?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }
+}
+
+function setAccordionItemOpen(item, open) {
+  item.wrapper.classList.toggle("collapsed", !open);
+  item.trigger.setAttribute("aria-expanded", open ? "true" : "false");
+}
+
+function readAccordionControlValue(control) {
+  if (!control) {
+    return "";
+  }
+  const type = String(control.type || "").toLowerCase();
+  if (type === "checkbox" || type === "radio") {
+    return control.checked ? "1" : "";
+  }
+  return String(control.value || "").trim();
+}
+
+function updateAccordionItemProgress(item) {
+  if (!item || !item.statusNode || !Array.isArray(item.controls)) {
+    return;
+  }
+
+  const total = item.controls.length;
+  const filled = item.controls.reduce((count, control) => {
+    const value = readAccordionControlValue(control);
+    return value ? count + 1 : count;
+  }, 0);
+  const complete = total > 0 && filled >= total;
+
+  item.statusNode.textContent = complete
+    ? t("section_status_complete")
+    : t("section_status_progress", { filled, total });
+  item.statusNode.classList.toggle("complete", complete);
+}
+
+function updateContentAccordionProgress() {
+  if (!contentAccordion || !Array.isArray(contentAccordion.items)) {
+    return;
+  }
+  contentAccordion.items.forEach((item) => updateAccordionItemProgress(item));
+}
+
+function syncContentAccordionTitles() {
+  if (!contentAccordion || !Array.isArray(contentAccordion.items)) {
+    return;
+  }
+  contentAccordion.items.forEach((item, index) => {
+    const fallback = `Section ${index + 1}`;
+    const title = item.legend && item.legend.textContent ? item.legend.textContent.trim() : "";
+    item.titleNode.textContent = title || fallback;
+  });
+  updateContentAccordionProgress();
+}
+
+function setupContentAccordion() {
+  if (!contentForm || contentAccordion || contentForm.dataset.accordionReady === "true") {
+    return;
+  }
+
+  const fieldsets = Array.from(contentForm.querySelectorAll(":scope > fieldset"));
+  if (fieldsets.length === 0) {
+    return;
+  }
+
+  const toolbar = document.createElement("div");
+  toolbar.className = "content-accordion-toolbar";
+  const expandBtn = document.createElement("button");
+  expandBtn.type = "button";
+  expandBtn.className = "muted";
+  expandBtn.setAttribute("data-i18n", "btn_expand_all");
+  expandBtn.textContent = "Expand All";
+  const collapseBtn = document.createElement("button");
+  collapseBtn.type = "button";
+  collapseBtn.className = "muted";
+  collapseBtn.setAttribute("data-i18n", "btn_collapse_all");
+  collapseBtn.textContent = "Collapse All";
+  toolbar.appendChild(expandBtn);
+  toolbar.appendChild(collapseBtn);
+
+  contentForm.insertBefore(toolbar, fieldsets[0]);
+
+  const items = fieldsets.map((fieldset, index) => {
+    const wrapper = document.createElement("section");
+    wrapper.className = "content-accordion-item";
+    const trigger = document.createElement("button");
+    trigger.type = "button";
+    trigger.className = "content-accordion-trigger";
+    trigger.setAttribute("aria-expanded", "true");
+
+    const titleNode = document.createElement("span");
+    titleNode.className = "content-accordion-title";
+    trigger.appendChild(titleNode);
+    const statusNode = document.createElement("span");
+    statusNode.className = "content-accordion-status";
+    trigger.appendChild(statusNode);
+
+    const body = document.createElement("div");
+    body.className = "content-accordion-body";
+    const legend = Array.from(fieldset.children).find(
+      (child) => child && child.tagName && child.tagName.toLowerCase() === "legend"
+    );
+
+    const parent = fieldset.parentNode;
+    parent.insertBefore(wrapper, fieldset);
+    wrapper.appendChild(trigger);
+    wrapper.appendChild(body);
+    body.appendChild(fieldset);
+
+    const controls = Array.from(fieldset.querySelectorAll("input, textarea, select"));
+    return { wrapper, trigger, titleNode, statusNode, body, fieldset, legend, index, controls };
+  });
+
+  items.forEach((item) => {
+    item.trigger.addEventListener("click", () => {
+      const willOpen = item.wrapper.classList.contains("collapsed");
+      if (willOpen) {
+        items.forEach((candidate) => {
+          setAccordionItemOpen(candidate, candidate === item);
+        });
+      } else {
+        setAccordionItemOpen(item, false);
+      }
+    });
+  });
+
+  expandBtn.addEventListener("click", () => {
+    items.forEach((item) => setAccordionItemOpen(item, true));
+  });
+
+  collapseBtn.addEventListener("click", () => {
+    items.forEach((item) => setAccordionItemOpen(item, false));
+  });
+
+  const updateByTarget = (target) => {
+    if (!target || !target.tagName) {
+      return;
+    }
+    const tag = target.tagName.toLowerCase();
+    if (!["input", "textarea", "select"].includes(tag)) {
+      return;
+    }
+    const owner = items.find((item) => item.fieldset.contains(target));
+    if (owner) {
+      updateAccordionItemProgress(owner);
+    }
+  };
+
+  contentForm.addEventListener("input", (event) => {
+    updateByTarget(event.target);
+  });
+  contentForm.addEventListener("change", (event) => {
+    updateByTarget(event.target);
+  });
+
+  items.forEach((item, index) => setAccordionItemOpen(item, index === 0));
+  contentAccordion = { items, toolbar, expandBtn, collapseBtn };
+  contentForm.dataset.accordionReady = "true";
+  syncContentAccordionTitles();
+}
+
 function showLoggedIn() {
   setCmsEnabled(true);
+  setManagerView(state.managerView || "content");
   if (authLoginControls) {
     authLoginControls.classList.add("hidden");
   }
@@ -607,6 +1221,7 @@ function showLoggedIn() {
 
 function showLoggedOut(message) {
   setCmsEnabled(false);
+  setManagerView("content");
   if (authLoginControls) {
     authLoginControls.classList.remove("hidden");
   }
@@ -616,8 +1231,13 @@ function showLoggedOut(message) {
   authStatus.textContent = message || "";
   authUser.textContent = "";
   state.videos = [];
+  state.marketingContent = getDefaultMarketingContent();
   updateStats();
+  populateContentForm(state.marketingContent);
   videoList.innerHTML = `<p>${escapeHtml(t("status_signin_to_load"))}</p>`;
+  if (contentStatus) {
+    contentStatus.textContent = "";
+  }
   updateAuthPanelText();
 }
 
@@ -631,6 +1251,30 @@ function setCmsEnabled(enabled) {
   saveBtn.disabled = !enabled;
   cancelBtn.disabled = !enabled;
   librarySearch.disabled = !enabled;
+  if (contentSaveBtn) {
+    contentSaveBtn.disabled = !enabled;
+  }
+  if (contentResetBtn) {
+    contentResetBtn.disabled = !enabled;
+  }
+  if (openContentManagerBtn) {
+    openContentManagerBtn.disabled = !enabled;
+  }
+  if (openPostManagerBtn) {
+    openPostManagerBtn.disabled = !enabled;
+  }
+  if (jumpContentBtn) {
+    jumpContentBtn.disabled = !enabled;
+  }
+  if (jumpPostBtn) {
+    jumpPostBtn.disabled = !enabled;
+  }
+  if (contentForm) {
+    const controls = contentForm.querySelectorAll("input, textarea, select, button");
+    controls.forEach((control) => {
+      control.disabled = !enabled;
+    });
+  }
 }
 
 function clearSession() {
@@ -781,6 +1425,7 @@ function applyLanguage(lang, options = {}) {
     }
     node.setAttribute("placeholder", t(key));
   });
+  syncContentAccordionTitles();
 
   if (options.persist !== false) {
     saveLanguagePreference(targetLang);
@@ -800,6 +1445,7 @@ function applyLanguage(lang, options = {}) {
     saveBtn.textContent = t("btn_save_video");
   }
   updateAuthPanelText();
+  setManagerView(state.managerView || "content");
 
   renderList();
 

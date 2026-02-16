@@ -49,8 +49,8 @@
               <p id="auth-user" class="auth-user"></p>
             </div>
             <div class="admin-shortcuts">
-              <button id="jump-cms-btn" class="muted" type="button" data-i18n="btn_cms_management">CMS Management</button>
               <button id="jump-content-btn" class="muted" type="button" data-i18n="btn_content_management">Content Management</button>
+              <button id="jump-post-btn" class="muted" type="button" data-i18n="btn_post_management">Post Management</button>
               <button id="auth-logout-btn" class="muted" type="button" data-i18n="btn_logout">Logout</button>
             </div>
           </div>
@@ -86,61 +86,365 @@
       </aside>
 
       <section class="right-column requires-auth hidden">
-        <section class="panel form-panel" id="cms-management">
-          <h2 id="form-title" data-i18n="form_add_title">Add New Video</h2>
-          <form id="video-form">
-            <label>
-              <span data-i18n="label_title">Title</span>
-              <input id="title" required />
-            </label>
-            <label>
-              <span data-i18n="label_description">Description</span>
-              <textarea id="description" rows="3"></textarea>
-            </label>
-            <label>
-              <span data-i18n="label_category">Category</span>
-              <input id="category" data-i18n-placeholder="ph_category" placeholder="Learning, Math, Story, etc." />
-            </label>
-            <div class="split">
-              <label>
-                <span data-i18n="label_age_group">Age Group</span>
-                <select id="ageGroup">
-                  <option value="3-5">3-5</option>
-                  <option value="4-7">4-7</option>
-                  <option value="7+">7+</option>
-                </select>
-              </label>
-              <label>
-                <span data-i18n="label_duration">Duration</span>
-                <input id="duration" data-i18n-placeholder="ph_duration" placeholder="2:30" />
-              </label>
-            </div>
-            <label>
-              <span data-i18n="label_thumbnail_url">Thumbnail URL</span>
-              <input id="thumbnailUrl" type="url" data-i18n-placeholder="ph_thumbnail_url" placeholder="https://..." />
-            </label>
-            <label>
-              <span data-i18n="label_video_url">Video URL</span>
-              <input id="videoUrl" type="url" required data-i18n-placeholder="ph_video_url" placeholder="https://..." />
-            </label>
-            <label class="checkbox">
-              <input id="isPublished" type="checkbox" checked />
-              <span data-i18n="label_published">Published</span>
-            </label>
+        <section class="panel manager-toolbar">
+          <h2 data-i18n="manager_title">Management Console</h2>
+          <div class="manager-switch">
+            <button id="open-content-manager-btn" class="muted active" type="button" data-i18n="btn_content_management">
+              Content Management
+            </button>
+            <button id="open-post-manager-btn" class="muted" type="button" data-i18n="btn_post_management">
+              Post Management
+            </button>
+          </div>
+        </section>
+
+        <section class="panel content-panel manager-view" id="content-management-view">
+          <h2 data-i18n="content_panel_title">Homepage Content Management</h2>
+          <form id="content-form">
+            <fieldset>
+              <legend data-i18n="content_links_legend">Portal and Social Links</legend>
+              <div class="split">
+                <label>Parent App URL<input id="content-parent-url" type="url" /></label>
+                <label>Educator URL<input id="content-educator-url" type="url" /></label>
+              </div>
+              <div class="split">
+                <label>Admin CMS URL<input id="content-admin-url" type="url" /></label>
+                <label>Contact Email<input id="content-contact-email" type="email" /></label>
+              </div>
+              <div class="split">
+                <label>YouTube URL<input id="content-youtube-url" type="url" /></label>
+                <label>Facebook URL<input id="content-facebook-url" type="url" /></label>
+              </div>
+              <label>Instagram URL<input id="content-instagram-url" type="url" /></label>
+            </fieldset>
+
+            <fieldset>
+              <legend data-i18n="content_media_legend">Mascots and Image Assets</legend>
+              <div class="split">
+                <label>Tom Mascot Image URL<input id="content-tom-url" type="url" /></label>
+                <label>Jerry Mascot Image URL<input id="content-jerry-url" type="url" /></label>
+              </div>
+              <div class="split">
+                <label>Feature Image 1 URL<input id="content-feature-1-url" type="url" /></label>
+                <label>Feature Image 2 URL<input id="content-feature-2-url" type="url" /></label>
+              </div>
+              <div class="split">
+                <label>Feature Image 3 URL<input id="content-feature-3-url" type="url" /></label>
+                <label>Testimonial Avatar 1 URL<input id="content-testimonial-1-url" type="url" /></label>
+              </div>
+              <div class="split">
+                <label>Testimonial Avatar 2 URL<input id="content-testimonial-2-url" type="url" /></label>
+                <label>Testimonial Avatar 3 URL<input id="content-testimonial-3-url" type="url" /></label>
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend data-i18n="content_hero_legend">Navigation, Hero, Pricing, and Features (EN / BN)</legend>
+              <div class="split">
+                <label>Nav Parents EN<input id="content-nav-parents-en" /></label>
+                <label>Nav Parents BN<input id="content-nav-parents-bn" /></label>
+              </div>
+              <div class="split">
+                <label>Nav Educators EN<input id="content-nav-educators-en" /></label>
+                <label>Nav Educators BN<input id="content-nav-educators-bn" /></label>
+              </div>
+              <div class="split">
+                <label>Nav Admin EN<input id="content-nav-admin-en" /></label>
+                <label>Nav Admin BN<input id="content-nav-admin-bn" /></label>
+              </div>
+              <label>Hero Title EN<textarea id="content-hero-title-en" rows="2"></textarea></label>
+              <label>Hero Title BN<textarea id="content-hero-title-bn" rows="2"></textarea></label>
+              <div class="split">
+                <label>Parent CTA EN<input id="content-parent-cta-en" /></label>
+                <label>Parent CTA BN<input id="content-parent-cta-bn" /></label>
+              </div>
+              <div class="split">
+                <label>Educator CTA EN<input id="content-educator-cta-en" /></label>
+                <label>Educator CTA BN<input id="content-educator-cta-bn" /></label>
+              </div>
+              <div class="split">
+                <label>Parent Price EN<input id="content-parent-price-en" /></label>
+                <label>Parent Price BN<input id="content-parent-price-bn" /></label>
+              </div>
+              <div class="split">
+                <label>Parent Plan EN<input id="content-parent-plan-en" /></label>
+                <label>Parent Plan BN<input id="content-parent-plan-bn" /></label>
+              </div>
+              <div class="split">
+                <label>Educator Price EN<input id="content-educator-price-en" /></label>
+                <label>Educator Price BN<input id="content-educator-price-bn" /></label>
+              </div>
+              <div class="split">
+                <label>Educator Plan EN<input id="content-educator-plan-en" /></label>
+                <label>Educator Plan BN<input id="content-educator-plan-bn" /></label>
+              </div>
+              <div class="split">
+                <label>Feature 1 EN<input id="content-feature-alpha-en" /></label>
+                <label>Feature 1 BN<input id="content-feature-alpha-bn" /></label>
+              </div>
+              <div class="split">
+                <label>Feature 2 EN<input id="content-feature-story-en" /></label>
+                <label>Feature 2 BN<input id="content-feature-story-bn" /></label>
+              </div>
+              <div class="split">
+                <label>Feature 3 EN<input id="content-feature-words-en" /></label>
+                <label>Feature 3 BN<input id="content-feature-words-bn" /></label>
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend>Stats and Demo Text (EN / BN)</legend>
+              <div class="split">
+                <label>Stat 1 Value EN<input id="content-stat-1-value-en" /></label>
+                <label>Stat 1 Value BN<input id="content-stat-1-value-bn" /></label>
+              </div>
+              <div class="split">
+                <label>Stat 1 Label EN<input id="content-stat-1-label-en" /></label>
+                <label>Stat 1 Label BN<input id="content-stat-1-label-bn" /></label>
+              </div>
+              <div class="split">
+                <label>Stat 2 Value EN<input id="content-stat-2-value-en" /></label>
+                <label>Stat 2 Value BN<input id="content-stat-2-value-bn" /></label>
+              </div>
+              <div class="split">
+                <label>Stat 2 Label EN<input id="content-stat-2-label-en" /></label>
+                <label>Stat 2 Label BN<input id="content-stat-2-label-bn" /></label>
+              </div>
+              <div class="split">
+                <label>Stat 3 Value EN<input id="content-stat-3-value-en" /></label>
+                <label>Stat 3 Value BN<input id="content-stat-3-value-bn" /></label>
+              </div>
+              <div class="split">
+                <label>Stat 3 Label EN<input id="content-stat-3-label-en" /></label>
+                <label>Stat 3 Label BN<input id="content-stat-3-label-bn" /></label>
+              </div>
+              <div class="split">
+                <label>Demo Title EN<input id="content-demo-title-en" /></label>
+                <label>Demo Title BN<input id="content-demo-title-bn" /></label>
+              </div>
+              <div class="split">
+                <label>Demo Caption 1 EN<textarea id="content-demo-caption-1-en" rows="2"></textarea></label>
+                <label>Demo Caption 1 BN<textarea id="content-demo-caption-1-bn" rows="2"></textarea></label>
+              </div>
+              <div class="split">
+                <label>Demo Caption 2 EN<textarea id="content-demo-caption-2-en" rows="2"></textarea></label>
+                <label>Demo Caption 2 BN<textarea id="content-demo-caption-2-bn" rows="2"></textarea></label>
+              </div>
+              <div class="split">
+                <label>Demo Caption 3 EN<textarea id="content-demo-caption-3-en" rows="2"></textarea></label>
+                <label>Demo Caption 3 BN<textarea id="content-demo-caption-3-bn" rows="2"></textarea></label>
+              </div>
+              <div class="split">
+                <label>Demo Pause EN<input id="content-demo-pause-en" /></label>
+                <label>Demo Pause BN<input id="content-demo-pause-bn" /></label>
+              </div>
+              <div class="split">
+                <label>Demo Play EN<input id="content-demo-play-en" /></label>
+                <label>Demo Play BN<input id="content-demo-play-bn" /></label>
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend>Preview Carousel Text (EN / BN)</legend>
+              <div class="split">
+                <label>Preview Title EN<input id="content-preview-title-en" /></label>
+                <label>Preview Title BN<input id="content-preview-title-bn" /></label>
+              </div>
+              <div class="split">
+                <label>Preview Subtitle EN<textarea id="content-preview-text-en" rows="2"></textarea></label>
+                <label>Preview Subtitle BN<textarea id="content-preview-text-bn" rows="2"></textarea></label>
+              </div>
+              <div class="split">
+                <label>Card 1 Title EN<input id="content-preview-1-title-en" /></label>
+                <label>Card 1 Title BN<input id="content-preview-1-title-bn" /></label>
+              </div>
+              <div class="split">
+                <label>Card 1 Meta EN<input id="content-preview-1-meta-en" /></label>
+                <label>Card 1 Meta BN<input id="content-preview-1-meta-bn" /></label>
+              </div>
+              <div class="split">
+                <label>Card 2 Title EN<input id="content-preview-2-title-en" /></label>
+                <label>Card 2 Title BN<input id="content-preview-2-title-bn" /></label>
+              </div>
+              <div class="split">
+                <label>Card 2 Meta EN<input id="content-preview-2-meta-en" /></label>
+                <label>Card 2 Meta BN<input id="content-preview-2-meta-bn" /></label>
+              </div>
+              <div class="split">
+                <label>Card 3 Title EN<input id="content-preview-3-title-en" /></label>
+                <label>Card 3 Title BN<input id="content-preview-3-title-bn" /></label>
+              </div>
+              <div class="split">
+                <label>Card 3 Meta EN<input id="content-preview-3-meta-en" /></label>
+                <label>Card 3 Meta BN<input id="content-preview-3-meta-bn" /></label>
+              </div>
+              <div class="split">
+                <label>Card 4 Title EN<input id="content-preview-4-title-en" /></label>
+                <label>Card 4 Title BN<input id="content-preview-4-title-bn" /></label>
+              </div>
+              <div class="split">
+                <label>Card 4 Meta EN<input id="content-preview-4-meta-en" /></label>
+                <label>Card 4 Meta BN<input id="content-preview-4-meta-bn" /></label>
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend data-i18n="content_trust_legend">Trust, Testimonials, and Footer (EN / BN)</legend>
+              <div class="split">
+                <label>Trust Title EN<input id="content-trust-title-en" /></label>
+                <label>Trust Title BN<input id="content-trust-title-bn" /></label>
+              </div>
+              <div class="split">
+                <label>Trust Text EN<textarea id="content-trust-text-en" rows="2"></textarea></label>
+                <label>Trust Text BN<textarea id="content-trust-text-bn" rows="2"></textarea></label>
+              </div>
+              <div class="split">
+                <label>Trust Item 1 Title EN<input id="content-trust-item-1-title-en" /></label>
+                <label>Trust Item 1 Title BN<input id="content-trust-item-1-title-bn" /></label>
+              </div>
+              <div class="split">
+                <label>Trust Item 1 Text EN<textarea id="content-trust-item-1-text-en" rows="2"></textarea></label>
+                <label>Trust Item 1 Text BN<textarea id="content-trust-item-1-text-bn" rows="2"></textarea></label>
+              </div>
+              <div class="split">
+                <label>Trust Item 2 Title EN<input id="content-trust-item-2-title-en" /></label>
+                <label>Trust Item 2 Title BN<input id="content-trust-item-2-title-bn" /></label>
+              </div>
+              <div class="split">
+                <label>Trust Item 2 Text EN<textarea id="content-trust-item-2-text-en" rows="2"></textarea></label>
+                <label>Trust Item 2 Text BN<textarea id="content-trust-item-2-text-bn" rows="2"></textarea></label>
+              </div>
+              <div class="split">
+                <label>Trust Item 3 Title EN<input id="content-trust-item-3-title-en" /></label>
+                <label>Trust Item 3 Title BN<input id="content-trust-item-3-title-bn" /></label>
+              </div>
+              <div class="split">
+                <label>Trust Item 3 Text EN<textarea id="content-trust-item-3-text-en" rows="2"></textarea></label>
+                <label>Trust Item 3 Text BN<textarea id="content-trust-item-3-text-bn" rows="2"></textarea></label>
+              </div>
+              <div class="split">
+                <label>Testimonials Title EN<input id="content-testimonials-title-en" /></label>
+                <label>Testimonials Title BN<input id="content-testimonials-title-bn" /></label>
+              </div>
+              <div class="split">
+                <label>Testimonials Subtitle EN<textarea id="content-testimonials-text-en" rows="2"></textarea></label>
+                <label>Testimonials Subtitle BN<textarea id="content-testimonials-text-bn" rows="2"></textarea></label>
+              </div>
+              <div class="split">
+                <label>Quote 1 EN<textarea id="content-quote-1-en" rows="2"></textarea></label>
+                <label>Quote 1 BN<textarea id="content-quote-1-bn" rows="2"></textarea></label>
+              </div>
+              <div class="split">
+                <label>Quote 1 Author EN<input id="content-quote-1-by-en" /></label>
+                <label>Quote 1 Author BN<input id="content-quote-1-by-bn" /></label>
+              </div>
+              <div class="split">
+                <label>Quote 2 EN<textarea id="content-quote-2-en" rows="2"></textarea></label>
+                <label>Quote 2 BN<textarea id="content-quote-2-bn" rows="2"></textarea></label>
+              </div>
+              <div class="split">
+                <label>Quote 2 Author EN<input id="content-quote-2-by-en" /></label>
+                <label>Quote 2 Author BN<input id="content-quote-2-by-bn" /></label>
+              </div>
+              <div class="split">
+                <label>Quote 3 EN<textarea id="content-quote-3-en" rows="2"></textarea></label>
+                <label>Quote 3 BN<textarea id="content-quote-3-bn" rows="2"></textarea></label>
+              </div>
+              <div class="split">
+                <label>Quote 3 Author EN<input id="content-quote-3-by-en" /></label>
+                <label>Quote 3 Author BN<input id="content-quote-3-by-bn" /></label>
+              </div>
+              <div class="split">
+                <label>Footer Tagline EN<textarea id="content-footer-tagline-en" rows="2"></textarea></label>
+                <label>Footer Tagline BN<textarea id="content-footer-tagline-bn" rows="2"></textarea></label>
+              </div>
+              <div class="split">
+                <label>Footer Social Title EN<input id="content-footer-social-title-en" /></label>
+                <label>Footer Social Title BN<input id="content-footer-social-title-bn" /></label>
+              </div>
+              <div class="split">
+                <label>Footer Contact Title EN<input id="content-footer-contact-title-en" /></label>
+                <label>Footer Contact Title BN<input id="content-footer-contact-title-bn" /></label>
+              </div>
+              <div class="split">
+                <label>Footer Contact EN<textarea id="content-footer-contact-en" rows="2"></textarea></label>
+                <label>Footer Contact BN<textarea id="content-footer-contact-bn" rows="2"></textarea></label>
+              </div>
+              <div class="split">
+                <label>Footer Rights EN<input id="content-footer-rights-en" /></label>
+                <label>Footer Rights BN<input id="content-footer-rights-bn" /></label>
+              </div>
+              <div class="split">
+                <label>Footer Bottom EN<input id="content-footer-made-en" /></label>
+                <label>Footer Bottom BN<input id="content-footer-made-bn" /></label>
+              </div>
+            </fieldset>
+
             <div class="actions">
-              <button type="submit" id="save-btn" data-i18n="btn_save_video">Save Video</button>
-              <button type="button" id="cancel-btn" class="muted hidden" data-i18n="btn_cancel_edit">Cancel Edit</button>
+              <button type="submit" id="content-save-btn" data-i18n="btn_save_content">Save Homepage Content</button>
+              <button type="button" id="content-reset-btn" class="muted" data-i18n="btn_reload_content">Reload Content</button>
             </div>
-            <p id="form-status" class="status"></p>
+            <p id="content-status" class="status"></p>
           </form>
         </section>
 
-        <section class="panel library-panel" id="content-management">
-          <div class="library-head">
-            <h2 data-i18n="library_title">Video Library</h2>
-            <input id="library-search" type="search" data-i18n-placeholder="ph_search_videos" placeholder="Search videos..." />
-          </div>
-          <div id="video-list" class="video-list"></div>
+        <section class="manager-view hidden post-management-view" id="post-management-view">
+          <section class="panel form-panel" id="post-management">
+            <h2 id="form-title" data-i18n="form_add_title">Add New Video</h2>
+            <form id="video-form">
+              <label>
+                <span data-i18n="label_title">Title</span>
+                <input id="title" required />
+              </label>
+              <label>
+                <span data-i18n="label_description">Description</span>
+                <textarea id="description" rows="3"></textarea>
+              </label>
+              <label>
+                <span data-i18n="label_category">Category</span>
+                <input id="category" data-i18n-placeholder="ph_category" placeholder="Learning, Math, Story, etc." />
+              </label>
+              <div class="split">
+                <label>
+                  <span data-i18n="label_age_group">Age Group</span>
+                  <select id="ageGroup">
+                    <option value="3-5">3-5</option>
+                    <option value="4-7">4-7</option>
+                    <option value="7+">7+</option>
+                  </select>
+                </label>
+                <label>
+                  <span data-i18n="label_duration">Duration</span>
+                  <input id="duration" data-i18n-placeholder="ph_duration" placeholder="2:30" />
+                </label>
+              </div>
+              <label>
+                <span data-i18n="label_thumbnail_url">Thumbnail URL</span>
+                <input id="thumbnailUrl" type="url" data-i18n-placeholder="ph_thumbnail_url" placeholder="https://..." />
+              </label>
+              <label>
+                <span data-i18n="label_video_url">Video URL</span>
+                <input id="videoUrl" type="url" required data-i18n-placeholder="ph_video_url" placeholder="https://..." />
+              </label>
+              <label class="checkbox">
+                <input id="isPublished" type="checkbox" checked />
+                <span data-i18n="label_published">Published</span>
+              </label>
+              <div class="actions">
+                <button type="submit" id="save-btn" data-i18n="btn_save_video">Save Video</button>
+                <button type="button" id="cancel-btn" class="muted hidden" data-i18n="btn_cancel_edit">Cancel Edit</button>
+              </div>
+              <p id="form-status" class="status"></p>
+            </form>
+          </section>
+
+          <section class="panel library-panel">
+            <div class="library-head">
+              <h2 data-i18n="library_title">Video Library</h2>
+              <input id="library-search" type="search" data-i18n-placeholder="ph_search_videos" placeholder="Search videos..." />
+            </div>
+            <div id="video-list" class="video-list"></div>
+          </section>
         </section>
       </section>
     </main>

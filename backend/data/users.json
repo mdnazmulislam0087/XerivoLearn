@@ -9,5 +9,17 @@
     "passwordIterations": 120000,
     "createdAt": "2026-02-15T01:18:52.599Z",
     "updatedAt": "2026-02-15T01:18:52.599Z"
+  },
+  {
+    "id": "41b7b790-6a86-478f-8026-f623947ee87e",
+    "name": "Xerivo Educator",
+    "email": "educator@xerivolearn.com",
+    "role": "educator",
+    "emailVerifiedAt": "2026-02-16T00:08:34.674Z",
+    "passwordHash": "db41fe28628b0e3075703f8f0bd92bb32606d0e61468897ff0920bd92cd6703afabe22a8235ead35f6d33c320b8c8e5030b26e9ff0f5314ae2aa79b5d90ffb30",
+    "passwordSalt": "fe7bb2d96125ebd7055dc507ee0a7145",
+    "passwordIterations": 120000,
+    "createdAt": "2026-02-16T00:08:34.674Z",
+    "updatedAt": "2026-02-16T00:08:34.674Z"
   }
 ]

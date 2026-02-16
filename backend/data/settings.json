@@ -1,0 +1,55 @@
+{
+  "marketingContent": {
+    "links": {
+      "parentAppUrl": "https://app.xerivolearn.com",
+      "educatorPortalUrl": "https://educator.xerivolearn.com",
+      "adminCmsUrl": "https://admin.xerivolearn.com",
+      "contactEmail": "hello@xerivolearn.com",
+      "youtubeUrl": "https://www.youtube.com/",
+      "facebookUrl": "https://www.facebook.com/",
+      "instagramUrl": "https://www.instagram.com/"
+    },
+    "media": {
+      "mascotTomUrl": "./assets/characters/tom.png",
+      "mascotJerryUrl": "./assets/characters/jerry.png",
+      "featureOneImageUrl": "./assets/characters/fox.svg",
+      "featureTwoImageUrl": "./assets/characters/penguin.svg",
+      "featureThreeImageUrl": "./assets/characters/bear.svg",
+      "testimonialOneAvatarUrl": "./assets/testimonials/rima.png",
+      "testimonialTwoAvatarUrl": "./assets/testimonials/tanvir.png",
+      "testimonialThreeAvatarUrl": "./assets/testimonials/nusrat.png"
+    },
+    "i18n": {
+      "en": {
+        "hero_title": "CMS Dynamic Hero Test",
+        "cta_parent": "Enter Parent App",
+        "cta_educator": "Educator Portal",
+        "parent_price": "$1/month",
+        "parent_plan": "Parent Plan",
+        "educator_price": "$20/year",
+        "educator_plan": "Educator Plan",
+        "topic_alpha": "Alphabet",
+        "topic_story": "Bedtime Stories",
+        "feature_words": "Words",
+        "trust_title": "Why parents trust XerivoLearn",
+        "trust_text": "Built for happy kids and low-stress parenting.",
+        "testimonials_title": "What families are saying",
+        "testimonials_text": "Parent feedback from early XerivoLearn users.",
+        "quote_1": "\"My daughter now asks for learning cartoons before bedtime.\"",
+        "quote_1_by": "Rima, Parent of a 5-year-old",
+        "quote_2": "\"The bilingual option helps us practice Bangla and English together.\"",
+        "quote_2_by": "Tanvir, Parent",
+        "quote_3": "\"Very easy for families. The videos are bright, short, and educational.\"",
+        "quote_3_by": "Nusrat, Guardian",
+        "footer_tagline": "Safe cartoons and learning joy for every family.",
+        "footer_contact_text": "Need help with your plan or videos? Email us anytime.",
+        "footer_rights": "© 2026 XerivoLearn. All rights reserved.",
+        "footer_made": "Made for children, trusted by parents."
+      },
+      "bn": {}
+    }
+  },
+  "createdAt": "2026-02-16T00:08:34.670Z",
+  "termsAndConditions": "XerivoLearn Terms and Conditions\n\n1. Parent Account Responsibility\nParent accounts are for adults only. Parents are responsible for supervising children while using the platform.\n\n2. Child Safety and Appropriate Use\nYou agree to use XerivoLearn for educational purposes and to avoid uploading or sharing harmful content.\n\n3. Account Security\nYou are responsible for keeping your email and password secure. Do not share login credentials.\n\n4. Subscription and Access\nAccess to videos and features depends on an active parent subscription and compliance with platform rules.\n\n5. Content Availability\nVideo content may be updated, removed, or reorganized over time to improve learning quality.\n\n6. Privacy\nWe store only required account and usage data needed to operate the service and improve child learning experience.\n\n7. Policy Updates\nTerms may change from time to time. Continued use after updates means you accept the revised terms.",
+  "termsUpdatedAt": "2026-02-16T00:08:34.670Z"
+}

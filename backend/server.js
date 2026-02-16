@@ -180,7 +180,16 @@ async function handleApi(req, res, pathname, searchParams) {
     const settings = await loadSettings();
     sendJson(res, 200, {
       termsAndConditions: settings.termsAndConditions || "",
-      termsUpdatedAt: settings.termsUpdatedAt || null
+      termsUpdatedAt: settings.termsUpdatedAt || null,
+      marketingContent: normalizeMarketingContent(settings.marketingContent)
+    });
+    return;
+  }
+
+  if (req.method === "GET" && pathname === "/api/public/marketing-content") {
+    const settings = await loadSettings();
+    sendJson(res, 200, {
+      marketingContent: normalizeMarketingContent(settings.marketingContent)
     });
     return;
   }
@@ -750,6 +759,33 @@ async function handleApi(req, res, pathname, searchParams) {
     return;
   }
 
+  if (req.method === "GET" && pathname === "/api/admin/settings/marketing-content") {
+    const settings = await loadSettings();
+    sendJson(res, 200, {
+      marketingContent: normalizeMarketingContent(settings.marketingContent)
+    });
+    return;
+  }
+
+  if (req.method === "PUT" && pathname === "/api/admin/settings/marketing-content") {
+    const payload = await readBodyJson(req, res);
+    if (!payload) {
+      return;
+    }
+
+    const current = await loadSettings();
+    const source = payload && typeof payload === "object" ? payload.marketingContent || payload : {};
+    const marketingContent = normalizeMarketingContent(source, current.marketingContent);
+
+    const next = {
+      ...current,
+      marketingContent
+    };
+    await saveSettings(next);
+    sendJson(res, 200, { marketingContent });
+    return;
+  }
+
   if (req.method === "PUT" && pathname === "/api/admin/settings/terms") {
     const payload = await readBodyJson(req, res);
     if (!payload) {
@@ -1074,9 +1110,13 @@ async function initializePostgresSchema() {
       id smallint PRIMARY KEY DEFAULT 1 CHECK (id = 1),
       terms_and_conditions text NOT NULL DEFAULT '',
       terms_updated_at timestamptz NULL,
+      marketing_content_json text NOT NULL DEFAULT '{}',
       created_at timestamptz NOT NULL DEFAULT now()
     )
   `);
+  await pool.query(
+    `ALTER TABLE settings ADD COLUMN IF NOT EXISTS marketing_content_json text NOT NULL DEFAULT '{}'`
+  );
 }
 
 async function seedPostgresFromJsonIfEmpty() {
@@ -1142,17 +1182,33 @@ async function dbCountRows(tableName) {
 
 async function ensureDefaultSettings() {
   const settings = await loadSettings();
-  if (settings.termsAndConditions && settings.termsUpdatedAt) {
-    return;
-  }
-
+  let changed = false;
   const now = new Date().toISOString();
   const next = {
-    termsAndConditions: defaultTermsAndConditions(),
-    termsUpdatedAt: now,
+    ...settings,
     createdAt: settings.createdAt || now
   };
-  await saveSettings(next);
+
+  if (!settings.termsAndConditions || !settings.termsUpdatedAt) {
+    next.termsAndConditions = defaultTermsAndConditions();
+    next.termsUpdatedAt = now;
+    changed = true;
+  }
+
+  const normalizedMarketing = normalizeMarketingContent(settings.marketingContent);
+  if (
+    !settings.marketingContent ||
+    JSON.stringify(normalizedMarketing) !== JSON.stringify(settings.marketingContent)
+  ) {
+    next.marketingContent = normalizedMarketing;
+    changed = true;
+  } else {
+    next.marketingContent = settings.marketingContent;
+  }
+
+  if (changed) {
+    await saveSettings(next);
+  }
 }
 
 async function ensureDefaultAdminUser() {
@@ -1604,39 +1660,56 @@ async function saveEmailVerifications(verifications) {
 
 async function loadSettings() {
   if (!USE_POSTGRES || !pool) {
-    return readJsonObject(SETTINGS_FILE, "settings");
+    const raw = readJsonObject(SETTINGS_FILE, "settings");
+    return {
+      ...raw,
+      marketingContent: normalizeMarketingContent(raw.marketingContent)
+    };
   }
   const result = await pool.query(`
     SELECT
       terms_and_conditions AS "termsAndConditions",
       terms_updated_at AS "termsUpdatedAt",
+      marketing_content_json AS "marketingContentJson",
       created_at AS "createdAt"
     FROM settings
     WHERE id = 1
   `);
-  return result.rows[0] || {};
+  const row = result.rows[0] || {};
+  return {
+    termsAndConditions: row.termsAndConditions || "",
+    termsUpdatedAt: row.termsUpdatedAt || null,
+    createdAt: row.createdAt || null,
+    marketingContent: parseJsonObject(row.marketingContentJson, defaultMarketingContent())
+  };
 }
 
 async function saveSettings(settings) {
   if (!USE_POSTGRES || !pool) {
-    fs.writeFileSync(SETTINGS_FILE, JSON.stringify(settings, null, 2), "utf8");
+    const next = {
+      ...settings,
+      marketingContent: normalizeMarketingContent(settings.marketingContent)
+    };
+    fs.writeFileSync(SETTINGS_FILE, JSON.stringify(next, null, 2), "utf8");
     return;
   }
 
   const termsAndConditions = String(settings.termsAndConditions || "");
   const termsUpdatedAt = settings.termsUpdatedAt || null;
   const createdAt = settings.createdAt || new Date().toISOString();
+  const marketingContentJson = JSON.stringify(normalizeMarketingContent(settings.marketingContent));
 
   await pool.query(
     `
-      INSERT INTO settings (id, terms_and_conditions, terms_updated_at, created_at)
-      VALUES (1, $1, $2, $3)
+      INSERT INTO settings (id, terms_and_conditions, terms_updated_at, marketing_content_json, created_at)
+      VALUES (1, $1, $2, $3, $4)
       ON CONFLICT (id) DO UPDATE SET
         terms_and_conditions = EXCLUDED.terms_and_conditions,
         terms_updated_at = EXCLUDED.terms_updated_at,
+        marketing_content_json = EXCLUDED.marketing_content_json,
         created_at = COALESCE(settings.created_at, EXCLUDED.created_at)
     `,
-    [termsAndConditions, termsUpdatedAt, createdAt]
+    [termsAndConditions, termsUpdatedAt, marketingContentJson, createdAt]
   );
 }
 
@@ -2415,6 +2488,167 @@ function defaultTermsAndConditions() {
   ].join("\n");
 }
 
+function defaultMarketingContent() {
+  return {
+    links: {
+      parentAppUrl: "https://app.xerivolearn.com",
+      educatorPortalUrl: "https://educator.xerivolearn.com",
+      adminCmsUrl: "https://admin.xerivolearn.com",
+      contactEmail: "hello@xerivolearn.com",
+      youtubeUrl: "https://www.youtube.com/",
+      facebookUrl: "https://www.facebook.com/",
+      instagramUrl: "https://www.instagram.com/"
+    },
+    media: {
+      mascotTomUrl: "./assets/characters/tom.png",
+      mascotJerryUrl: "./assets/characters/jerry.png",
+      featureOneImageUrl: "./assets/characters/fox.svg",
+      featureTwoImageUrl: "./assets/characters/penguin.svg",
+      featureThreeImageUrl: "./assets/characters/bear.svg",
+      testimonialOneAvatarUrl: "./assets/testimonials/rima.png",
+      testimonialTwoAvatarUrl: "./assets/testimonials/tanvir.png",
+      testimonialThreeAvatarUrl: "./assets/testimonials/nusrat.png"
+    },
+    i18n: {
+      en: {
+        nav_parents: "Parents",
+        nav_educators: "Educators",
+        nav_admin: "Admin CMS",
+        hero_title: "Where Cartoons Spark Curious Minds",
+        cta_parent: "Enter Parent App",
+        cta_educator: "Educator Portal",
+        parent_price: "$1/month",
+        parent_plan: "Parent Plan",
+        educator_price: "$20/year",
+        educator_plan: "Educator Plan",
+        topic_alpha: "Alphabet",
+        topic_story: "Bedtime Stories",
+        feature_words: "Words",
+        stat_1_value: "500+",
+        stat_1_label: "Families learning weekly",
+        stat_2_value: "1,000+",
+        stat_2_label: "Lessons watched this month",
+        stat_3_value: "4.8/5",
+        stat_3_label: "Average parent rating",
+        preview_title: "Sample video carousel",
+        preview_text: "Swipeable preview cards to show what children will watch.",
+        preview_1_title: "ABC Rocket Song",
+        preview_1_meta: "Age 3-5 | 3:12",
+        preview_2_title: "Count the Stars",
+        preview_2_meta: "Age 4-7 | 4:01",
+        preview_3_title: "Moonlight Story Time",
+        preview_3_meta: "Age 3-8 | 5:18",
+        preview_4_title: "Tiny Science Lab",
+        preview_4_meta: "Age 6-10 | 6:20",
+        trust_title: "Why parents trust XerivoLearn",
+        trust_text: "Built for happy kids and low-stress parenting.",
+        trust_item_1_title: "Child-safe content",
+        trust_item_1_text: "Curated videos designed for young learners.",
+        trust_item_2_title: "Quick, focused lessons",
+        trust_item_2_text: "Short formats match real family routines.",
+        trust_item_3_title: "Bilingual Mode (Bangla + English)",
+        trust_item_3_text: "Switch language anytime and keep it saved.",
+        testimonials_title: "What families are saying",
+        testimonials_text: "Parent feedback from early XerivoLearn users.",
+        quote_1: "\"My daughter now asks for learning cartoons before bedtime.\"",
+        quote_1_by: "Rima, Parent of a 5-year-old",
+        quote_2: "\"The bilingual option helps us practice Bangla and English together.\"",
+        quote_2_by: "Tanvir, Parent",
+        quote_3: "\"Very easy for families. The videos are bright, short, and educational.\"",
+        quote_3_by: "Nusrat, Guardian",
+        demo_title: "30-second XerivoLearn Preview",
+        demo_caption_1: "Scene 1: Alphabet song with cartoon friends",
+        demo_caption_2: "Scene 2: Bedtime story time with calm narration",
+        demo_caption_3: "Scene 3: Fun science cartoon mini lesson",
+        demo_pause: "Pause",
+        demo_play: "Play",
+        footer_tagline: "Safe cartoons and learning joy for every family.",
+        footer_social_title: "Follow Us",
+        footer_contact_title: "Contact",
+        footer_contact_text: "Need help with your plan or videos? Email us anytime.",
+        footer_rights: "(C) 2026 XerivoLearn. All rights reserved.",
+        footer_made: "Made for children, trusted by parents."
+      },
+      bn: {}
+    }
+  };
+}
+
+function normalizeMarketingContent(input, fallbackInput) {
+  const fallback = fallbackInput && typeof fallbackInput === "object" ? fallbackInput : defaultMarketingContent();
+  const source = input && typeof input === "object" ? input : {};
+  const base = {
+    links: { ...defaultMarketingContent().links, ...(fallback.links || {}) },
+    media: { ...defaultMarketingContent().media, ...(fallback.media || {}) },
+    i18n: {
+      en: { ...defaultMarketingContent().i18n.en, ...(fallback.i18n?.en || {}) },
+      bn: { ...(fallback.i18n?.bn || {}) }
+    }
+  };
+
+  const next = {
+    links: { ...base.links },
+    media: { ...base.media },
+    i18n: {
+      en: { ...base.i18n.en },
+      bn: { ...base.i18n.bn }
+    }
+  };
+
+  if (source.links && typeof source.links === "object") {
+    for (const key of Object.keys(next.links)) {
+      if (typeof source.links[key] === "string") {
+        next.links[key] = source.links[key].trim();
+      }
+    }
+  }
+
+  if (source.media && typeof source.media === "object") {
+    for (const key of Object.keys(next.media)) {
+      if (typeof source.media[key] === "string") {
+        next.media[key] = source.media[key].trim();
+      }
+    }
+  }
+
+  if (source.i18n && typeof source.i18n === "object") {
+    for (const lang of ["en", "bn"]) {
+      const langSource = source.i18n[lang];
+      if (!langSource || typeof langSource !== "object") {
+        continue;
+      }
+      const keys = new Set([...Object.keys(next.i18n.en), ...Object.keys(next.i18n.bn), ...Object.keys(langSource)]);
+      for (const key of keys) {
+        if (typeof langSource[key] === "string") {
+          const value = langSource[key].trim();
+          if (value) {
+            next.i18n[lang][key] = value;
+          } else if (key in next.i18n[lang]) {
+            delete next.i18n[lang][key];
+          }
+        }
+      }
+    }
+  }
+
+  return next;
+}
+
+function parseJsonObject(value, fallback = {}) {
+  if (typeof value === "object" && value !== null) {
+    return value;
+  }
+  if (typeof value !== "string" || !value.trim()) {
+    return fallback;
+  }
+  try {
+    const parsed = JSON.parse(value);
+    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
 function clearExpiredCaptchas() {
   const now = Date.now();
   for (const [id, captcha] of CAPTCHA_STORE.entries()) {
@@ -2675,4 +2909,5 @@ function loadDotEnv(filePath) {
     }
   }
 }
+
 
